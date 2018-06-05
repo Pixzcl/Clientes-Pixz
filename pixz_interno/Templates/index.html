@@ -85,9 +85,11 @@
 									<!-- dashboard del cliente??? -->
 									<!--<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}" >{{cliente.nombre}}</a></td>-->
 									<td>{{cliente.nombre}} <a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}"><i class="ti-info-alt text-success"></i></a></td>
-									{% if cliente.direccion != None %}
-										<td><a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{cliente.direccion}}" >{{cliente.direccion}}</a></td>
-									{% else %} - {% endif %}
+									<td>
+										{% if cliente.direccion != None %}
+											<a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{cliente.direccion}}" >{{cliente.direccion}}</a>
+										{% else %} - {% endif %}
+									</td>
 								</tr>
 							{% endfor %}
 						</tbody>
