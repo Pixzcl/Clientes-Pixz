@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Eventos',
     'widget_tweaks',
+    'heroku_connect',
 ]
 
 MIDDLEWARE = [
@@ -83,7 +84,7 @@ WSGI_APPLICATION = 'pixz_interno.wsgi.application'
 
 import dj_database_url
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=500, ssl_require=True)
+    'default': dj_database_url.config(engine='heroku_connect.db.backends.postgresql', conn_max_age=500, ssl_require=True)
     }
 #db_from_env = dj_database_url.config(conn_max_age=500, ssl_require=True)
 #DATABASES['default'].update(db_from_env)
