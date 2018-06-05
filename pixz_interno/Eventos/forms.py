@@ -59,7 +59,7 @@ class EventosForm(forms.Form):
 				choices.append([p.idPlan, p.nombre])
 
 		for i in range(1, n+1):
-			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=self.choices)
+			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=choices)
 
 
 class EventosSelectForm(forms.Form):
@@ -84,7 +84,7 @@ class EventosSelectForm(forms.Form):
 
 		self.fields['activacion'].choices = choices_activaciones
 		for i in range(1, n+1):
-			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=self.choices)
+			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=choices)
 
 
 class PlanesForm(forms.Form):
@@ -102,7 +102,7 @@ class PlanesForm(forms.Form):
 			choices.append([it.idItem, it.nombre])
 
 		for i in range(1, n+1):
-			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=self.choices)
+			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=choices)
 
 
 class EstacionesForm(forms.Form):
@@ -118,7 +118,7 @@ class EstacionesForm(forms.Form):
 			choices.append([it.idItem, it.nombre])
 
 		for i in range(1, n+1):
-			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=self.choices)
+			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=choices)
 
 
 class ItemsForm(forms.ModelForm):
