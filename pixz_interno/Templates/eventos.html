@@ -1,0 +1,233 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+
+<!-- Activo en el menu: -->
+{% block eventos-li %} active {% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<div class="breadcrumbs">
+			<div class="col-sm-4">
+				<div class="page-header float-left">
+					<div class="page-title">
+						{% if activacion == "" and cliente == "" %}
+							<h1>Todos los eventos</h1>
+						{% else %}
+							<h1>Eventos {{activacion.nombre}} - {{cliente.nombre}}</h1>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							{% if activacion != "" %}
+								<li><a href="#">{{cliente.nombre}}</a></li>
+								<li class="active">{{activacion.nombre}}</li>
+							{% else %}
+								<li class="active">Eventos</li>
+							{% endif %}
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+		<div class="content mt-3">
+			<div class="animated fadeIn">
+
+
+				{% if activacion != "" %}
+					<div class="row">
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-header bg-secondary">
+									<strong class="card-title text-light">Descripción</strong>
+								</div>
+								<div class="card-body text-white bg-primary">
+									<p class="card-text text-light">{{activacion.descripcion}}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+
+
+				<div class="row">
+
+					<div class="col-lg-4 col-md-5 col-sm-5">
+						<div class="card">
+							<div class="card-body">
+								<div class="stat-widget-one">
+									<div class="stat-icon dib"><i class="ti-camera text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
+									<div class="stat-content dib">
+										<div class="stat-text">Realizados</div>
+										<div class="stat-digit">{{eventos.count}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-4 col-md-5 col-sm-5">
+						<div class="card">
+							<div class="card-body">
+								<div class="stat-widget-one">
+									<div class="stat-icon dib"><i class="ti-camera text-warning border-warning"></i></div> <!--success/primary/warning/danger -->
+									<div class="stat-content dib">
+										<div class="stat-text">Pendientes</div>
+										<div class="stat-digit">{{pendientes.count}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				
+				
+				<div class="row">
+					<div class="card-body">
+						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_evento" %}{% if activacion != "" %}?activacion={{activacion.idActivacion}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar</button>
+						<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
+					</div>
+				</div>
+
+
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card">
+							<div class="card-header">
+								<strong class="card-title">Eventos</strong>
+							</div>
+							<div class="card-body">
+					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
+						<thead>
+						  <tr>
+							{% for titulo in titulos %}
+								<th>{{titulo}}</th>
+							{% endfor %}
+						  </tr>
+						</thead>
+						<tbody>
+							{% for evento in eventos %}
+								<tr>
+									<th scope="row" id="td_{{evento.idEvento}}">
+										{{evento.idEvento}}
+										<a href="{% url 'evento' %}?evento={{evento.idEvento}}"><i class="ti-info-alt text-success"></i></a>
+										<a style="visibility:hidden" ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" ><i class="fa fa-minus-circle text-danger"></i></a>
+									</th>
+									{% if activacion == "" %}
+										<td>{{evento.Activacion.Cliente.nombre}} <a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}"><i class="ti-info-alt text-success"></i></a></td>
+										<td>{{evento.Activacion.nombre}} <a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}"><i class="ti-info-alt text-success"></i></a></td>
+									{% endif %}
+									<!--<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" >{{evento.fecha}}</a></td>-->
+									<td>{{evento.fecha}}</td>
+									<td>{{evento.horas}}</td>
+									<td>
+										{% for plan in evento.Planes.all %}
+											{{plan.nombre}}<br>
+										{% endfor %}
+									</td>
+									<td>{{evento.comentarios}}</td>
+									<!--<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" >{{activacion.nombre}}</a></td>-->
+								</tr>
+							{% endfor %}
+						</tbody>
+					  </table>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+
+	<script type="text/javascript">
+		function mostrar() {
+			
+			var botones, i;
+			{% for evento in eventos %}
+				botones = document.getElementById("td_" + {{evento.idEvento}}).children;
+				for (i=1; i<botones.length; i++) {
+					if (botones[i].style.visibility == "hidden") {
+						botones[i].style.visibility = "visible";
+					}
+					else {
+						botones[i].style.visibility = "hidden";
+					}
+				}
+			{% endfor %}
+			/*
+			var botones, i;
+			{% for evento in eventos %}
+				botones = document.getElementById("td_" + {{evento.idEvento}}).children;
+				for (i=1; i<botones.length; i++) {
+					if (botones[i].style.display == "none") {
+					botones[i].style.display = "inline";
+				}
+				else {
+					botones[i].style.display = "none";
+				}
+				}
+			{% endfor %}
+			*/
+
+			/*
+			var i, th, td;
+			th = document.getElementById("th_edit");
+			if (th.style.display == "none") {
+				th.style.display = "inline";
+			}
+			else {
+				th.style.display = "none";
+			}
+			{% for evento in eventos %}
+				td = document.getElementById("td_" + {{evento.idEvento}});
+				if (td.style.display == "none") {
+					td.style.display = "inline";
+				}
+				else {
+					td.style.display = "none";
+				}
+			{% endfor %}
+			*/
+
+			/*
+			var i, th, td;
+			th = document.getElementById("th_edit");
+			if (th.style.visibility == "hidden") {
+				th.style.visibility = "visible";
+			}
+			else {
+				th.style.visibility = "hidden";
+			}
+			{% for evento in eventos %}
+				td = document.getElementById("td_" + {{evento.idEvento}});
+				if (td.style.visibility == "hidden") {
+					td.style.visibility = "visible";
+				}
+				else {
+					td.style.visibility = "hidden";
+				}
+			{% endfor %}
+			*/
+		}
+	</script>
+
+
+{% endblock %}

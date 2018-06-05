@@ -1,0 +1,126 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+
+<!-- Activo en el menu: -->
+{% block index-li %} active {% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<div class="breadcrumbs">
+			<div class="col-sm-4">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Clientes</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							<!--<li><a href="#"></a></li>
+							<li><a href="#">Table</a></li>-->
+							<li class="active">Clientes</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="content mt-3">
+            <div class="animated fadeIn">
+                <div class="row">
+
+					<div class="col-lg-3 col-md-5 col-sm-7">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="stat-widget-one">
+                                    <div class="stat-icon dib"><i class="ti-user text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
+                                    <div class="stat-content dib">
+                                        <div class="stat-text">Clientes</div>
+                                        <div class="stat-digit">{{clientes.count}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+				<div class="row">
+					<div class="card-body">
+						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_cliente" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar</button>
+						<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
+					</div>
+				</div>
+
+
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card">
+							<!--<div class="card-header">
+								<strong class="card-title">Clientes</strong>
+							</div>-->
+							<div class="card-body">
+					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
+						<thead>
+						  <tr>
+							{% for titulo in titulos %}
+								<th scope="col">{{titulo}}</th>
+							{% endfor %}
+						  </tr>
+						</thead>
+						<tbody>
+							{% for cliente in clientes %}
+								<tr>
+									<th scope="row" id="td_{{cliente.idCliente}}">
+										{{cliente.idCliente}}
+										<a style="visibility:hidden" ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" ><i class="fa fa-minus-circle text-danger"></i></a>
+									</th>
+									<!-- dashboard del cliente??? -->
+									<!--<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}" >{{cliente.nombre}}</a></td>-->
+									<td>{{cliente.nombre}} <a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}"><i class="ti-info-alt text-success"></i></a></td>
+									<td><a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{cliente.direccion}}" >{{cliente.direccion}}</a></td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					  </table>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+
+
+	<script type="text/javascript">
+		function mostrar() {
+			
+			var botones, i;
+			{% for cliente in clientes %}
+				botones = document.getElementById("td_" + {{cliente.idCliente}}).children;
+				for (i=0; i<botones.length; i++) {
+					if (botones[i].style.visibility == "hidden") {
+						botones[i].style.visibility = "visible";
+					}
+					else {
+						botones[i].style.visibility = "hidden";
+					}
+				}
+			{% endfor %}
+		}
+	</script>
+
+
+{% endblock %}

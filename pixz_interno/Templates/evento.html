@@ -1,0 +1,404 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+{% load filtros %}
+
+<!-- Activo en el menu: -->
+<!-- {% block eventos-li %} active {% endblock %} -->
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<div class="breadcrumbs">
+			<div class="col-sm-4">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Evento {{evento.fecha}} - {{activacion.nombre}} - {{cliente.nombre}}</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							<li><a href="#">{{cliente.nombre}}</a></li>
+							<li><a href="#">{{activacion.nombre}}</a></li>
+							<li class="active">{{evento.fecha}}</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+		<div class="content mt-3">
+			<div class="animated fadeIn">
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-header bg-secondary">
+								<strong class="card-title text-light">Descripción</strong>
+							</div>
+							<div class="card-body text-white bg-primary">
+								<p class="card-text text-light">{{activacion.descripcion}}</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-header bg-secondary">
+								<strong class="card-title text-light">Comentarios</strong>
+							</div>
+							<div class="card-body text-white bg-primary">
+								<p class="card-text text-light">{{evento.comentarios}}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				
+				
+			
+
+
+				<div class="row">
+					<div class="col-md-12">
+						<div class="default-tab">
+							<nav>
+								<div class="nav nav-tabs" id="nav-tab" role="tablist">
+									{% if edit != "logistica" %}<a class="nav-item nav-link {% if edit == 'coordinacion' or tab == 'coordinacion' %}active{% endif %}" id="nav-coordinacion-tab" data-toggle="tab" href="#nav-coordinacion" role="tab" aria-controls="nav-coordinacion" aria-selected="true">Coordinación</a>{% endif %}
+									{% if edit != "coordinacion" %}<a class="nav-item nav-link {% if edit == 'logistica' or tab == 'logistica' %}active{% endif %}" id="nav-logistica-tab" data-toggle="tab" href="#nav-logistica" role="tab" aria-controls="nav-logistica" aria-selected="false">Logística</a>{% endif %}
+								</div>
+							</nav>
+							<div class="tab-content pl-3 pt-2" id="nav-tabContent">
+<!-- Pestaña Coordinación -->
+							{% if edit != "logistica" %}
+								<div class="tab-pane fade {% if edit == 'coordinacion' or tab == 'coordinacion' %}show active{% endif %}" id="nav-coordinacion" role="tabpanel" aria-labelledby="nav-coordinacion-tab">
+									{% if edit == 'coordinacion' %}
+										<form id="form" method="post" enctype="multipart/form-data">
+											{% csrf_token %}
+											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
+											<input type="hidden" name="edit" id="edit" value="coordinacion" />
+									{% endif %}
+									<div class="row">
+										<div class="card-body">
+											{% if edit == 'coordinacion' %}
+												<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+											{% else %}
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=coordinacion'"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
+											{% endif %}
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-lg-6">
+											<div class="card">
+												<div class="card-header">
+													<strong class="card-title">Servicio</strong>
+												</div>
+												<div class="card-body">
+													<table class="table table-striped">
+													  <tbody>
+														<tr>
+															<th scope="row">Contacto</th>
+															{% if edit != 'coordinacion' %}
+																<td>{% if evento.Contacto.nombre != None %}{{evento.Contacto.nombre}}{% else %} - {% endif %}</td>
+															{% else %}
+																<td>{{coordinacion_form.Contacto}}</td>
+																<td>{{coordinacion_form.Contacto.errors}}</td>
+															{% endif %}
+														</tr>
+														<tr>
+														  <th scope="row">Fecha</th>
+														  <td>{{evento.fecha}}</td>
+														</tr>
+														<tr>
+															<th scope="row">Inicio</th>
+															{% if edit != 'coordinacion' %}
+																<td>{% if evento.inicio_servicio != None %}{{evento.inicio_servicio}}{% else %} - {% endif %}</td>
+															{% else %}
+																<td>{{coordinacion_form.inicio_servicio}}</td>
+																<td>{{coordinacion_form.inicio_servicio.errors}}</td>
+															{% endif %}
+														<tr>
+															<th scope="row">Fin</th>
+															{% if edit != 'coordinacion' %}
+																<td>{% if evento.fin_servicio != None %}{{evento.fin_servicio}}{% else %} - {% endif %}</td>
+															{% else %}
+																<td>{{coordinacion_form.fin_servicio}}</td>
+																<td>{{coordinacion_form.fin_servicio.errors}}</td>
+															{% endif %}
+														</tr>
+														<tr>
+															<th scope="row">Dirección</th>
+															{% if edit != 'coordinacion' %}
+																<td><a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{evento.direccion}}" >{% if evento.direccion != None %}{{evento.direccion}}{% else %} - {% endif %}</a></td>
+															{% else %}
+																<td>{{coordinacion_form.direccion}}</td>
+																<td>{{coordinacion_form.direccion.errors}}</td>
+															{% endif %}
+														</tr>
+													  </tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-lg-6">
+											<div class="card">
+												<div class="card-header">
+													<strong class="card-title">Montaje</strong>
+												</div>
+												<div class="card-body">
+													<table class="table table-striped">
+														<tbody>
+															<tr>
+																<th rowspan="2" scope="row">Instalación</th>
+																{% if edit != 'coordinacion' %}
+																	<td>{% if evento.fecha_instalacion != None %}{{evento.fecha_instalacion}}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{coordinacion_form.fecha_instalacion}}</td>
+																	<td>{{coordinacion_form.fecha_instalacion.errors}}</td>
+																{% endif %}
+															</tr>
+															<tr>
+																{% if edit != 'coordinacion' %}
+																	<td>{% if evento.hora_instalacion != None %}{{evento.hora_instalacion}}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{coordinacion_form.hora_instalacion}}</td>
+																	<td>{{coordinacion_form.hora_instalacion.errors}}</td>
+																{% endif %}
+															</tr>
+															<tr>
+																<th rowspan="2" scope="row">Desinstalación</th>
+																{% if edit != 'coordinacion' %}
+																	<td>{% if evento.fecha_desinstalacion != None %}{{evento.fecha_desinstalacion}}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{coordinacion_form.fecha_desinstalacion}}</td>
+																	<td>{{coordinacion_form.fecha_desinstalacion.errors}}</td>
+																{% endif %}
+															</tr>
+															<tr>
+																{% if edit != 'coordinacion' %}
+																	<td>{% if evento.hora_desinstalacion != None %}{{evento.hora_desinstalacion}}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{coordinacion_form.hora_desinstalacion}}</td>
+																	<td>{{coordinacion_form.hora_desinstalacion.errors}}</td>
+																{% endif %}
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									{% if edit == 'coordinacion' %}
+										</form>
+									{% endif %}
+								</div>
+							{% endif %}
+
+<!-- Pestaña Logística -->
+							{% if edit != "coordinacion" %}
+								<div class="tab-pane fade {% if edit == 'logistica' or tab == 'logistica' %}show active{% endif %}" id="nav-logistica" role="tabpanel" aria-labelledby="nav-logistica-tab">
+									{% if edit == 'logistica' %}
+										<form id="form" method="post" enctype="multipart/form-data">
+											{% csrf_token %}
+											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
+											<input type="hidden" name="edit" id="edit" value="logistica" />
+									{% endif %}
+									<div class="row">
+										<div class="card-body">
+											{% if edit == 'logistica' %}
+												<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+											{% else %}
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=logistica'"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
+											{% endif %}
+										</div>
+									</div>
+									<div class="row">
+
+										<div class="col-lg-6">
+											<div class="card">
+												<div class="card-header">
+													<strong class="card-title">Trabajadores</strong>
+												</div>
+												<div class="card-body">
+													<table class="table table-striped">
+														<tbody>
+															<tr>
+																<th scope="row">Supervisor(es)</th>
+																{% if edit != 'logistica' %}
+																	<td>{% if evento.TrabajadoresEvento|tipo:"Supervisor" %}{% for trabajador in evento.TrabajadoresEvento|tipo:"Supervisor" %}{{trabajador.Trabajador.nombre}}<br>{% endfor %}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{logistica_form.Supervisor}}</td>
+																	<td>{{logistica_form.Supervisor.errors}}</td>
+																{% endif %}
+															</tr>
+															<tr>
+																<th scope="row">Montaje</th>
+																{% if edit != 'logistica' %}
+																	<td>{% if evento.TrabajadoresEvento|tipo:"Montaje" %}{% for trabajador in evento.TrabajadoresEvento|tipo:"Montaje" %}{{trabajador.Trabajador.nombre}}<br>{% endfor %}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{logistica_form.Montaje}}</td>
+																	<td>{{logistica_form.Montaje.errors}}</td>
+																{% endif %}
+															</tr>
+															<tr>
+																<th scope="row">Desmontaje</th>
+																{% if edit != 'logistica' %}
+																	<td>{% if evento.TrabajadoresEvento|tipo:"Desmontaje" %}{% for trabajador in evento.TrabajadoresEvento|tipo:"Desmontaje" %}{{trabajador.Trabajador.nombre}}<br>{% endfor %}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{logistica_form.Desmontaje}}</td>
+																	<td>{{logistica_form.Desmontaje.errors}}</td>
+																{% endif %}
+															</tr>
+															<tr>
+																<th scope="row">Operador(es)</th>
+																{% if edit != 'logistica' %}
+																	<td>{% if evento.TrabajadoresEvento|tipo:"Operador" %}{% for trabajador in evento.TrabajadoresEvento|tipo:"Operador" %}{{trabajador.Trabajador.nombre}}<br>{% endfor %}{% else %} - {% endif %}</td>
+																{% else %}
+																	<td>{{logistica_form.Operador}}</td>
+																	<td>{{logistica_form.Operador.errors}}</td>
+																{% endif %}
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+
+										{% for planEvento in evento.PlanesEvento.all %}
+											<div class="col-lg-6">
+												<div class="card">
+													<div class="card-header">
+														<strong class="card-title">Plan {{planEvento.Plan.nombre}}</strong>
+													</div>
+													<div class="card-body">
+														<table class="table table-striped">
+															<thead>
+																<tr>
+																	<th scope="col">Item</th>
+																	<th scope="col">Estación</th>
+																</tr>
+															</thead>
+															<tbody>
+																{% for itemPlan, field in  planEvento|zip:logistica_planes_form %}
+																	<tr>
+																		<td>{{itemPlan.Item.nombre}}</td>
+																		{% if edit != 'logistica' %}
+																			<td>{% if planEvento|itemsEstacion:itemPlan %}{{planEvento|itemsEstacion:itemPlan}}{% else %} - {% endif %}</td>
+																		{% else %}
+																			<td>{{field.label}}</td>
+																			<td>{{field}}</td>
+																			<td>{{field.errors}}</td>
+																		{% endif %}
+																	</tr>
+																{% endfor %}
+															</tbody>
+														</table>
+													</div>
+												</div>
+											</div>
+										{% endfor %}
+									<!--
+										{% for plan in evento.Planes.all %}
+											<div class="col-lg-6">
+												<div class="card">
+													<div class="card-header">
+														<strong class="card-title">Plan {{plan.nombre}}</strong>
+													</div>
+													<div class="card-body">
+														<table class="table table-striped">
+														  <thead>
+															<tr>
+															  <th scope="col">Item</th>
+															  <th scope="col">Estación</th>
+															</tr>
+														  </thead>
+														  <tbody>
+															{% for item in plan.Items.all %}
+																<tr>
+																  <td>{{item.nombre}}</td>
+																  <td></td>
+																</tr>
+															{% endfor %}
+														  </tbody>
+														</table>
+													</div>
+												</div>
+											</div>
+										{% endfor %}
+									-->
+									</div>
+									{% if edit == 'logistica' %}
+										</form>
+									{% endif %}
+								</div>
+							{% endif %}
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+
+
+				
+
+
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+
+
+
+
+
+				{% if error == True %}
+				<button id="error" type="button" display="none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+
+				<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-sm" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="smallmodalLabel">Error</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<p>
+									Hubo un error actualizando uno de los datos, revisar.
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
+				<script>
+					$( document ).ready(function() {
+						document.getElementById("error").click();
+					});
+				</script>
+				{% endif %}
+
+
+
+
+{% endblock %}

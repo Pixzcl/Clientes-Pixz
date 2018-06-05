@@ -1,0 +1,85 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+<!-- Activo en el menu: -->
+{% block activaciones-li %} active {% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<div class="breadcrumbs">
+			<div class="col-sm-4">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Nueva activación</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							{% if cliente != "" %}
+								<li><a href="#">{{cliente.nombre}}</a></li>
+								<li><a href="#">{{cliente.nombre}}</a></li>
+							{% else %}
+								<li><a href="#">Activaciones</a></li>
+							{% endif %}
+							<li class="active">Nueva activación</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+		<div class="content mt-3">
+			<div class="animated fadeIn">
+				<div class="row">
+
+				<div class="col-md-12">
+					<div class="card">
+						<!--<div class="card-header">
+							<strong class="card-title">Nueva activación</strong>
+						</div>-->
+						<div class="card-body">
+							
+							<form method="post" enctype="multipart/form-data">
+				                {% csrf_token %}
+				                {% if cliente != "" %}<input type="hidden" name="Cliente" id="Cliente" value="{{cliente.idCliente}}" />{% endif %}
+				                {% for field in activaciones_form %}
+									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
+										{% if "select" in field|widget_type %}
+											<div class="col-lg-3 col-sm-6" >{{field|append_attr:"class:standardSelect"}}</div> <!--|append_attr:"multiple"}}</div>-->
+										{% else %}
+											<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
+										{% endif %}
+										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
+									</div>
+								{% endfor %}
+				                <button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+				            </form>
+
+						</div>
+					</div>
+				</div>
+
+
+				</div>
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+	
+
+
+{% endblock %}

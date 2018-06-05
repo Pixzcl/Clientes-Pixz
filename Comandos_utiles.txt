@@ -1,0 +1,13 @@
+
+
+python manage.py runserver
+
+
+Migrations: Actualizar Models.py (tablas)
+	python manage.py makemigrations [AppName]
+	python manage.py migrate
+
+virtual_env:
+	.\virtual\Scripts\activate  //  Linux: source ./virtual/bin/activate
+	python -m venv [EnvName]
+	

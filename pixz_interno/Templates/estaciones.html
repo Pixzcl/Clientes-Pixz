@@ -1,0 +1,104 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+
+<!-- Activo en el menu: -->
+{% block estaciones-li %} active {% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<div class="breadcrumbs">
+			<div class="col-sm-4">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Estaciones</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							<!--<li><a href="#"></a></li>
+							<li><a href="#">Table</a></li>-->
+							<li class="active">Estaciones</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="content mt-3">
+            <div class="animated fadeIn">
+                
+                <div class="row">
+					<div class="col-lg-3 col-md-6 col-sm-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="stat-widget-one">
+                                    <div class="stat-icon dib"><i class="ti-layout text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
+                                    <div class="stat-content dib">
+                                        <div class="stat-text">Estaciones</div>
+                                        <div class="stat-digit">{{estaciones.count}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+				<div class="row">
+					<div class="card-body">
+						<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_estacion" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nueva estación</button>
+					</div>
+				</div>
+
+
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card">
+							<!--<div class="card-header">
+								<strong class="card-title">Estaciones</strong>
+							</div>-->
+							<div class="card-body">
+					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
+						<thead>
+						  <tr>
+							{% for titulo in titulos %}
+								<th scope="col">{{titulo}}</th>
+							{% endfor %}
+						  </tr>
+						</thead>
+						<tbody>
+							{% for estacion in estaciones %}
+								<tr>
+									<th scope="row">{{estacion.idEstacion}}</th>
+									<td>{{estacion.nombre}}</td>
+									<td>
+										{% for item in estacion.Items.all %}
+											{{item.nombre}}<br>
+										{% endfor %}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					  </table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+
+
+{% endblock %}
