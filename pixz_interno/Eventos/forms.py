@@ -44,13 +44,6 @@ class ActivacionesSelectForm(forms.ModelForm):
 
 
 class EventosForm(forms.Form):
-	#choices = [['1', 'First',], ['2', 'Second',]]
-	choices = []
-	planes = Planes.objects.all()
-	for p in planes:
-		if p.mostrar == True:
-			choices.append([p.idPlan, p.nombre])
-
 	#plan = forms.ChoiceField(label="Plan", choices=choices)
 	fecha = forms.DateField(label="Fecha", initial=datetime.date.today(), widget=forms.SelectDateWidget())
 	horas = forms.IntegerField(min_value=1, label="Horas")
@@ -58,41 +51,43 @@ class EventosForm(forms.Form):
 	
 	def __init__(self, n, *args, **kwargs):
 		super(EventosForm, self).__init__(*args, **kwargs)
+		#choices = [['1', 'First',], ['2', 'Second',]]
+		choices = []
+		planes = Planes.objects.all()
+		for p in planes:
+			if p.mostrar == True:
+				choices.append([p.idPlan, p.nombre])
+
 		for i in range(1, n+1):
 			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=self.choices)
 
 
 class EventosSelectForm(forms.Form):
-	#choices = [['1', 'First',], ['2', 'Second',]]
-	choices = []
-	planes = Planes.objects.all()
-	for p in planes:
-		if p.mostrar == True:
-			choices.append([p.idPlan, p.nombre])
-
-	choices_activaciones = []
-	activaciones = Activaciones.objects.all()
-	for a in activaciones:
-		choices_activaciones.append([a.idActivacion, a.nombre])
-	
-	activacion = forms.ChoiceField(label="Activación", choices=choices_activaciones)
+	activacion = forms.ChoiceField(label="Activación", choices=[])
 	fecha = forms.DateField(label="Fecha", initial=datetime.date.today(), widget=forms.SelectDateWidget())
 	horas = forms.IntegerField(min_value=1, label="Horas")
 	comentarios = forms.CharField(required=False, max_length=255, label="Comentarios", widget=forms.Textarea(attrs={'rows': 4}))
 	
 	def __init__(self, n, *args, **kwargs):
 		super(EventosSelectForm, self).__init__(*args, **kwargs)
+		#choices = [['1', 'First',], ['2', 'Second',]]
+		choices = []
+		planes = Planes.objects.all()
+		for p in planes:
+			if p.mostrar == True:
+				choices.append([p.idPlan, p.nombre])
+
+		choices_activaciones = []
+		activaciones = Activaciones.objects.all()
+		for a in activaciones:
+			choices_activaciones.append([a.idActivacion, a.nombre])
+
+		self.fields['activacion'].choices = choices_activaciones
 		for i in range(1, n+1):
 			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=self.choices)
 
 
 class PlanesForm(forms.Form):
-	#choices = [['1', 'First',], ['2', 'Second',]]
-	choices = []
-	items = Items.objects.all()
-	for it in items:
-		choices.append([it.idItem, it.nombre])
-
 	#plan = forms.ChoiceField(label="Plan", choices=choices)
 	nombre = forms.CharField( max_length=255, label="Nombre") #, widget=forms.TextInput(attrs={'class': 'form-control'})) #formset para verificar uniqueness
 
@@ -100,22 +95,28 @@ class PlanesForm(forms.Form):
 	
 	def __init__(self, n, *args, **kwargs):
 		super(PlanesForm, self).__init__(*args, **kwargs)
+		#choices = [['1', 'First',], ['2', 'Second',]]
+		choices = []
+		items = Items.objects.all()
+		for it in items:
+			choices.append([it.idItem, it.nombre])
+
 		for i in range(1, n+1):
 			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=self.choices)
 
 
 class EstacionesForm(forms.Form):
-	#choices = [['1', 'First',], ['2', 'Second',]]
-	choices = []
-	items = Items.objects.all()
-	for it in items:
-		choices.append([it.idItem, it.nombre])
-
 	#plan = forms.ChoiceField(label="Plan", choices=choices)
 	nombre = forms.CharField(max_length=255, label="Nombre") #formset para verificar uniqueness
 	
 	def __init__(self, n, *args, **kwargs):
 		super(EstacionesForm, self).__init__(*args, **kwargs)
+		#choices = [['1', 'First',], ['2', 'Second',]]
+		choices = []
+		items = Items.objects.all()
+		for it in items:
+			choices.append([it.idItem, it.nombre])
+
 		for i in range(1, n+1):
 			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=self.choices)
 
@@ -180,21 +181,24 @@ class CoordinacionForm(forms.ModelForm):
 
 
 class LogisticaTrabajadoresForm(forms.Form):
-	choices = []
-	trabajadores = Trabajadores.objects.all()
-	for t in trabajadores:
-		choices.append([t.idTrabajador, t.nombre])
-
-	Supervisor = forms.MultipleChoiceField(required=False, label="Supervisor(es)", choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
-	Montaje = forms.MultipleChoiceField(required=False, label="Montaje", choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
-	Desmontaje = forms.MultipleChoiceField(required=False, label="Desmontaje", choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
-	Operador = forms.MultipleChoiceField(required=False, label="Operador(es)", choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	empty = []
+	Supervisor = forms.MultipleChoiceField(required=False, label="Supervisor(es)", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	Montaje = forms.MultipleChoiceField(required=False, label="Montaje", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	Desmontaje = forms.MultipleChoiceField(required=False, label="Desmontaje", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	Operador = forms.MultipleChoiceField(required=False, label="Operador(es)", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
 	
 	#Trabajadores = forms.ModelMultipleChoiceField(queryset=Trabajadores.objects.all())
-	#def __init__(self, nombre, *args, **kwargs):
-	#	super(LogisticaTrabajadoresForm, self).__init__(*args, **kwargs)
-	#	self.fields['Trabajadores'].label = "%s" % nombre
+	def __init__(self, *args, **kwargs):
+		super(LogisticaTrabajadoresForm, self).__init__(*args, **kwargs)
+		choices = []
+		trabajadores = Trabajadores.objects.all()
+		for t in trabajadores:
+			choices.append([t.idTrabajador, t.nombre])
 
+		self.fields['Supervisor'].choices = choices
+		self.fields['Montaje'].choices = choices
+		self.fields['Desmontaje'].choices = choices
+		self.fields['Operador'].choices = choices
 	
 
 class LogisticaPlanesForm(forms.Form):
