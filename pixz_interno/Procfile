@@ -1,0 +1,1 @@
+web: gunicorn pixz_interno.wsgi --log-file -
