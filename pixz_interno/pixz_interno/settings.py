@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'Eventos',
     'widget_tweaks',
     'heroku_connect',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
