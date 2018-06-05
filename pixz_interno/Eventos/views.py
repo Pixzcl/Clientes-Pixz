@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 
 from .models import *
+import sys
 if 'makemigrations' not in sys.argv and 'migrate' not in sys.argv:
 	from .forms import *
 #try:
