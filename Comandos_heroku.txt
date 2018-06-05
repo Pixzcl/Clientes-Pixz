@@ -1,3 +1,12 @@
+Git:
+	git add [file]
+	git add -A (Todo)
+	git add -A . (Directorio actual)
+	git remote add origin [https://github....]
+	git commit -m "first commit"
+	git push -u origin master
+git push heroku master
+
 runserver local
 	heroku local web -f Procfile.windows
 
