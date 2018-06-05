@@ -7,12 +7,24 @@ from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 
-from .forms import *
 from .models import *
+if 'makemigrations' not in sys.argv and 'migrate' not in sys.argv:
+	from .forms import *
+#try:
+#	for cliente in Clientes.objects.all():
+#		print (cliente.nombre)
+#	print ("Ok")
+#	from .forms import *
+#except:
+#	print ("No tables")
+
+
 
 from django.utils.datastructures import MultiValueDictKeyError
 
 #from django.core.files.storage import FileSystemStorage
+
+
 
 
 #def index(request):

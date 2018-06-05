@@ -1,2 +1,3 @@
 virtual/
 *.sqlite3
+staticfiles/
