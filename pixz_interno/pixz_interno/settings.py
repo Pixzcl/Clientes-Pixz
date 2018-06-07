@@ -67,12 +67,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'pixz_interno.wsgi.application'
 
 ### Definir si se esta usando un servidor local o el de produccion
-#DEVELOPMENT_PC = ['DESKTOP-B8JRA5L']
-PRODUCTION_SERVERS = ["production"]
-if os.environ['COMPUTERNAME'] in PRODUCTION_SERVERS:
-    PRODUCTION = True
-else:
+import uuid
+DEVELOPMENT_PC = [66659621689330]
+#PRODUCTION_SERVERS = ["production"]
+#if os.environ['COMPUTERNAME'] in PRODUCTION_SERVERS:
+if uuid.getnode() in DEVELOPMENT_PC:
     PRODUCTION = False
+else:
+    PRODUCTION = True
 
 DEBUG = not PRODUCTION
 TEMPLATE_DEBUG = DEBUG
