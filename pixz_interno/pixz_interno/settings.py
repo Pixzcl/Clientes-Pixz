@@ -76,7 +76,7 @@ if uuid.getnode() in DEVELOPMENT_PC:
 else:
     PRODUCTION = True
 
-DEBUG = not PRODUCTION
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = []
 
