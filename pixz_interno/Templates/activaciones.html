@@ -48,7 +48,7 @@
 								<div class="stat-widget-one">
 									<div class="stat-icon dib"><i class="ti-blackboard text-primary border-primary"></i></div> <!--success/primary/warning/danger   ti-layout-grid2 -->
 									<div class="stat-content dib">
-										<div class="stat-text">Realizadas</div>
+										<div class="stat-text">Activaciones totales</div>
 										<div class="stat-digit">{{activaciones.count}}</div>
 									</div>
 								</div>
@@ -62,7 +62,7 @@
 								<div class="stat-widget-one">
 									<div class="stat-icon dib"><i class="ti-blackboard text-warning border-warning"></i></div>
 									<div class="stat-content dib">
-										<div class="stat-text">Pendientes</div>
+										<div class="stat-text">Activaciones pendientes</div>
 										<div class="stat-digit">{{pendientes}}</div>
 									</div>
 								</div>
@@ -70,30 +70,27 @@
 						</div>
 					</div>
 
-					<div class="col-lg-4 col-md-6 col-sm-8">
-						<div class="card">
-							<div class="card-body">
-								<div class="stat-widget-one">
-									<div class="stat-icon dib"><i class="ti-money text-success border-success"></i></div> <!--success/primary/warning/danger -->
-									<div class="stat-content dib">
-										<div class="stat-text">Total de renta</div>
-										<div class="stat-digit">1.200.000</div>
+					{% if cliente != "" %}
+						<div class="col-lg-4 col-md-6 col-sm-8">
+							<div class="card">
+								<div class="card-body">
+									<div class="stat-widget-one">
+										<div class="stat-icon dib"><i class="ti-money text-success border-success"></i></div> <!--success/primary/warning/danger -->
+										<div class="stat-content dib">
+											<div class="stat-text">Venta total</div>
+											<div class="stat-digit">1.200.000</div>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
+					{% endif %}
 					
 				</div>
 
 
 				
-				<div class="row">
-					<div class="card-body">
-						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_activacion" %}{% if cliente != "" %}?cliente={{cliente.idCliente}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar</button>
-						<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
-					</div>
-				</div>
+				
 				
 
 
@@ -104,6 +101,12 @@
 								<strong class="card-title">Activaciones</strong>
 							</div>
 							<div class="card-body">
+								<div class="row">
+									<div class="card-body">
+										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_activacion" %}{% if cliente != "" %}?cliente={{cliente.idCliente}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar activación</button>
+										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar activaciones</button>
+									</div>
+								</div>
 					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
 						<thead>
 						  <tr>
@@ -121,10 +124,10 @@
 										<a style="visibility:hidden" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if cliente == "" %}
-										<td>{{activacion.Cliente.nombre}} <a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}"><i class="ti-info-alt text-success"></i></a></td>
+										<td><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}">{{activacion.Cliente.nombre}}</a></td>
 									{% endif %}
-									<td>{{activacion.nombre}} <a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}"><i class="ti-info-alt text-success"></i></a></td>
-									<!-- <td>{{activacion.tipo}}</td> -->
+									<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}">{{activacion.nombre}}</a></td>
+									<td>{{activacion.monto}}</td>
 									<td>{{activacion.descripcion}}</td>
 								</tr>
 							{% endfor %}
@@ -152,12 +155,7 @@
 						</div>
 					</div>
 
-					<div class="row">
-						<div class="card-body">
-							<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_contacto" %}?cliente={{cliente.idCliente}}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar</button>
-							<button type="button" class="btn btn-outline-primary" onclick="mostrar2()"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
-						</div>
-					</div>
+					
 
 					<div class="row">
 						<div class="col-md-12">
@@ -166,6 +164,12 @@
 									<strong class="card-title">Contactos</strong>
 								</div>
 								<div class="card-body">
+									<div class="row">
+										<div class="card-body">
+											<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_contacto" %}?cliente={{cliente.idCliente}}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar contacto</button>
+											<button type="button" class="btn btn-outline-primary" onclick="mostrar2()"><i class="ti-pencil-alt"></i>&nbsp; Editar contactos</button>
+										</div>
+									</div>
 						  <table id="bootstrap-data-table" class="table table-striped table-bordered">
 							<thead>
 							  <tr>

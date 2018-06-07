@@ -29,6 +29,7 @@ class Activaciones(models.Model):
 	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Activaciones", on_delete=models.CASCADE, blank=False, null=False) #to_field="idCliente"
 
 	nombre = models.CharField(max_length=255, verbose_name="Activación", blank=False, null=False)
+	monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False, default=0)
 	#tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
 	descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, default="")
 
@@ -40,6 +41,7 @@ class Eventos(models.Model):
 	Planes = models.ManyToManyField("Planes", through="PlanesEvento", related_name="Eventos")
 	Trabajadores = models.ManyToManyField("Trabajadores", through="TrabajadoresEvento", related_name="Eventos")
 	
+	nombre = models.CharField(max_length=255, verbose_name="Evento", blank=False, null=False, default="evento test dia 1")
 	#horas = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="Horas", blank=False, null=False)
 	horas = models.PositiveSmallIntegerField(verbose_name="Horas", blank=False, null=False)
 	fecha = models.DateField(verbose_name="Fecha", blank=False, null=False)

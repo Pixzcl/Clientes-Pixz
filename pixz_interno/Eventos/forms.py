@@ -44,6 +44,7 @@ class ActivacionesSelectForm(forms.ModelForm):
 
 
 class EventosForm(forms.Form):
+	nombre = forms.CharField(max_length=255, label="Evento")
 	#plan = forms.ChoiceField(label="Plan", choices=choices)
 	fecha = forms.DateField(label="Fecha", initial=datetime.date.today(), widget=forms.SelectDateWidget())
 	horas = forms.IntegerField(min_value=1, label="Horas")

@@ -77,14 +77,14 @@ def activaciones(request):
 		idCliente = request.GET['cliente']
 		cliente = Clientes.objects.get(idCliente=idCliente)
 		activaciones = Activaciones.objects.filter(Cliente=cliente)
-		titulos = ["#","Activación", "Descripción"]
+		titulos = ["#","Activación", "Monto de venta", "Descripción"]
 		contactos = cliente.Contactos.all()
 		titulos_contactos = ["#", "Nombre", "Teléfono", "Mail"]
 	except MultiValueDictKeyError:
 		idCliente = ""
 		cliente = ""
 		activaciones = Activaciones.objects.all()
-		titulos = ["#", "Cliente","Activación", "Descripción"]
+		titulos = ["#", "Cliente","Activación", "Monto de venta", "Descripción"]
 		contactos = None
 		titulos_contactos = None
 	
@@ -157,13 +157,13 @@ def eventos(request):
 		activacion = Activaciones.objects.get(idActivacion=idActivacion)
 		eventos = activacion.Eventos.all()
 		cliente = activacion.Cliente
-		titulos = ["#", "Fecha", "Horas", "Plan(es)", "Comentarios"]
+		titulos = ["#", "Evento" "Fecha", "Horas", "Plan(es)", "Comentarios"]
 	except MultiValueDictKeyError:
 		idActivacion = ""
 		activacion = ""
 		eventos = Eventos.objects.all()
 		cliente = ""
-		titulos = ["#", "Cliente","Activación", "Fecha", "Horas", "Plan(es)", "Comentarios"]
+		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios"]
 
 	#if idActivacion == "":
 	#	if idCliente == "":
@@ -215,6 +215,7 @@ def agregar_evento(request):
 			evento = Eventos(Activacion=activacion)
 			#datetime.date(1943,3, 13)  #year, month, day
 			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+			evento.nombre = request.POST['nombre']
 			evento.horas = request.POST['horas']
 			evento.comentarios = request.POST['comentarios']
 			evento.save()

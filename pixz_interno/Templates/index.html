@@ -51,21 +51,22 @@
                 </div>
 
 
-				<div class="row">
-					<div class="card-body">
-						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_cliente" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar</button>
-						<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
-					</div>
-				</div>
+				
 
 
 				<div class="row">
 					<div class="col-md-12">
 						<div class="card">
-							<!--<div class="card-header">
+							<div class="card-header">
 								<strong class="card-title">Clientes</strong>
-							</div>-->
+							</div>
 							<div class="card-body">
+								<div class="row">
+									<div class="card-body">
+										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_cliente" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar cliente</button>
+										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar clientes</button>
+									</div>
+								</div>
 					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
 						<thead>
 						  <tr>
@@ -84,7 +85,7 @@
 									</th>
 									<!-- dashboard del cliente??? -->
 									<!--<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}" >{{cliente.nombre}}</a></td>-->
-									<td>{{cliente.nombre}} <a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}"><i class="ti-info-alt text-success"></i></a></td>
+									<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}">{{cliente.nombre}}</a></td>
 									<td>
 										{% if cliente.direccion != None %}
 											<a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{cliente.direccion}}" >{{cliente.direccion}}</a>
