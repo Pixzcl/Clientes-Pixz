@@ -37,7 +37,7 @@ class Activaciones(models.Model):
 class Eventos(models.Model):
 	idEvento = models.AutoField(primary_key=True, verbose_name="#")
 	Activacion = models.ForeignKey("Activaciones", verbose_name="Activación", related_name="Eventos", on_delete=models.CASCADE, blank=False, null=False)
-	Contacto = models.ForeignKey("Contactos", verbose_name="Contacto", related_name="Eventos", on_delete=models.SET("Persona eliminada"), blank=True, null=True)
+	Contacto = models.ForeignKey("Contactos", verbose_name="Contacto", related_name="Eventos", on_delete=models.SET(None), blank=True, null=True)
 	Planes = models.ManyToManyField("Planes", through="PlanesEvento", related_name="Eventos")
 	Trabajadores = models.ManyToManyField("Trabajadores", through="TrabajadoresEvento", related_name="Eventos")
 	
@@ -61,7 +61,7 @@ class Eventos(models.Model):
 
 class Contactos(models.Model):
 	idContacto = models.AutoField(primary_key=True, verbose_name="#")
-	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Contactos", on_delete=models.SET("Cliente eliminado"), blank=False, null=False)
+	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Contactos", on_delete=models.SET(None), blank=False, null=True)
 	
 	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False)
 	#rut = models.CharField(max_length=255, verbose_name="RUT", blank=True, null=True, default="")
@@ -89,7 +89,7 @@ class TrabajadoresEvento(models.Model):
 class PlanesTrabajador(models.Model):
 	idPlanesTrabajador = models.AutoField(primary_key=True, verbose_name="#")
 	Trabajador = models.ForeignKey("Trabajadores", verbose_name="Trabajador", related_name="PlanesTrabajador", on_delete=models.CASCADE, blank=False, null=False)
-	Plan = models.ForeignKey("Planes", verbose_name="Plan", related_name="PlanesTrabajador", on_delete=models.SET("Eliminado"), blank=False, null=False)
+	Plan = models.ForeignKey("Planes", verbose_name="Plan", related_name="PlanesTrabajador", on_delete=models.CASCADE, blank=False, null=False)
 
 
 class PlanesEvento(models.Model):
@@ -103,8 +103,8 @@ class PlanesEvento(models.Model):
 class ItemsPlanEvento(models.Model):
 	idItemsPlanEvento = models.AutoField(primary_key=True, verbose_name="#")
 	PlanesEvento = models.ForeignKey("PlanesEvento", verbose_name="Plan evento", related_name="ItemsPlanEvento", on_delete=models.CASCADE, blank=False, null=False)
-	ItemsPlan = models.ForeignKey("ItemsPlan", verbose_name="Item plan", related_name="ItemsPlanEvento", on_delete=models.SET("Item eliminado del plan"), blank=False, null=False)
-	ItemsEstacion = models.ForeignKey("ItemsEstacion", verbose_name="Item estación", related_name="ItemsPlanEvento", on_delete=models.SET("Item eliminado de la estación"), blank=True, null=True)
+	ItemsPlan = models.ForeignKey("ItemsPlan", verbose_name="Item plan", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=False, null=True)
+	ItemsEstacion = models.ForeignKey("ItemsEstacion", verbose_name="Item estación", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=True, null=True)
 
 
 class Planes(models.Model):
@@ -119,7 +119,7 @@ class Planes(models.Model):
 class ItemsPlan(models.Model):
 	idItemsPlan = models.AutoField(primary_key=True, verbose_name="#")
 	Plan = models.ForeignKey("Planes", verbose_name="Plan", related_name="ItemsPlan", on_delete=models.CASCADE, blank=False, null=False)
-	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsPlan", on_delete=models.SET("Item eliminado de Items"), blank=False, null=False)
+	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsPlan", on_delete=models.CASCADE, blank=False, null=False)
 	#item = models.CharField(max_length=255, verbose_name="Item", blank=False, null=False)
 	ItemsEstacion = models.ManyToManyField("ItemsEstacion", through="ItemsPlanEvento", related_name="ItemsPlan")
 
@@ -133,7 +133,7 @@ class Estaciones(models.Model):
 class ItemsEstacion(models.Model):
 	idItemsEstacion = models.AutoField(primary_key=True, verbose_name="#")
 	Estacion = models.ForeignKey("Estaciones", verbose_name="Estación", related_name="ItemsEstacion", on_delete=models.CASCADE, blank=False, null=False)
-	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsEstacion", on_delete=models.SET("Item eliminado de Items"), blank=False, null=False)
+	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsEstacion", on_delete=models.CASCADE, blank=False, null=False)
 	#item = models.CharField(max_length=255, verbose_name="Item", blank=False, null=False)
 
 

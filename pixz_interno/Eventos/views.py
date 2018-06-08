@@ -62,8 +62,8 @@ def agregar_cliente(request):
 	if request.method == 'POST':
 		form = ClientesForm(request.POST, request.FILES)
 		if form.is_valid():
-			form.save()
-			return redirect('index')
+			cliente = form.save()
+			return custom_redirect('activaciones', cliente=cliente.idCliente)
 	else:
 		form = ClientesForm()
 	context = {
@@ -87,19 +87,13 @@ def activaciones(request):
 		titulos = ["#", "Cliente","Activación", "Monto", "Descripción"]
 		contactos = None
 		titulos_contactos = None
-	
-	#campos = Activaciones._meta.get_fields()
-	#titulos = []
-	#for campo in campos:
-	#	if not("ManyToOneRel" in str(campo.get_internal_type)):
-	#		if not(campo.verbose_name.title() == "Cliente" and cliente != ""):
-	#			titulos.append(campo.verbose_name.title())
-	#			print (campo.verbose_name.title())
 
 	pendientes = []
+	venta = 0
 	for activacion in activaciones:
 		if activacion.Eventos.filter(fecha__gte=datetime.date.today()).count() > 0:
 			pendientes.append(activacion)
+		venta += activacion.monto
 
 	context = {
 		"activaciones": activaciones,
@@ -108,6 +102,7 @@ def activaciones(request):
 		"pendientes": len(pendientes),
 		"cliente": cliente,
 		"contactos": contactos,
+		"venta": venta,
 	}
 	return render(request, 'activaciones.html', context)
 
@@ -125,10 +120,10 @@ def agregar_activacion(request):
 			form = ActivacionesSelectForm(request.POST, request.FILES)
 
 		if form.is_valid():
-			a = form.save(commit=False)
-			a.Cliente = Clientes.objects.get(idCliente=idCliente)
-			form.save()
-			return custom_redirect('activaciones', cliente=idCliente)
+			activacion = form.save(commit=False)
+			activacion.Cliente = Clientes.objects.get(idCliente=idCliente)
+			activacion.save()
+			return custom_redirect('eventos', activacion=activacion.idActivacion)
 	
 	else:
 		try:
@@ -147,11 +142,6 @@ def agregar_activacion(request):
 
 
 def eventos(request):
-	#try:
-	#	idCliente = request.GET['cliente']
-	#except MultiValueDictKeyError:
-	#	idCliente = ""
-	#	cliente = ""
 	try:
 		idActivacion = request.GET['activacion']
 		activacion = Activaciones.objects.get(idActivacion=idActivacion)
@@ -164,26 +154,6 @@ def eventos(request):
 		eventos = Eventos.objects.all()
 		cliente = ""
 		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios"]
-
-	#if idActivacion == "":
-	#	if idCliente == "":
-	#		eventos = Eventos.objects.all()
-	#	else:
-	#		# todos los eventos del cliente:
-	#		# quizas no sea necesario este caso
-	#		cliente = Clientes.objects.get(idCliente=idCliente)
-	#		activaciones = Activaciones.objects.filter(Cliente=cliente)
-	#		eventos = Eventos.objects.filter(Activacion=activaciones[0])
-	#		if activaciones.count() > 1:
-	#			for activacion in activaciones[1:]:
-	#				eventos = eventos_list | Eventos.objects.filter(idActivacion=activacion.idActivacion)
-	#else:
-	#	activacion = Activaciones.objects.get(idActivacion=idActivacion)
-	#	eventos = Eventos.objects.filter(idActivacion=idActivacion)
-	#	if idCliente == "":
-	#		cliente = activacion.idCliente
-	#	else:
-	#		cliente = Clientes.objects.get(idCliente=idCliente)
 
 	context = {
 		"cliente": cliente,
@@ -230,7 +200,7 @@ def agregar_evento(request):
 				planEvento.save()
 
 			#return redirect('eventos')
-			return custom_redirect('eventos', activacion=idActivacion)
+			return custom_redirect('evento', evento=evento.idEvento)
 	
 	else:
 		try:
@@ -249,100 +219,6 @@ def agregar_evento(request):
 	
 	context = {
 		"eventos_form": form,
-		"activacion": activacion,
-		"nPlanes": nPlanes,
-	}
-	return render(request, 'agregar_evento.html', context)
-
-
-def editar_evento(request):
-	if request.method == 'POST':
-		nPlanes = int(request.POST['nPlanes'])
-		form = EventosForm(nPlanes, request.POST, request.FILES)
-		idActivacion = request.POST['activacion']
-		#for key, value in request.POST.items():
-		#	print(key)
-		if form.is_valid():
-			activacion = Activaciones.objects.get(idActivacion=idActivacion)
-			evento = Eventos(Activacion=activacion)
-			#datetime.date(1943,3, 13)  #year, month, day
-			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
-			evento.horas = request.POST['horas']
-			evento.comentarios = request.POST['comentarios']
-			evento.save()
-
-			planes = []
-			for key, value in request.POST.items():
-				#print("key:", key)
-				if "plan_" in key:
-					planes.append(Planes.objects.get(idPlan=value))
-			for plan in planes:
-				planEvento = PlanesEvento(Evento=evento, Plan=plan)
-				planEvento.save()
-
-			#return redirect('eventos')
-			return custom_redirect('eventos', activacion=idActivacion)
-	else:
-		try:
-			nPlanes = int(request.GET['nPlanes'])
-		except MultiValueDictKeyError:
-			nPlanes = 1
-		form = EventosForm(nPlanes)
-		#for field in form:
-		#	print(field)
-		idActivacion = request.GET['activacion']
-
-	activacion = Activaciones.objects.get(idActivacion=idActivacion)
-	context = {
-		"eventos_form": form,
-		"cliente": activacion.Cliente,
-		"activacion": activacion,
-		"nPlanes": nPlanes,
-	}
-	return render(request, 'agregar_evento.html', context)
-
-
-def eliminar_evento(request):
-	if request.method == 'POST':
-		nPlanes = int(request.POST['nPlanes'])
-		form = EventosForm(nPlanes, request.POST, request.FILES)
-		idActivacion = request.POST['activacion']
-		#for key, value in request.POST.items():
-		#	print(key)
-		if form.is_valid():
-			activacion = Activaciones.objects.get(idActivacion=idActivacion)
-			evento = Eventos(Activacion=activacion)
-			#datetime.date(1943,3, 13)  #year, month, day
-			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
-			evento.horas = request.POST['horas']
-			evento.comentarios = request.POST['comentarios']
-			evento.save()
-
-			planes = []
-			for key, value in request.POST.items():
-				#print("key:", key)
-				if "plan_" in key:
-					planes.append(Planes.objects.get(idPlan=value))
-			for plan in planes:
-				planEvento = PlanesEvento(Evento=evento, Plan=plan)
-				planEvento.save()
-
-			#return redirect('eventos')
-			return custom_redirect('eventos', activacion=idActivacion)
-	else:
-		try:
-			nPlanes = int(request.GET['nPlanes'])
-		except MultiValueDictKeyError:
-			nPlanes = 1
-		form = EventosForm(nPlanes)
-		#for field in form:
-		#	print(field)
-		idActivacion = request.GET['activacion']
-
-	activacion = Activaciones.objects.get(idActivacion=idActivacion)
-	context = {
-		"eventos_form": form,
-		"cliente": activacion.Cliente,
 		"activacion": activacion,
 		"nPlanes": nPlanes,
 	}
@@ -528,9 +404,9 @@ def agregar_contacto(request):
 		form = ContactosForm(request.POST, request.FILES)
 		if form.is_valid():
 			idCliente = request.POST['cliente']
-			e = form.save(commit=False)
-			e.Cliente = Clientes.objects.get(idCliente=idCliente)
-			form.save()
+			contacto = form.save(commit=False)
+			contacto.Cliente = Clientes.objects.get(idCliente=idCliente)
+			contacto.save()
 			return custom_redirect('activaciones', cliente=idCliente)
 	else:
 		try:
@@ -735,6 +611,291 @@ def evento(request):
 	}
 	return render(request, 'evento.html', context)
 
+
+
+
+############################################################## Editar ##############################################################
+############################################################## Editar ##############################################################
+
+def editar_cliente(request):
+	if request.method == 'POST':
+		cliente = Clientes.objects.get(idCliente=request.POST['cliente'])
+		form = ClientesForm(request.POST, request.FILES)
+		if form.is_valid():
+			c = form.save(commit=False)
+			c.idCliente = cliente.idCliente
+			c.save()
+			return redirect('index')
+	else:
+		cliente = Clientes.objects.get(idCliente=request.GET['cliente'])
+		form = ClientesForm(initial={"nombre": cliente.nombre, "direccion": cliente.direccion})
+	context = {
+		"clientes_form": form,
+		"cliente": cliente,
+	}
+	return render(request, 'agregar_cliente.html', context)
+
+
+def editar_activacion(request):
+	if request.method == 'POST':
+		activacion = Activaciones.objects.get(idActivacion=request.POST['activacion'])
+		form = ActivacionesSelectForm(request.POST, request.FILES)
+		if form.is_valid():
+			a = form.save(commit=False)
+			a.idActivacion = activacion.idActivacion
+			a.save()
+			try:
+				return custom_redirect('activaciones', cliente=request.POST['Cliente'])
+			except MultiValueDictKeyError:
+				return redirect('activaciones')
+	else:
+		activacion = Activaciones.objects.get(idActivacion=request.GET['activacion'])
+		form = ActivacionesSelectForm(initial={"Cliente":activacion.Cliente, "nombre": activacion.nombre, "monto":activacion.monto,"descripcion": activacion.descripcion})
+
+	context = {
+		"activaciones_form": form,
+		"cliente": activacion.Cliente,
+		"activacion": activacion,
+	}
+	return render(request, 'agregar_activacion.html', context)
+
+
+def editar_evento(request):
+	if request.method == 'POST':
+		nPlanes = int(request.POST['nPlanes'])
+		form = EventosForm(nPlanes, request.POST, request.FILES)
+		idActivacion = request.POST['activacion']
+		#for key, value in request.POST.items():
+		#	print(key)
+		if form.is_valid():
+			activacion = Activaciones.objects.get(idActivacion=idActivacion)
+			evento = Eventos(Activacion=activacion)
+			#datetime.date(1943,3, 13)  #year, month, day
+			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+			evento.horas = request.POST['horas']
+			evento.comentarios = request.POST['comentarios']
+			evento.save()
+
+			planes = []
+			for key, value in request.POST.items():
+				#print("key:", key)
+				if "plan_" in key:
+					planes.append(Planes.objects.get(idPlan=value))
+			for plan in planes:
+				planEvento = PlanesEvento(Evento=evento, Plan=plan)
+				planEvento.save()
+
+			#return redirect('eventos')
+			return custom_redirect('eventos', activacion=idActivacion)
+	else:
+		try:
+			nPlanes = int(request.GET['nPlanes'])
+		except MultiValueDictKeyError:
+			nPlanes = 1
+		form = EventosForm(nPlanes)
+		#for field in form:
+		#	print(field)
+		idActivacion = request.GET['activacion']
+
+	activacion = Activaciones.objects.get(idActivacion=idActivacion)
+	context = {
+		"eventos_form": form,
+		"cliente": activacion.Cliente,
+		"activacion": activacion,
+		"nPlanes": nPlanes,
+	}
+	return render(request, 'agregar_evento.html', context)
+
+
+def editar_plan(request):
+	nombre_unico = True
+	if request.method == 'POST':
+		nItems = int(request.POST['nItems'])
+		form = PlanesForm(nItems, request.POST, request.FILES)
+		#form = PlanesForm2(request.POST, request.FILES)
+		print (len(request.POST))
+		count = 0
+		for key, value in request.POST.items():
+			if "item_" in key:
+				count += 1
+		if form.is_valid() and count == int(nItems):
+			# verificar uniqueness
+			planes = Planes.objects.all()
+			for p in planes:
+				if p.nombre == request.POST['nombre']:
+					nombre_unico = False
+			if nombre_unico == True:
+				plan = Planes(nombre=request.POST['nombre'])
+				#plan.nombre = request.POST['nombre']
+				plan.save()
+
+				items = []
+				for key, value in request.POST.items():
+					if "item_" in key:
+						items.append(Items.objects.get(idItem=value))
+				for item in items:
+					itemsPlan = ItemsPlan(Plan=plan, Item=item)
+					itemsPlan.save()
+
+				return redirect('planes')
+	else:
+		try:
+			nItems = int(request.GET['nItems'])
+		except MultiValueDictKeyError:
+			nItems = 1
+		form = PlanesForm(nItems)
+		#form = PlanesForm2()
+	context = {
+		"planes_form": form,
+		"nItems": nItems,
+		"nombre_unico": nombre_unico,
+	}
+	return render(request, 'agregar_plan.html', context)
+
+
+def editar_estacion(request):
+	nombre_unico = True
+	if request.method == 'POST':
+		nItems = int(request.POST['nItems'])
+		form = EstacionesForm(nItems, request.POST, request.FILES)
+
+		if form.is_valid():
+			# verificar uniqueness
+			estaciones = Estaciones.objects.all()
+			for e in estaciones:
+				if e.nombre == request.POST['nombre']:
+					nombre_unico = False
+			if nombre_unico == True:
+				estacion = Estaciones(nombre=request.POST['nombre'])
+				#estacion.nombre = request.POST['nombre']
+				estacion.save()
+
+				items = []
+				for key, value in request.POST.items():
+					if "item_" in key:
+						items.append(Items.objects.get(idItem=value))
+				for item in items:
+					itemsEstacion = ItemsEstacion(Estacion=estacion, Item=item)
+					itemsEstacion.save()
+
+				return redirect('estaciones')
+	else:
+		try:
+			nItems = int(request.GET['nItems'])
+		except MultiValueDictKeyError:
+			nItems = 1
+		form = EstacionesForm(nItems)
+	context = {
+		"estaciones_form": form,
+		"nItems": nItems,
+		"nombre_unico": nombre_unico,
+	}
+	return render(request, 'agregar_estacion.html', context)
+
+
+def editar_item(request):
+	if request.method == 'POST':
+		form = ItemsForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+			return redirect('items')
+	else:
+		form = ItemsForm()
+	context = {
+		"items_form": form,
+	}
+	return render(request, 'agregar_item.html', context)
+
+
+def editar_trabajador(request):
+	if request.method == 'POST':
+		form = TrabajadoresForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+			return redirect('trabajadores')
+	else:
+		form = TrabajadoresForm()
+	context = {
+		"trabajadores_form": form,
+	}
+	return render(request, 'agregar_trabajador.html', context)
+
+
+def editar_contacto(request):
+	if request.method == 'POST':
+		form = ContactosFormSelect(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+			return redirect('contactos')
+	else:
+		form = ContactosFormSelect()
+	context = {
+		"contactos_form": form,
+		"cliente": None,
+	}
+	return render(request, 'agregar_contacto.html', context)
+
+
+
+
+
+################################################################ Eliminar ##################################################################
+################################################################ Eliminar ##################################################################
+
+def eliminar_cliente(request):
+	cliente = Clientes.objects.get(idCliente=request.GET['cliente'])
+	cliente.delete()
+	return redirect('index')
+
+
+def eliminar_activacion(request):
+	activacion = Activaciones.objects.get(idActivacion=request.GET['activacion'])
+	activacion.delete()
+	try:
+		return custom_redirect('activaciones', cliente=request.GET['cliente'])
+	except MultiValueDictKeyError:
+		return redirect('activaciones')
+
+def eliminar_evento(request):
+	evento = Eventos.objects.get(idEvento=request.GET['evento'])
+	evento.delete()
+	try:
+		return custom_redirect('eventos', activacion=request.GET['activacion'])
+	except MultiValueDictKeyError:
+		return redirect('eventos')
+
+
+def eliminar_contacto(request):
+	contacto = Contactos.objects.get(idContacto=request.GET['contacto'])
+	contacto.delete()
+	try:
+		return custom_redirect('activaciones', cliente=request.GET['cliente'])
+	except MultiValueDictKeyError:
+		return redirect('contactos')
+
+
+def eliminar_plan(request):
+	plan = Planes.objects.get(idPlan=request.GET['plan'])
+	plan.delete()
+	return redirect('planes')
+
+
+def eliminar_estacion(request):
+	estacion = Estaciones.objects.get(idEstacion=request.GET['estacion'])
+	estacion.delete()
+	return redirect('estaciones')
+
+
+def eliminar_item(request):
+	item = Items.objects.get(idItem=request.GET['item'])
+	item.delete()
+	return redirect('items')
+
+
+def eliminar_trabajador(request):
+	trabajador = Trabajadores.objects.get(idTrabajador=request.GET['trabajador'])
+	trabajador.delete()
+	return redirect('trabajadores')
 
 
 

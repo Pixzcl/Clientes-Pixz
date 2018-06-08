@@ -7,7 +7,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Pixz - Administración</title>
+	<title>{% block titulo %}{% endblock %}</title>
 	<!--<meta name="description" content="Sufee Admin - HTML5 Admin Template">-->
 	<meta name="description" content="Pixz - Administración">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -304,11 +304,58 @@
 
 
 
+
+
+	<!-- JS -->
+	<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
+	<script src="{% static 'assets/js/popper.min.js' %}"></script>
+	<script src="{% static 'assets/js/plugins.js' %}"></script>
+	<script src="{% static 'assets/js/main.js' %}"></script>
+
+
+
 	<!-- Aqui se coloca el resto de la pagina -->
 	{% block content %}{% endblock %}
 
 
-	{% include "Base/base_js.html" %}
+
+
+	<!-- Data Tables -->
+	<script src="{% static 'assets/js/lib/data-table/datatables.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/dataTables.bootstrap.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/dataTables.buttons.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/buttons.bootstrap.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/jszip.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/pdfmake.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/vfs_fonts.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/buttons.html5.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/buttons.print.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/buttons.colVis.min.js' %}"></script>
+	<script src="{% static 'assets/js/lib/data-table/datatables-init.js' %}"></script>
+	<!-- data-table -->
+	<script type="text/javascript">
+		$(document).ready(function() {
+		  $('#bootstrap-data-table-export').DataTable();
+		} );
+	</script>
+
+	
+	<!--  Chart js y Widgets -->
+    <script src="{% static 'assets/js/lib/chart-js/Chart.bundle.js' %}"></script>
+    <script src="{% static 'assets/js/widgets.js' %}"></script>
+
+    <!-- Forms Advanced -->
+    <script src="{% static 'assets/js/lib/chosen/chosen.jquery.min.js' %}"></script>
+	<script>
+        jQuery(document).ready(function() {
+            jQuery(".standardSelect").chosen({
+                disable_search_threshold: 10,
+                no_results_text: "Oops, nothing found!",
+                width: "100%"
+            });
+        });
+    </script>
+	
 	
 
 </body>

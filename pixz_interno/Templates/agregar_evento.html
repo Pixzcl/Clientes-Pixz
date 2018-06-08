@@ -4,6 +4,7 @@
 
 <!-- Activo en el menu: -->
 {% block eventos-li %} active {% endblock %}
+{% block titulo %}Nuevo evento{% if activacion != "" %} - {{activacion.nombre}} - {{activacion.Cliente.nombre}}{% endif %}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -14,7 +15,11 @@
 			<div class="col-sm-4">
 				<div class="page-header float-left">
 					<div class="page-title">
-						<h1>Nuevo evento</h1>
+						{% if evento == None %}
+							<h1>Nuevo evento</h1>
+						{% else %}
+							<h1>Editar evento {{evento.nombre}} - {{evento.Activacion.nombre}} - {{evento.Activacion.Cliente.nombre}}</h1>
+						{% endif %}
 					</div>
 				</div>
 			</div>
@@ -22,13 +27,19 @@
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							{% if activacion != "" %}
-								<li><a href="#">{{activacion.Cliente.nombre}}</a></li>
-								<li><a href="#">{{activacion.nombre}}</a></li>
+							{% if evento == None %}
+								{% if activacion != "" %}
+									<li><a href="#">{{activacion.Cliente.nombre}}</a></li>
+									<li><a href="#">{{activacion.nombre}}</a></li>
+								{% else %}
+									<li><a href="#">Eventos</a></li>
+								{% endif %}
+								<li class="active">Nuevo evento</li>
 							{% else %}
-								<li><a href="#">Eventos</a></li>
+								<li><a href="#">{{evento.Activacion.Cliente.nombre}}</a></li>
+								<li><a href="#">{{evento.Activacion.nombre}}</a></li>
+								<li class="active">Editar {{evento.nombre}}</li>
 							{% endif %}
-							<li class="active">Nuevo evento</li>
 						</ol>
 					</div>
 				</div>
@@ -51,6 +62,7 @@
 							
 							<form id="form" method="post" enctype="multipart/form-data">
 				                {% csrf_token %}
+				                {% if evento != None %}<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />{% endif %}
 				                {% if activacion != "" %}<input type="hidden" name="activacion" id="activacion" value="{{activacion.idActivacion}}" />{% endif %}
 				                {% for field in eventos_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">

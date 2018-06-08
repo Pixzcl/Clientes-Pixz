@@ -4,6 +4,7 @@
 
 <!-- Activo en el menu: -->
 {% block activaciones-li %} active {% endblock %}
+{% block titulo %}Nueva activación{% if cliente != "" %} - {{cliente.nombre}}{% endif %}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -15,6 +16,11 @@
 				<div class="page-header float-left">
 					<div class="page-title">
 						<h1>Nueva activación</h1>
+						{% if activacion == None %}
+							<h1>Nueva activación</h1>
+						{% else %}
+							<h1>Editar activación {{activacion.nombre}} - {{activacion.Cliente.nombre}}</h1>
+						{% endif %}
 					</div>
 				</div>
 			</div>
@@ -22,13 +28,19 @@
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							{% if cliente != "" %}
-								<li><a href="#">{{cliente.nombre}}</a></li>
-								<li><a href="#">{{cliente.nombre}}</a></li>
+							{% if activacion == None %}
+								{% if cliente != "" %}
+									<li><a href="#">{{cliente.nombre}}</a></li>
+									<li><a href="#">{{cliente.nombre}}</a></li>
+								{% else %}
+									<li><a href="#">Activaciones</a></li>
+								{% endif %}
+								<li class="active">Nueva activación</li>
 							{% else %}
-								<li><a href="#">Activaciones</a></li>
+								<li><a href="#">{{activacion.Cliente.nombre}}</a></li>
+								<li><a href="#">{{activacion.nombre}}</a></li>
+								<li class="active">Editar {{activacion.nombre}}</li>
 							{% endif %}
-							<li class="active">Nueva activación</li>
 						</ol>
 					</div>
 				</div>
@@ -51,6 +63,7 @@
 							
 							<form method="post" enctype="multipart/form-data">
 				                {% csrf_token %}
+				                {% if activacion != None %}<input type="hidden" name="activacion" id="activacion" value="{{activacion.idActivacion}}" />{% endif %}
 				                {% if cliente != "" %}<input type="hidden" name="Cliente" id="Cliente" value="{{cliente.idCliente}}" />{% endif %}
 				                {% for field in activaciones_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">

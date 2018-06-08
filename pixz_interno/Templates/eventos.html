@@ -3,6 +3,7 @@
 
 <!-- Activo en el menu: -->
 {% block eventos-li %} active {% endblock %}
+{% block titulo %}{% if activacion == "" %}Eventos{% else %}Activación {{activacion.nombre}} - {{cliente.nombre}}{% endif %}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -16,7 +17,7 @@
 						{% if activacion == "" and cliente == "" %}
 							<h1>Todos los eventos</h1>
 						{% else %}
-							<h1>Eventos {{activacion.nombre}} - {{cliente.nombre}}</h1>
+							<h1>Activación {{activacion.nombre}} - {{cliente.nombre}}</h1>
 						{% endif %}
 					</div>
 				</div>
@@ -124,8 +125,8 @@
 									<th scope="row" id="td_{{evento.idEvento}}">
 										{{evento.idEvento}}
 										<!--<i class="ti-info-alt text-success"></i>-->
-										<a style="visibility:hidden" ><i class="ti-pencil-alt text-primary"></i></a>
-										<a style="visibility:hidden" ><i class="fa fa-minus-circle text-danger"></i></a>
+										<a style="visibility:hidden" href='{% url "editar_evento" %}?evento={{evento.idEvento}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{evento.nombre}}', '{{evento.idEvento}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if activacion == "" %}
 										<td><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></td>
@@ -228,6 +229,45 @@
 				}
 			{% endfor %}
 			*/
+		}
+	</script>
+
+
+
+	<button id="eliminar" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+
+	<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="h5_eliminar" class="modal-title" id="smallmodalLabel"></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p id="p_eliminar">
+						¿Estas seguro?
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button id="boton_eliminar" type="button" onclick="" class="btn btn-danger" >Eliminar</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+	<script>
+		function eliminar(nombre, id) {
+			//document.getElementById("p_eliminar").innerHTML = "";
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar evento " + nombre;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_evento" %}?evento=' + id
+				{%if activacion != "" %} + "&activacion={{activacion.idActivacion}}"{% endif %}
+				};
+			document.getElementById("eliminar").click();
 		}
 	</script>
 

@@ -3,6 +3,7 @@
 
 <!-- Activo en el menu: -->
 {% block index-li %} active {% endblock %}
+{% block titulo %}Clientes{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -80,8 +81,8 @@
 								<tr>
 									<th scope="row" id="td_{{cliente.idCliente}}">
 										{{cliente.idCliente}}
-										<a style="visibility:hidden" ><i class="ti-pencil-alt text-primary"></i></a>
-										<a style="visibility:hidden" ><i class="fa fa-minus-circle text-danger"></i></a>
+										<a style="visibility:hidden" href='{% url "editar_cliente" %}?cliente={{cliente.idCliente}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{cliente.nombre}}', '{{cliente.idCliente}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									<!-- dashboard del cliente??? -->
 									<!--<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}" >{{cliente.nombre}}</a></td>-->
@@ -124,6 +125,42 @@
 					}
 				}
 			{% endfor %}
+		}
+	</script>
+
+
+	<button id="eliminar" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+
+	<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="h5_eliminar" class="modal-title" id="smallmodalLabel"></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p id="p_eliminar">
+						¿Estas seguro? Se eliminarán todas las activaciones y eventos asociados, pero se conservarán los contactos.
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button id="boton_eliminar" type="button" onclick="" class="btn btn-danger" >Eliminar</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+	<script>
+		function eliminar(nombre, id) {
+			//document.getElementById("p_eliminar").innerHTML = "";
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar cliente " + nombre;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_cliente" %}?cliente=' + id};
+			document.getElementById("eliminar").click();
 		}
 	</script>
 

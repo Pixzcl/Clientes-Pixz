@@ -4,6 +4,7 @@
 
 <!-- Activo en el menu: -->
 <!-- {% block eventos-li %} active {% endblock %} -->
+{% block titulo %}Evento {{evento.nombre}} - {{activacion.nombre}} - {{cliente.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -14,7 +15,7 @@
 			<div class="col-sm-4">
 				<div class="page-header float-left">
 					<div class="page-title">
-						<h1>Evento {{evento.fecha}} - {{activacion.nombre}} - {{cliente.nombre}}</h1>
+						<h1>Evento {{evento.nombre}} - {{activacion.nombre}} - {{cliente.nombre}}</h1>
 					</div>
 				</div>
 			</div>
@@ -24,7 +25,7 @@
 						<ol class="breadcrumb text-right">
 							<li><a href="#">{{cliente.nombre}}</a></li>
 							<li><a href="#">{{activacion.nombre}}</a></li>
-							<li class="active">{{evento.fecha}}</li>
+							<li class="active">{{evento.nombre}}</li>
 						</ol>
 					</div>
 				</div>
@@ -367,7 +368,7 @@
 
 
 				{% if error == True %}
-				<button id="error" type="button" display="none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+				<button id="error" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
 
 				<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
 					<div class="modal-dialog modal-sm" role="document">
@@ -390,7 +391,7 @@
 					</div>
 				</div>
 
-				<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
+				
 				<script>
 					$( document ).ready(function() {
 						document.getElementById("error").click();

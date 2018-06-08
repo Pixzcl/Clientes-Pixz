@@ -24,27 +24,45 @@ urlpatterns = [
 	#url(r'^admin/', admin.site.urls),
 	url(r'^$', views.index, name='index'),
 	url(r'^agregar_cliente/', views.agregar_cliente, name='agregar_cliente'),
+	url(r'^editar_cliente/', views.editar_cliente, name='editar_cliente'),
+	url(r'^eliminar_cliente/', views.eliminar_cliente, name='eliminar_cliente'),
+
 	url(r'^activaciones/', views.activaciones, name='activaciones'),
 	url(r'^agregar_activacion/', views.agregar_activacion, name='agregar_activacion'),
+	url(r'^editar_activacion/', views.editar_activacion, name='editar_activacion'),
+	url(r'^eliminar_activacion/', views.eliminar_activacion, name='eliminar_activacion'),
+	
 	url(r'^eventos/', views.eventos, name='eventos'),
+	url(r'^evento/', views.evento, name='evento'),
 	url(r'^agregar_evento/', views.agregar_evento, name='agregar_evento'),
 	url(r'^editar_evento/', views.editar_evento, name='editar_evento'),
 	url(r'^eliminar_evento/', views.eliminar_evento, name='eliminar_evento'),
+	
 	url(r'^planes/', views.planes, name='planes'),
 	url(r'^agregar_plan/', views.agregar_plan, name='agregar_plan'),
+	url(r'^editar_plan/', views.editar_plan, name='editar_plan'),
+	url(r'^eliminar_plan/', views.eliminar_item, name='eliminar_item'),
+	
 	url(r'^estaciones/', views.estaciones, name='estaciones'),
 	url(r'^agregar_estacion/', views.agregar_estacion, name='agregar_estacion'),
+	url(r'^editar_estacion/', views.editar_estacion, name='editar_estacion'),
+	url(r'^eliminar_estacion/', views.eliminar_estacion, name='eliminar_estacion'),
+	
 	url(r'^items/', views.items, name='items'),
 	url(r'^agregar_item/', views.agregar_item, name='agregar_item'),
-	url(r'^evento/', views.evento, name='evento'),
-	#url(r'^editar_coordinacion/', views.editar_coordinacion, name='editar_coordinacion'),
-	#url(r'^editar_logistica/', views.editar_logistica, name='editar_logistica'),
+	url(r'^editar_item/', views.editar_item, name='editar_item'),
+	url(r'^eliminar_item/', views.eliminar_item, name='eliminar_item'),
 
 	url(r'^trabajadores/', views.trabajadores, name='trabajadores'),
 	url(r'^agregar_trabajador/', views.agregar_trabajador, name='agregar_trabajador'),
+	url(r'^editar_trabajador/', views.editar_trabajador, name='editar_trabajador'),
+	url(r'^eliminar_trabajador/', views.eliminar_trabajador, name='eliminar_trabajador'),
+	
 	url(r'^contactos/', views.contactos, name='contactos'),
 	url(r'^agregar_contacto/', views.agregar_contacto, name='agregar_contacto'),
 	url(r'^agregar_contacto_select/', views.agregar_contacto_select, name='agregar_contacto_select'),
+	url(r'^editar_contacto/', views.editar_contacto, name='editar_contacto'),
+	url(r'^eliminar_contacto/', views.eliminar_contacto, name='eliminar_contacto'),
 	
 	
 
