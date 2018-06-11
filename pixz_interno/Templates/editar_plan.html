@@ -3,8 +3,8 @@
 {% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
-{% block estaciones-li %} active {% endblock %}
-{% block titulo %}Nueva estación{% endblock %}
+{% block planes-li %} active {% endblock %}
+{% block titulo %}Nuevo plan{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -12,19 +12,19 @@
 	<div id="right-panel" class="right-panel">
 
 		<div class="breadcrumbs">
-			<div class="col-sm-6">
+			<div class="col-sm-4">
 				<div class="page-header float-left">
 					<div class="page-title">
-						<h1>Nueva estación</h1>
+						<h1>Nuevo plan</h1>
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-6">
+			<div class="col-sm-8">
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							<li><a href="#">Estaciones</a></li>
-							<li class="active">Nueva estación</li>
+							<li><a href="#">Planes</a></li>
+							<li class="active">Nuevo plan</li>
 						</ol>
 					</div>
 				</div>
@@ -41,13 +41,13 @@
 				<div class="col-md-12">
 					<div class="card">
 						<!--<div class="card-header">
-							<strong class="card-title">Nueva estación</strong>
+							<strong class="card-title">Nuevo plan</strong>
 						</div>-->
 						<div class="card-body">
 							
 							<form id="form" method="post" enctype="multipart/form-data">
-				                {% csrf_token %}
-				                {% for field in estaciones_form %}
+								{% csrf_token %}
+								{% for field in planes_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
 										{% if "select" in field|widget_type %}
@@ -64,7 +64,7 @@
 								<input type="hidden" name="nItems" id="nItems" value="{{nItems}}" />
 								<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="document.getElementById('nItems').value=Number('{{nItems}}')+1; document.getElementById('form').submit();"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
 								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
-				            </form>
+							</form>
 						</div>
 					</div>
 				</div>

@@ -147,7 +147,7 @@ def eventos(request):
 		activacion = Activaciones.objects.get(idActivacion=idActivacion)
 		eventos = activacion.Eventos.all()
 		cliente = activacion.Cliente
-		titulos = ["#", "Evento" "Fecha", "Horas", "Plan(es)", "Comentarios"]
+		titulos = ["#", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios"]
 	except MultiValueDictKeyError:
 		idActivacion = ""
 		activacion = ""
@@ -170,12 +170,12 @@ def agregar_evento(request):
 		nPlanes = int(request.POST['nPlanes'])
 
 		try:
-			int(request.POST['activacion']) # (probar si viene de SelectForm o no)
-			idActivacion = request.POST['activacion']
+			int(request.POST['Activacion']) # (probar si viene de SelectForm o no)
+			idActivacion = request.POST['Activacion']
 			activacion = Activaciones.objects.get(idActivacion=idActivacion)
 			form = EventosForm(nPlanes, request.POST, request.FILES)
 		except:
-			activacion = request.POST['activacion']
+			activacion = request.POST['Activacion']
 			idActivacion = activacion.idActivacion
 			form = EventosSelectForm(nPlanes, request.POST, request.FILES)
 		
@@ -190,11 +190,14 @@ def agregar_evento(request):
 			evento.comentarios = request.POST['comentarios']
 			evento.save()
 
+			#planes = []
+			#for key, value in request.POST.items():
+			#	if "plan_" in key:
+			#		planes.append(Planes.objects.get(idPlan=value))
 			planes = []
-			for key, value in request.POST.items():
-				#print("key:", key)
-				if "plan_" in key:
-					planes.append(Planes.objects.get(idPlan=value))
+			for i in range(1, nPlanes+1):
+				planes.append(Planes.objects.get(idPlan=request.POST["plan_%d" % i]))
+
 			for plan in planes:
 				planEvento = PlanesEvento(Evento=evento, Plan=plan)
 				planEvento.save()
@@ -375,14 +378,24 @@ def trabajadores(request):
 
 def agregar_trabajador(request):
 	if request.method == 'POST':
+		evento = request.POST['evento']
 		form = TrabajadoresForm(request.POST, request.FILES)
 		if form.is_valid():
 			form.save()
-			return redirect('trabajadores')
+
+			if evento == "":
+				return redirect('trabajadores')
+			else:
+				return custom_redirect('evento', evento=evento, edit="logistica")
 	else:
 		form = TrabajadoresForm()
+		try:
+			evento = request.GET['evento']
+		except MultiValueDictKeyError:
+			evento = ""
 	context = {
 		"trabajadores_form": form,
+		"evento": evento,
 	}
 	return render(request, 'agregar_trabajador.html', context)
 
@@ -401,13 +414,18 @@ def contactos(request):
 
 def agregar_contacto(request):
 	if request.method == 'POST':
+		evento = request.POST['evento']
 		form = ContactosForm(request.POST, request.FILES)
 		if form.is_valid():
 			idCliente = request.POST['cliente']
 			contacto = form.save(commit=False)
 			contacto.Cliente = Clientes.objects.get(idCliente=idCliente)
 			contacto.save()
-			return custom_redirect('activaciones', cliente=idCliente)
+			
+			if evento == "":
+				return custom_redirect('activaciones', cliente=idCliente)
+			else:
+				return custom_redirect('evento', evento=evento, edit="coordinacion")
 	else:
 		try:
 			idCliente = request.GET['cliente']
@@ -415,9 +433,14 @@ def agregar_contacto(request):
 			form = ContactosForm(initial={"Cliente": cliente})
 		except MultiValueDictKeyError:
 			return redirect('index')
+		try:
+			evento = request.GET['evento']
+		except MultiValueDictKeyError:
+			evento = ""
 	context = {
 		"contactos_form": form,
 		"cliente": cliente,
+		"evento": evento,
 	}
 	return render(request, 'agregar_contacto.html', context)
 
@@ -612,6 +635,40 @@ def evento(request):
 	return render(request, 'evento.html', context)
 
 
+def evento_checklist(request):
+	if request.method == 'POST':
+		idEvento = request.POST['evento']
+		evento = Eventos.objects.get(idEvento=idEvento)
+
+		for key, value in request.POST.items():
+			if "item_" in key:
+				item = ItemsPlanEvento.objects.get(idItemsPlanEvento=key.split("_")[1])
+				if value == "on":
+					item.check = True
+				else:
+					item.check = False
+				item.save()
+		mensaje = "¡Cambios guardados!"
+
+	else:
+		evento = Eventos.objects.get(idEvento=request.GET['evento'])
+		mensaje = ""
+
+	planesItemsEstaciones = []
+	for planEvento in evento.PlanesEvento.all():
+		planesItemsEstaciones.append([])
+		for itemPlanEvento in planEvento.ItemsPlanEvento.all().order_by("PlanesEvento", "ItemsPlan", "ItemsEstacion"):
+			initial = {}
+			initial['item_%d' % itemPlanEvento.idItemsPlanEvento] = itemPlanEvento.check
+			planesItemsEstaciones[-1].append([itemPlanEvento.ItemsPlan, itemPlanEvento.ItemsEstacion, EventoChecklistForm(itemPlanEvento.idItemsPlanEvento, initial=initial)])
+
+
+	context = {
+		"evento": evento,
+		"planesItemsEstaciones": planesItemsEstaciones,
+		"mensaje": mensaje,
+	}
+	return render(request, 'evento_checklist.html', context)
 
 
 ############################################################## Editar ##############################################################
@@ -633,78 +690,102 @@ def editar_cliente(request):
 		"clientes_form": form,
 		"cliente": cliente,
 	}
-	return render(request, 'agregar_cliente.html', context)
+	return render(request, 'editar_cliente.html', context)
 
 
 def editar_activacion(request):
 	if request.method == 'POST':
 		activacion = Activaciones.objects.get(idActivacion=request.POST['activacion'])
 		form = ActivacionesSelectForm(request.POST, request.FILES)
+		try:
+			menuCliente = request.POST['menuCliente']
+		except MultiValueDictKeyError:
+			menuCliente = ""
 		if form.is_valid():
 			a = form.save(commit=False)
 			a.idActivacion = activacion.idActivacion
 			a.save()
-			try:
-				return custom_redirect('activaciones', cliente=request.POST['Cliente'])
-			except MultiValueDictKeyError:
+			if menuCliente != "":
+				return custom_redirect('activaciones', cliente=menuCliente)
+			else:
 				return redirect('activaciones')
 	else:
 		activacion = Activaciones.objects.get(idActivacion=request.GET['activacion'])
 		form = ActivacionesSelectForm(initial={"Cliente":activacion.Cliente, "nombre": activacion.nombre, "monto":activacion.monto,"descripcion": activacion.descripcion})
+		try:
+			menuCliente = request.GET['cliente']
+		except MultiValueDictKeyError:
+			menuCliente = ""
 
 	context = {
 		"activaciones_form": form,
-		"cliente": activacion.Cliente,
+		"menuCliente": menuCliente,
 		"activacion": activacion,
 	}
-	return render(request, 'agregar_activacion.html', context)
+	return render(request, 'editar_activacion.html', context)
 
 
 def editar_evento(request):
 	if request.method == 'POST':
+		evento = Eventos.objects.get(idEvento=request.POST['evento'])
 		nPlanes = int(request.POST['nPlanes'])
-		form = EventosForm(nPlanes, request.POST, request.FILES)
-		idActivacion = request.POST['activacion']
-		#for key, value in request.POST.items():
-		#	print(key)
+		form = EventosSelectForm(nPlanes, request.POST, request.FILES)
+		try:
+			menuActivacion = request.POST['menuActivacion']
+		except MultiValueDictKeyError:
+			menuActivacion = ""
 		if form.is_valid():
-			activacion = Activaciones.objects.get(idActivacion=idActivacion)
-			evento = Eventos(Activacion=activacion)
 			#datetime.date(1943,3, 13)  #year, month, day
+			evento.Activacion = Activaciones.objects.get(idActivacion=request.POST['Activacion'])
 			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+			evento.nombre = request.POST['nombre']
 			evento.horas = request.POST['horas']
 			evento.comentarios = request.POST['comentarios']
 			evento.save()
 
-			planes = []
-			for key, value in request.POST.items():
-				#print("key:", key)
-				if "plan_" in key:
-					planes.append(Planes.objects.get(idPlan=value))
-			for plan in planes:
-				planEvento = PlanesEvento(Evento=evento, Plan=plan)
-				planEvento.save()
+			planesNuevos = []
+			for i in range(1, nPlanes+1):
+				planesNuevos.append(Planes.objects.get(idPlan=request.POST["plan_%d" % i]))
 
-			#return redirect('eventos')
-			return custom_redirect('eventos', activacion=idActivacion)
+			planesActuales = evento.PlanesEvento.all().order_by("idPlanesEvento")
+			actuales = len(planesActuales)
+			nuevos = len(planesNuevos)
+			for planActual, nuevoPlan in zip(planesActuales, planesNuevos):
+				if planActual.Plan.idPlan != nuevoPlan.idPlan:
+					planActual.delete()
+					PlanesEvento(Evento=evento, Plan=nuevoPlan).save()
+
+			if nuevos > actuales:
+				for nuevoPlan in planesNuevos[actuales:]:
+					PlanesEvento(Evento=evento, Plan=nuevoPlan).save()
+			elif actuales > nuevos:
+				for planActual in planesNuevos[actuales:]:
+					planActual.delete()
+
+			if menuActivacion != "":
+				return custom_redirect('eventos', activacion=menuActivacion)
+			else:
+				return redirect('eventos')
 	else:
+		evento = Eventos.objects.get(idEvento=request.GET['evento'])
+		nPlanes = evento.Planes.all().count()
+		initial={"Activacion":evento.Activacion, "nombre": evento.nombre, "fecha": evento.fecha, "horas": evento.horas, "comentarios": evento.comentarios}
+		for i, planEvento in zip(range(1,nPlanes+1), evento.PlanesEvento.all().order_by("idPlanesEvento")):
+				initial['plan_%d' % (i)] = planEvento.Plan.idPlan
+		form = EventosSelectForm(nPlanes, initial=initial)
 		try:
-			nPlanes = int(request.GET['nPlanes'])
+			menuActivacion = request.GET['activacion']
 		except MultiValueDictKeyError:
-			nPlanes = 1
-		form = EventosForm(nPlanes)
-		#for field in form:
-		#	print(field)
-		idActivacion = request.GET['activacion']
+			menuActivacion = ""
 
-	activacion = Activaciones.objects.get(idActivacion=idActivacion)
+	
 	context = {
 		"eventos_form": form,
-		"cliente": activacion.Cliente,
-		"activacion": activacion,
+		"menuActivacion": menuActivacion,
+		"evento": evento,
 		"nPlanes": nPlanes,
 	}
-	return render(request, 'agregar_evento.html', context)
+	return render(request, 'editar_evento.html', context)
 
 
 def editar_plan(request):

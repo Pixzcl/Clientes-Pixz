@@ -63,6 +63,8 @@ urlpatterns = [
 	url(r'^agregar_contacto_select/', views.agregar_contacto_select, name='agregar_contacto_select'),
 	url(r'^editar_contacto/', views.editar_contacto, name='editar_contacto'),
 	url(r'^eliminar_contacto/', views.eliminar_contacto, name='eliminar_contacto'),
+
+	url(r'^evento_checklist/', views.evento_checklist, name='evento_checklist'),
 	
 	
 

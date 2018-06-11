@@ -11,7 +11,7 @@
 	<div id="right-panel" class="right-panel">
 
 		<div class="breadcrumbs">
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<div class="page-header float-left">
 					<div class="page-title">
 						{% if cliente == "" %}
@@ -22,15 +22,15 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-8">
+			<div class="col-sm-6">
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
 							{% if cliente != "" %}
-							<li><a href="#">{{cliente.nombre}}</a></li>
+								<li class="active">{{cliente.nombre}}</li>
+							{% else %}
+								<li class="active">Activaciones</li>
 							{% endif %}
-							<!--<li><a href="#">Table</a></li>-->
-							<li class="active">Activaciones</li>
 						</ol>
 					</div>
 				</div>
@@ -121,7 +121,7 @@
 								<tr>
 									<th scope="row" id="td_{{activacion.idActivacion}}">
 										{{activacion.idActivacion}}
-										<a style="visibility:hidden" href='{% url "editar_activacion" %}?activacion={{activacion.idActivacion}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href='{% url "editar_activacion" %}?activacion={{activacion.idActivacion}}{% if cliente != "" %}&cliente={{cliente.idCliente}}{% endif %}' ><i class="ti-pencil-alt text-primary"></i></a>
 										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{activacion.nombre}}', '{{activacion.idActivacion}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if cliente == "" %}

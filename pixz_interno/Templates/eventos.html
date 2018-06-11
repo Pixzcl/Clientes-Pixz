@@ -3,7 +3,7 @@
 
 <!-- Activo en el menu: -->
 {% block eventos-li %} active {% endblock %}
-{% block titulo %}{% if activacion == "" %}Eventos{% else %}Activación {{activacion.nombre}} - {{cliente.nombre}}{% endif %}{% endblock %}
+{% block titulo %}{% if activacion == "" %}Eventos{% else %}Activación {{activacion.nombre}} - {{activacion.Cliente.nombre}}{% endif %}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -11,23 +11,23 @@
 	<div id="right-panel" class="right-panel">
 
 		<div class="breadcrumbs">
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<div class="page-header float-left">
 					<div class="page-title">
 						{% if activacion == "" and cliente == "" %}
 							<h1>Todos los eventos</h1>
 						{% else %}
-							<h1>Activación {{activacion.nombre}} - {{cliente.nombre}}</h1>
+							<h1>Activación {{activacion.nombre}}</h1>
 						{% endif %}
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-8">
+			<div class="col-sm-6">
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
 							{% if activacion != "" %}
-								<li><a href="#">{{cliente.nombre}}</a></li>
+								<li><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}">{{activacion.Cliente.nombre}}</a></li>
 								<li class="active">{{activacion.nombre}}</li>
 							{% else %}
 								<li class="active">Eventos</li>
@@ -50,7 +50,7 @@
 						<div class="col-md-6">
 							<div class="card">
 								<div class="card-header bg-secondary">
-									<strong class="card-title text-light">Descripción</strong>
+									<strong class="card-title text-light">Descripción de la activación</strong>
 								</div>
 								<div class="card-body text-white bg-primary">
 									<p class="card-text text-light">{{activacion.descripcion}}</p>
@@ -166,7 +166,7 @@
 			var botones, i;
 			{% for evento in eventos %}
 				botones = document.getElementById("td_" + {{evento.idEvento}}).children;
-				for (i=1; i<botones.length; i++) {
+				for (i=0; i<botones.length; i++) {
 					if (botones[i].style.visibility == "hidden") {
 						botones[i].style.visibility = "visible";
 					}

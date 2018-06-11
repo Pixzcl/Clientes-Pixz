@@ -4,7 +4,7 @@
 
 <!-- Activo en el menu: -->
 <!-- {% block eventos-li %} active {% endblock %} -->
-{% block titulo %}Evento {{evento.nombre}} - {{activacion.nombre}} - {{cliente.nombre}}{% endblock %}
+{% block titulo %}Evento {{evento.nombre}} - {{evento.Activacion.nombre}} - {{evento.Activacion.Cliente.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -15,7 +15,7 @@
 			<div class="col-sm-4">
 				<div class="page-header float-left">
 					<div class="page-title">
-						<h1>Evento {{evento.nombre}} - {{activacion.nombre}} - {{cliente.nombre}}</h1>
+						<h1>Evento {{evento.nombre}}</h1>
 					</div>
 				</div>
 			</div>
@@ -23,8 +23,8 @@
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							<li><a href="#">{{cliente.nombre}}</a></li>
-							<li><a href="#">{{activacion.nombre}}</a></li>
+							<li><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></li>
+							<li><a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}">{{evento.Activacion.nombre}}</a></li>
 							<li class="active">{{evento.nombre}}</li>
 						</ol>
 					</div>
@@ -42,17 +42,17 @@
 					<div class="col-md-6">
 						<div class="card">
 							<div class="card-header bg-secondary">
-								<strong class="card-title text-light">Descripción</strong>
+								<strong class="card-title text-light">Descripción de la activación</strong>
 							</div>
 							<div class="card-body text-white bg-primary">
-								<p class="card-text text-light">{{activacion.descripcion}}</p>
+								<p class="card-text text-light">{{evento.Activacion.descripcion}}</p>
 							</div>
 						</div>
 					</div>
 					<div class="col-md-6">
 						<div class="card">
 							<div class="card-header bg-secondary">
-								<strong class="card-title text-light">Comentarios</strong>
+								<strong class="card-title text-light">Comentarios del evento</strong>
 							</div>
 							<div class="card-body text-white bg-primary">
 								<p class="card-text text-light">{{evento.comentarios}}</p>
@@ -97,7 +97,7 @@
 										</div>
 									</div>
 									<div class="row">
-										<div class="col-lg-6">
+										<div class="col-lg-6 col-sm-12">
 											<div class="card">
 												<div class="card-header">
 													<strong class="card-title">Servicio</strong>
@@ -111,6 +111,7 @@
 																<td>{% if evento.Contacto.nombre != None %}{{evento.Contacto.nombre}}{% else %} - {% endif %}</td>
 															{% else %}
 																<td>{{coordinacion_form.Contacto}}</td>
+																<td><button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_contacto" %}?cliente={{evento.Activacion.Cliente.idCliente}}&evento={{evento.idEvento}}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo</button></td>
 																<td>{{coordinacion_form.Contacto.errors}}</td>
 															{% endif %}
 														</tr>
@@ -150,7 +151,7 @@
 											</div>
 										</div>
 
-										<div class="col-lg-6">
+										<div class="col-lg-6 col-sm-12">
 											<div class="card">
 												<div class="card-header">
 													<strong class="card-title">Montaje</strong>
@@ -220,15 +221,19 @@
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=logistica'"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
+												<button type="button" class="btn btn-outline-info" onclick="location.href='{% url "evento_checklist" %}?evento={{evento.idEvento}}'"><i class="ti-pencil-alt"></i>&nbsp; Checklist</button>
 											{% endif %}
 										</div>
 									</div>
 									<div class="row">
 
-										<div class="col-lg-6">
+										<div class="col-lg-6 col-sm-12">
 											<div class="card">
 												<div class="card-header">
 													<strong class="card-title">Trabajadores</strong>
+													{% if edit == 'logistica' %}
+														<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_trabajador" %}?evento={{evento.idEvento}}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo</button>
+													{% endif %}
 												</div>
 												<div class="card-body">
 													<table class="table table-striped">
@@ -276,10 +281,10 @@
 										</div>
 
 										{% for planEvento in evento.PlanesEvento.all %}
-											<div class="col-lg-6">
+											<div class="col-lg-6 col-sm-12">
 												<div class="card">
 													<div class="card-header">
-														<strong class="card-title">Plan {{planEvento.Plan.nombre}}</strong>
+														<strong class="card-title">{{planEvento.Plan.nombre}}</strong>
 													</div>
 													<div class="card-body">
 														<table class="table table-striped">
@@ -290,7 +295,7 @@
 																</tr>
 															</thead>
 															<tbody>
-																{% for itemPlan, field in  planEvento|zip:logistica_planes_form %}
+																{% for itemPlan, field in  planEvento|zip_evento:logistica_planes_form %}
 																	<tr>
 																		<td>{{itemPlan.Item.nombre}}</td>
 																		{% if edit != 'logistica' %}

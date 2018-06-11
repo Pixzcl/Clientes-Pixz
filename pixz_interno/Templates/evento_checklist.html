@@ -1,0 +1,167 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+{% load filtros %}
+
+<!-- Activo en el menu: -->
+<!-- {% block eventos-li %} active {% endblock %} -->
+{% block titulo %}Checklist evento {{evento.nombre}} - {{activacion.nombre}} - {{cliente.nombre}}{% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<div class="breadcrumbs">
+			<div class="col-sm-4">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Checklist {{evento.nombre}}</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							<li><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></li>
+							<li><a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}">{{evento.Activacion.nombre}}</a></li>
+							<li><a href="{% url 'evento'%}?evento={{evento.idEvento}}">{{evento.nombre}}</a></li>
+							<li class="active">Checklist</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+		<div class="content mt-3">
+			<div class="animated fadeIn">
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-header bg-secondary">
+								<strong class="card-title text-light">Descripción de la activación</strong>
+							</div>
+							<div class="card-body text-white bg-primary">
+								<p class="card-text text-light">{{evento.Activacion.descripcion}}</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-header bg-secondary">
+								<strong class="card-title text-light">Comentarios del evento</strong>
+							</div>
+							<div class="card-body text-white bg-primary">
+								<p class="card-text text-light">{{evento.comentarios}}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				
+				
+			
+
+
+				
+					
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card">
+							<div class="card-header">
+								<strong class="card-title">Checklist</strong>
+							</div>
+							<div class="card-body">
+								<form id="form" method="post" enctype="multipart/form-data">
+									{% csrf_token %}
+									<div class="row">
+										<div class="card-body">
+											<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar cambios</button>
+											<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver a logística</button>
+										</div>
+									</div>
+									{% if mensaje != "" %}
+										<div class="row">
+											<div class="col-md-12">
+												<div class="alert alert-success" role="alert">{{mensaje}}</div>
+											</div>
+										</div>
+									{% endif %}
+
+									<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
+								
+									
+									<div class="row">
+										{% for planEvento, plan in planesItemsEstaciones|zip:evento.Planes.all %}
+											<div class="col-md-6 col-sm-12">
+												<div class="card">
+													<div class="card-header">
+														<strong class="card-title">{{plan.nombre}}</strong>
+													</div>
+													<div class="card-body">
+														
+															<table class="table table-striped">
+																<thead>
+																	<tr>
+																		<th scope="col">Item</th>
+																		<th scope="col">Estación</th>
+																		<th scope="col">Cargado</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	
+																	{% for itemPlan, itemEstacion, form in planEvento %}
+																		<tr>
+																			<td>{{itemPlan.Item.nombre}}</td>
+																			<td>{{itemEstacion.Estacion.nombre}}</td>
+																			<td><label class="switch switch-3d switch-success switch-lg mr-3">{% for field in form %}{{field}}{% endfor %}<span class="switch-label"></span> <span class="switch-handle"></span></label></td>
+																		</tr>
+																	{% endfor %}
+																</tbody>
+															</table>
+														
+													</div>
+												</div>
+											</div>
+										{% endfor %}
+									</div>
+
+									<div class="row">
+										<div class="card-body">
+											<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar cambios</button>
+											<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver a logística</button>
+										</div>
+									</div>
+									{% if mensaje != "" %}
+										<div class="row">
+											<div class="col-md-12">
+												<div class="alert alert-success" role="alert">{{mensaje}}</div>
+											</div>
+										</div>
+									{% endif %}
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+
+
+
+				
+
+
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+				
+{% endblock %}

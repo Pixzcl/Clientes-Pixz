@@ -50,7 +50,7 @@ class EventosForm(forms.Form):
 	horas = forms.IntegerField(min_value=1, label="Horas")
 	comentarios = forms.CharField(required=False, max_length=255, label="Comentarios", widget=forms.Textarea(attrs={'rows': 4}))
 	
-	def __init__(self, n, *args, **kwargs):
+	def __init__(self, nPlanes, *args, **kwargs):
 		super(EventosForm, self).__init__(*args, **kwargs)
 		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = []
@@ -59,17 +59,18 @@ class EventosForm(forms.Form):
 			if p.mostrar == True:
 				choices.append([p.idPlan, p.nombre])
 
-		for i in range(1, n+1):
+		for i in range(1, nPlanes+1):
 			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=choices)
 
 
 class EventosSelectForm(forms.Form):
-	activacion = forms.ChoiceField(label="Activación", choices=[])
+	Activacion = forms.ChoiceField(label="Activación", choices=[])
+	nombre = forms.CharField(max_length=255, label="Evento")
 	fecha = forms.DateField(label="Fecha", initial=datetime.date.today(), widget=forms.SelectDateWidget())
 	horas = forms.IntegerField(min_value=1, label="Horas")
 	comentarios = forms.CharField(required=False, max_length=255, label="Comentarios", widget=forms.Textarea(attrs={'rows': 4}))
 	
-	def __init__(self, n, *args, **kwargs):
+	def __init__(self, nPlanes, *args, **kwargs):
 		super(EventosSelectForm, self).__init__(*args, **kwargs)
 		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = []
@@ -83,8 +84,8 @@ class EventosSelectForm(forms.Form):
 		for a in activaciones:
 			choices_activaciones.append([a.idActivacion, a.nombre])
 
-		self.fields['activacion'].choices = choices_activaciones
-		for i in range(1, n+1):
+		self.fields['Activacion'].choices = choices_activaciones
+		for i in range(1, nPlanes+1):
 			self.fields['plan_%d' % i] = forms.ChoiceField(label="Plan %d" % i, choices=choices)
 
 
@@ -94,7 +95,7 @@ class PlanesForm(forms.Form):
 
 	#item = forms.MultipleChoiceField(label="Item", widget=forms.SelectMultiple(choices=choices, attrs={'class': 'standardSelect'}))
 	
-	def __init__(self, n, *args, **kwargs):
+	def __init__(self, nItems, *args, **kwargs):
 		super(PlanesForm, self).__init__(*args, **kwargs)
 		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = []
@@ -102,7 +103,7 @@ class PlanesForm(forms.Form):
 		for it in items:
 			choices.append([it.idItem, it.nombre])
 
-		for i in range(1, n+1):
+		for i in range(1, nItems+1):
 			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=choices)
 
 
@@ -110,7 +111,7 @@ class EstacionesForm(forms.Form):
 	#plan = forms.ChoiceField(label="Plan", choices=choices)
 	nombre = forms.CharField(max_length=255, label="Nombre") #formset para verificar uniqueness
 	
-	def __init__(self, n, *args, **kwargs):
+	def __init__(self, nItems, *args, **kwargs):
 		super(EstacionesForm, self).__init__(*args, **kwargs)
 		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = []
@@ -118,7 +119,7 @@ class EstacionesForm(forms.Form):
 		for it in items:
 			choices.append([it.idItem, it.nombre])
 
-		for i in range(1, n+1):
+		for i in range(1, nItems+1):
 			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=choices)
 
 
@@ -219,4 +220,10 @@ class LogisticaPlanesForm(forms.Form):
 					if itemPlan.Item in e.Items.all():
 						choices.append([e.ItemsEstacion.get(Item=itemPlan.Item).idItemsEstacion, e.nombre])
 				print(choices)
-				self.fields['planEvento_%d_itemPlan_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan)] = forms.ChoiceField(required=False, label='planEvento_%d_itemPlan_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan), choices=choices)
+				self.fields['planEvento_%d_itemPlan_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan)] = forms.ChoiceField(required=False, label='planEvento_%d_itemPlan_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan), choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
+
+class EventoChecklistForm(forms.Form):
+	def __init__(self, idItemPlanEvento, *args, **kwargs):
+		super(EventoChecklistForm, self).__init__(*args, **kwargs)
+
+		self.fields['item_%d' % idItemPlanEvento] = forms.BooleanField(required=False, label="Check", widget=forms.CheckboxInput(attrs={'class': "switch-input"}))

@@ -105,6 +105,7 @@ class ItemsPlanEvento(models.Model):
 	PlanesEvento = models.ForeignKey("PlanesEvento", verbose_name="Plan evento", related_name="ItemsPlanEvento", on_delete=models.CASCADE, blank=False, null=False)
 	ItemsPlan = models.ForeignKey("ItemsPlan", verbose_name="Item plan", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=False, null=True)
 	ItemsEstacion = models.ForeignKey("ItemsEstacion", verbose_name="Item estación", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=True, null=True)
+	check = models.BooleanField(verbose_name="Check", default=False)
 
 
 class Planes(models.Model):

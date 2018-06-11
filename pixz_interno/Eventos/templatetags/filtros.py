@@ -16,8 +16,8 @@ def itemsEstacion(planEvento, itemPlan):
 	except AttributeError: # (ItemsEstacion no definido en ItemsPlanEvento)
 		return None
 
-@register.filter(name='zip')
-def zip_lists(planEvento, logisticaPlanesForm):
+@register.filter(name='zip_evento')
+def zip_evento(planEvento, logisticaPlanesForm):
 	itemsPlan = planEvento.Plan.ItemsPlan.all()
 	if logisticaPlanesForm == None:
 		return zip(itemsPlan, [None]*len(itemsPlan))
@@ -27,3 +27,7 @@ def zip_lists(planEvento, logisticaPlanesForm):
 			if ("planEvento_%d" % planEvento.idPlanesEvento) in field.label:
 				formSplit.append(field)
 		return zip(itemsPlan, formSplit)
+
+@register.filter(name='zip')
+def zip_listas(a,b):
+	return zip(a,b)

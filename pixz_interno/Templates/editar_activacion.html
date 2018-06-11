@@ -3,8 +3,8 @@
 {% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
-{% block estaciones-li %} active {% endblock %}
-{% block titulo %}Nueva estación{% endblock %}
+{% block activaciones-li %} active {% endblock %}
+{% block titulo %}Editar activación {{activacion.nombre}} - {{activacion.Cliente.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -15,7 +15,7 @@
 			<div class="col-sm-6">
 				<div class="page-header float-left">
 					<div class="page-title">
-						<h1>Nueva estación</h1>
+						<h1>Editar activación {{activacion.nombre}} - {{activacion.Cliente.nombre}}</h1>
 					</div>
 				</div>
 			</div>
@@ -23,8 +23,9 @@
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							<li><a href="#">Estaciones</a></li>
-							<li class="active">Nueva estación</li>
+							<li><a href="#">{{activacion.Cliente.nombre}}</a></li>
+							<li><a href="#">{{activacion.nombre}}</a></li>
+							<li class="active">Editar {{activacion.nombre}}</li>
 						</ol>
 					</div>
 				</div>
@@ -41,13 +42,15 @@
 				<div class="col-md-12">
 					<div class="card">
 						<!--<div class="card-header">
-							<strong class="card-title">Nueva estación</strong>
+							<strong class="card-title">Nueva activación</strong>
 						</div>-->
 						<div class="card-body">
 							
-							<form id="form" method="post" enctype="multipart/form-data">
+							<form method="post" enctype="multipart/form-data">
 				                {% csrf_token %}
-				                {% for field in estaciones_form %}
+				                <input type="hidden" name="activacion" id="activacion" value="{{activacion.idActivacion}}" />
+				                {% if menuCliente != "" %}<input type="hidden" name="menuCliente" id="menuCliente" value="{{menuCliente}}" />{% endif %}
+				                {% for field in activaciones_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
 										{% if "select" in field|widget_type %}
@@ -56,15 +59,11 @@
 											<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
 										{% endif %}
 										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
-										{% if field.label == "Nombre" and nombre_unico == False %}
-											<div class="col-lg-3 col-sm-6">Este nombre ya existe.</div>
-										{% endif %}
 									</div>
 								{% endfor %}
-								<input type="hidden" name="nItems" id="nItems" value="{{nItems}}" />
-								<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="document.getElementById('nItems').value=Number('{{nItems}}')+1; document.getElementById('form').submit();"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
-								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+				                <button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 				            </form>
+
 						</div>
 					</div>
 				</div>
@@ -78,7 +77,6 @@
 	</div><!-- /#right-panel -->
 
 	<!-- Right Panel -->
-
 	
 
 
