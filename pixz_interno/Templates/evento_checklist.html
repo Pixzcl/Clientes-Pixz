@@ -80,12 +80,12 @@
 								<form id="form" method="post" enctype="multipart/form-data">
 									{% csrf_token %}
 									<div class="row">
-										<div class="col-md-3 col-sm-12">
+										<div class="col-md-3">
 											<div class="card-body">
 												<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar cambios</button>
 											</div>
 										</div>
-										<div class="col-md-3 col-sm-12">
+										<div class="col-md-3">
 											<div class="card-body">
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver a logística</button>
 											</div>
@@ -143,12 +143,12 @@
 									</div>
 
 									<div class="row">
-										<div class="col-md-3 col-sm-12">
+										<div class="col-md-3">
 											<div class="card-body">
 												<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar cambios</button>
 											</div>
 										</div>
-										<div class="col-md-3 col-sm-12">
+										<div class="col-md-3">
 											<div class="card-body">
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver a logística</button>
 											</div>
