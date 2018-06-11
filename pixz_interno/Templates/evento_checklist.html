@@ -7,10 +7,48 @@
 {% block titulo %}Checklist evento {{evento.nombre}} - {{activacion.nombre}} - {{cliente.nombre}}{% endblock %}
 
 {% block content %}
-	<!-- Right Panel -->
+
+<!-- Right Panel -->
 
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Checklist {{evento.nombre}}</h1>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></li>
+									<li><a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}">{{evento.Activacion.nombre}}</a></li>
+									<li><a href="{% url 'evento'%}?evento={{evento.idEvento}}">{{evento.nombre}}</a></li>
+									<li class="active">Checklist</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</header>
+
+
+	
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-4">
 				<div class="page-header float-left">
@@ -32,7 +70,7 @@
 				</div>
 			</div>
 		</div>
-
+-->
 
 
 
