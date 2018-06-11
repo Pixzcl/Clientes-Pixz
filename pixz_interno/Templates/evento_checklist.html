@@ -118,8 +118,13 @@
 																	{% for itemPlan, itemEstacion, form in planEvento %}
 																		<tr>
 																			<td>{{itemPlan.Item.nombre}}</td>
-																			<td>{{itemEstacion.Estacion.nombre}}</td>
-																			<td><label class="switch switch-3d switch-success switch-lg mr-3">{% for field in form %}{{field}}{% endfor %}<span class="switch-label"></span> <span class="switch-handle"></span></label></td>
+																			{% if itemEstacion != None %}
+																				<td>{{itemEstacion.Estacion.nombre}}</td>
+																				<td><label class="switch switch-3d switch-success switch-lg mr-3">{% for field in form %}{{field}}{% endfor %}<span class="switch-label"></span> <span class="switch-handle"></span></label></td>
+																			{% else %}
+																				<td><b>Pendiente</b></td>
+																				<td></td>
+																			{% endif %}
 																		</tr>
 																	{% endfor %}
 																</tbody>

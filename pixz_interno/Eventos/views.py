@@ -202,6 +202,10 @@ def agregar_evento(request):
 				planEvento = PlanesEvento(Evento=evento, Plan=plan)
 				planEvento.save()
 
+				for itemPlan in plan.ItemsPlan.all():
+					itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemPlan, ItemsEstacion=None)
+					itemPlanEvento.save()
+
 			#return redirect('eventos')
 			return custom_redirect('evento', evento=evento.idEvento)
 	
