@@ -11,6 +11,39 @@
 
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Evento {{evento.nombre}}</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></li>
+									<li><a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}">{{evento.Activacion.nombre}}</a></li>
+									<li class="active">{{evento.nombre}}</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-4">
 				<div class="page-header float-left">
@@ -31,10 +64,7 @@
 				</div>
 			</div>
 		</div>
-
-
-
-
+-->
 		<div class="content mt-3">
 			<div class="animated fadeIn">
 
@@ -218,7 +248,7 @@
 										<div class="card-body">
 											{% if edit == 'logistica' %}
 												<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
-												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=logistica'"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
 												<button type="button" class="btn btn-outline-info" onclick="location.href='{% url "evento_checklist" %}?evento={{evento.idEvento}}'"><i class="ti-check-box"></i>&nbsp; Checklist</button>
@@ -280,69 +310,55 @@
 											</div>
 										</div>
 
-										{% for planEvento in evento.PlanesEvento.all %}
-											<div class="col-lg-6 col-sm-12">
-												<div class="card">
-													<div class="card-header">
-														<strong class="card-title">{{planEvento.Plan.nombre}}</strong>
-													</div>
-													<div class="card-body">
-														<table class="table table-striped">
-															<thead>
-																<tr>
-																	<th scope="col">Item</th>
-																	<th scope="col">Estación</th>
-																</tr>
-															</thead>
-															<tbody>
-																{% for itemPlan, field in  planEvento|zip_evento:logistica_planes_form %}
+
+
+
+
+										{% for plan, planEvento in lista_planes|zip:evento.PlanesEvento.all %}
+											{% for nPlan in  plan %}
+												<div class="col-lg-6 col-sm-12">
+													<div class="card">
+														<div class="card-header">
+															<strong class="card-title">{{planEvento.Plan.nombre}} {{forloop.counter}}</strong>
+														</div>
+														<div class="card-body">
+															<table class="table table-striped">
+																<thead>
 																	<tr>
-																		<td>{{itemPlan.Item.nombre}}</td>
-																		{% if edit != 'logistica' %}
-																			<td>{% if planEvento|itemsEstacion:itemPlan %}{{planEvento|itemsEstacion:itemPlan}}{% else %} - {% endif %}</td>
-																		{% else %}
-																			<!--<td>{{field.label}}</td>-->
-																			<td>{{field}}</td>
-																			<td>{{field.errors}}</td>
-																		{% endif %}
+																		<th scope="col">Item</th>
+																		<th scope="col">Estación</th>
 																	</tr>
-																{% endfor %}
-															</tbody>
-														</table>
+																</thead>
+																<tbody>
+																		{% for item, num, estacion in  nPlan %}
+																			<tr>
+																				<td>{{item.nombre}}{% if item.multiple %} (x{{num}}){% else %} {{num}}{% endif %}</td>
+																				<td>{{estacion}}</td>
+																			</tr>
+																		{% endfor %}
+																</tbody>
+															</table>
+														</div>
 													</div>
 												</div>
-											</div>
+											{% endfor %}
 										{% endfor %}
-									<!--
-										{% for plan in evento.Planes.all %}
-											<div class="col-lg-6">
-												<div class="card">
-													<div class="card-header">
-														<strong class="card-title">Plan {{plan.nombre}}</strong>
-													</div>
-													<div class="card-body">
-														<table class="table table-striped">
-														  <thead>
-															<tr>
-															  <th scope="col">Item</th>
-															  <th scope="col">Estación</th>
-															</tr>
-														  </thead>
-														  <tbody>
-															{% for item in plan.Items.all %}
-																<tr>
-																  <td>{{item.nombre}}</td>
-																  <td></td>
-																</tr>
-															{% endfor %}
-														  </tbody>
-														</table>
-													</div>
-												</div>
-											</div>
-										{% endfor %}
-									-->
+
+									
 									</div>
+
+									<div class="row">
+										<div class="card-body">
+											{% if edit == 'logistica' %}
+												<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+											{% else %}
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=logistica'"><i class="ti-pencil-alt"></i>&nbsp; Editar</button>
+												<button type="button" class="btn btn-outline-info" onclick="location.href='{% url "evento_checklist" %}?evento={{evento.idEvento}}'"><i class="ti-check-box"></i>&nbsp; Checklist</button>
+											{% endif %}
+										</div>
+									</div>
+
 									{% if edit == 'logistica' %}
 										</form>
 									{% endif %}
@@ -376,7 +392,7 @@
 				<button id="error" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
 
 				<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
-					<div class="modal-dialog modal-sm" role="document">
+					<div class="modal-dialog modal-md" role="document">
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title" id="smallmodalLabel">Error</h5>
@@ -396,7 +412,7 @@
 					</div>
 				</div>
 
-				
+				<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
 				<script>
 					$( document ).ready(function() {
 						document.getElementById("error").click();

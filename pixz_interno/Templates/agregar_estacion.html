@@ -11,6 +11,38 @@
 
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Nueva estación</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li><a href="{% url 'estaciones' %}">Estaciones</a></li>
+									<li class="active">Nueva estación</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-6">
 				<div class="page-header float-left">
@@ -30,10 +62,7 @@
 				</div>
 			</div>
 		</div>
-
-
-
-
+-->
 		<div class="content mt-3">
 			<div class="animated fadeIn">
 				<div class="row">
@@ -46,12 +75,57 @@
 						<div class="card-body">
 							
 							<form id="form" method="post" enctype="multipart/form-data">
-				                {% csrf_token %}
-				                {% for field in estaciones_form %}
+								{% csrf_token %}
+								{% for field in estaciones_form %}
+									{% if "cantidad" not in field.name %}
+										<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+											<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
+											<div class="col-lg-3 col-sm-6" >{{field}}</div>
+											{% if field.name == "nombre" and nombre_unico == False %}
+												<div class="col-lg-3 col-sm-6">Este nombre ya existe.</div>
+											{% endif %}
+
+											{% if "item" not in field.name %}
+												{% if field.errors %}
+													<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
+												{% endif %}
+												</div>
+											{% endif %}
+									{% else %}
+											<div class="col-lg-1 col-sm-2" >{{field}}</div>
+											<!--<div class="col-lg-3 col-sm-6">{{field.errors}}</div>-->
+											{% for error in mensaje_error %}
+												{% if field.label in error %}
+													<div class="col-lg-3 col-sm-6">{{error}}</div>
+												{% endif %}
+											{% endfor %}
+										</div>
+									{% endif %}
+								{% endfor %}
+
+								<input type="hidden" name="nItems" id="nItems" value="{{nItems}}" />
+
+								<div class="row" >
+									<div class="col col-sm-2">
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
+									</div>
+									<div class="col col-sm-2">
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-danger" onclick="agregar_o_quitar(-1)"><i class="fa fa-minus-circle"></i>&nbsp; Quitar item</button></div>
+									</div>
+								</div>
+
+								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+
+
+
+
+
+							<!--
+								{% for field in estaciones_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
 										{% if "select" in field|widget_type %}
-											<div class="col-lg-3 col-sm-6" >{{field|append_attr:"class:standardSelect"}}</div> <!--|append_attr:"multiple"}}</div>-->
+											<div class="col-lg-3 col-sm-6" >{{field|append_attr:"class:standardSelect"}}</div>
 										{% else %}
 											<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
 										{% endif %}
@@ -64,7 +138,8 @@
 								<input type="hidden" name="nItems" id="nItems" value="{{nItems}}" />
 								<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="document.getElementById('nItems').value=Number('{{nItems}}')+1; document.getElementById('form').submit();"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
 								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
-				            </form>
+							-->
+							</form>
 						</div>
 					</div>
 				</div>
@@ -78,6 +153,14 @@
 	</div><!-- /#right-panel -->
 
 	<!-- Right Panel -->
+
+
+	<script >
+		function agregar_o_quitar(n) {
+			document.getElementById('nItems').value=Number('{{nItems}}') + n;
+			document.getElementById('form').submit();
+		}
+	</script>
 
 	
 

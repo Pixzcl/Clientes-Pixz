@@ -1,5 +1,6 @@
 {% extends "Base/base.html" %}
 {% load staticfiles %}
+{% load filtros %}
 
 <!-- Activo en el menu: -->
 {% block eventos-li %} active {% endblock %}
@@ -10,6 +11,46 @@
 
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								{% if activacion == "" and cliente == "" %}
+									<h1>Todos los eventos</h1>
+								{% else %}
+									<h1>Activación {{activacion.nombre}}</h1>
+								{% endif %}
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									{% if activacion != "" %}
+										<li><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}">{{activacion.Cliente.nombre}}</a></li>
+										<li class="active">{{activacion.nombre}}</li>
+									{% else %}
+										<li class="active">Eventos</li>
+									{% endif %}
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-6">
 				<div class="page-header float-left">
@@ -37,7 +78,7 @@
 				</div>
 			</div>
 		</div>
-
+-->
 
 
 
@@ -120,13 +161,13 @@
 						  </tr>
 						</thead>
 						<tbody>
-							{% for evento in eventos %}
+							{% for evento, planes in eventos|zip:lista_planes %}
 								<tr>
 									<th scope="row" id="td_{{evento.idEvento}}">
 										{{evento.idEvento}}
 										<!--<i class="ti-info-alt text-success"></i>-->
-										<a style="visibility:hidden" href='{% url "editar_evento" %}?evento={{evento.idEvento}}' ><i class="ti-pencil-alt text-primary"></i></a>
-										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{evento.nombre}}', '{{evento.idEvento}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
+										<a style="visibility:hidden;" href='{% url "editar_evento" %}?evento={{evento.idEvento}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden;" href="javascript:void(0)" onclick="eliminar('{{evento.nombre}}', '{{evento.idEvento}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if activacion == "" %}
 										<td><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></td>
@@ -137,9 +178,16 @@
 									<td>{{evento.fecha}}</td>
 									<td>{{evento.horas}}</td>
 									<td>
-										{% for plan in evento.Planes.all %}
-											{{plan.nombre}}<br>
+									
+										{% for planEvento in evento.PlanesEvento.all %}
+											{{planEvento.cantidad}} {{planEvento.Plan.nombre}}<br>
 										{% endfor %}
+									
+									<!--
+										{% for plan, cantidad in planes %}
+											{{cantidad}} {{plan}}<br>
+										{% endfor %}
+									-->
 									</td>
 									<td>{{evento.comentarios}}</td>
 									<!--<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" >{{activacion.nombre}}</a></td>-->
@@ -161,19 +209,24 @@
 	<!-- Right Panel -->
 
 	<script type="text/javascript">
+		var visible = false;
 		function mostrar() {
-			
+			visible = !visible;
 			var botones, i;
 			{% for evento in eventos %}
-				botones = document.getElementById("td_" + {{evento.idEvento}}).children;
-				for (i=0; i<botones.length; i++) {
-					if (botones[i].style.visibility == "hidden") {
-						botones[i].style.visibility = "visible";
-					}
-					else {
-						botones[i].style.visibility = "hidden";
+				try {
+					botones = document.getElementById("td_{{evento.idEvento}}").children;
+					for (i=0; i<botones.length; i++) {
+						//if (botones[i].style.visibility == "hidden") {
+						if (visible) {
+							botones[i].style.visibility = "visible";
+						}
+						else {
+							botones[i].style.visibility = "hidden";
+						}
 					}
 				}
+				catch(err) {}
 			{% endfor %}
 			/*
 			var botones, i;

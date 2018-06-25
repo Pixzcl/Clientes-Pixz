@@ -15,15 +15,4 @@ check how many dynos are running
 	heroku ps
 	heroku ps:scale web=1
 
-
-add the modified files to the local git repository
-	git add .
-Now commit the changes to the repository:
-	git commit -m "Demo"
-Now deploy:
-	git push heroku master
-Finally, check that everything is working:
-	heroku open
-
-
-heroku run python manage.py migrate
+heroku run python manage.py shell

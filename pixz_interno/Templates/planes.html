@@ -10,6 +10,37 @@
 
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Planes</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li class="active">Planes</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-6">
 				<div class="page-header float-left">
@@ -22,16 +53,13 @@
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							<!--<li><a href="#"></a></li>
-							<li><a href="#">Table</a></li>-->
 							<li class="active">Planes</li>
 						</ol>
 					</div>
 				</div>
 			</div>
 		</div>
-
-
+-->
 		<div class="content mt-3">
             <div class="animated fadeIn">
 
@@ -55,6 +83,7 @@
 				<div class="row">
 					<div class="card-body">
 						<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_plan" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo plan</button>
+						<!-- <button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar planes</button> -->
 					</div>
 				</div>
 
@@ -77,11 +106,15 @@
 						<tbody>
 							{% for plan in planes %}
 								<tr>
-									<th scope="row">{{plan.idPlan}}</th>
+									<th scope="row" id="td_{{plan.idPlan}}">
+										{{plan.idPlan}}
+										<a style="visibility:hidden" href='{% url "editar_plan" %}?plan={{plan.idPlan}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{plan.nombre}}', '{{plan.idPlan}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
+									</th>
 									<td>{{plan.nombre}}</td>
 									<td>
-										{% for item in plan.Items.all %}
-											{{item.nombre}}<br>
+										{% for itemPlan in plan.ItemsPlan.all %}
+											x{{itemPlan.cantidad}} {{itemPlan.Item.nombre}}<br>
 										{% endfor %}
 									</td>
 								</tr>
@@ -103,13 +136,64 @@
 
 
 	
+	<script type="text/javascript">
+		var visible = false;
+		function mostrar() {
+			visible = !visible;
+			var botones, i;
+			{% for plan in planes %}
+				try {
+					botones = document.getElementById("td_" + {{plan.idPlan}}).children;
+					for (i=0; i<botones.length; i++) {
+						//if (botones[i].style.visibility == "hidden") {
+						if (visible) {
+							botones[i].style.visibility = "visible";
+						}
+						else {
+							botones[i].style.visibility = "hidden";
+						}
+					}
+				}
+				catch(err) {}
+			{% endfor %}
+		}
+	</script>
 
 
-	<!--<script type="text/javascript">
-		$(document).ready(function() {
-		  $('#bootstrap-data-table-export').DataTable();
-		} );
-	</script>-->
+	<button id="eliminar" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+
+	<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="h5_eliminar" class="modal-title" id="smallmodalLabel"></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p id="p_eliminar">
+						¿Estas seguro?
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button id="boton_eliminar" type="button" onclick="" class="btn btn-danger" >Eliminar</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+	<script>
+		function eliminar(nombre, id) {
+			//document.getElementById("p_eliminar").innerHTML = "";
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar plan " + nombre;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_plan" %}?plan=' + id};
+			document.getElementById("eliminar").click();
+		}
+	</script>
 	
 
 

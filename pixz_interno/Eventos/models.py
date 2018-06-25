@@ -20,7 +20,7 @@ from django.db import models
 
 class Clientes(models.Model):
 	idCliente = models.AutoField(primary_key=True, verbose_name="#")
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Cliente", blank=False, null=False)
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False)
 	direccion = models.CharField(max_length=255, verbose_name="Dirección", blank=True, null=True, default="")
 	
 
@@ -28,7 +28,7 @@ class Activaciones(models.Model):
 	idActivacion = models.AutoField(primary_key=True, verbose_name="#")
 	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Activaciones", on_delete=models.CASCADE, blank=False, null=False) #to_field="idCliente"
 
-	nombre = models.CharField(max_length=255, verbose_name="Activación", blank=False, null=False)
+	nombre = models.CharField(max_length=255, verbose_name="Nombre", blank=False, null=False)
 	monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
 	#tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
 	descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, default="")
@@ -41,7 +41,7 @@ class Eventos(models.Model):
 	Planes = models.ManyToManyField("Planes", through="PlanesEvento", related_name="Eventos")
 	Trabajadores = models.ManyToManyField("Trabajadores", through="TrabajadoresEvento", related_name="Eventos")
 	
-	nombre = models.CharField(max_length=255, verbose_name="Evento", blank=False, null=False)
+	nombre = models.CharField(max_length=255, verbose_name="Nombre", blank=False, null=False)
 	#horas = models.DecimalField(max_digits=3, decimal_places=1, verbose_name="Horas", blank=False, null=False)
 	horas = models.PositiveSmallIntegerField(verbose_name="Horas", blank=False, null=False)
 	fecha = models.DateField(verbose_name="Fecha", blank=False, null=False)
@@ -98,14 +98,22 @@ class PlanesEvento(models.Model):
 	Plan = models.ForeignKey("Planes", verbose_name="Plan", related_name="PlanesEvento", on_delete=models.PROTECT, blank=False, null=False)
 	ItemsPlan = models.ManyToManyField("ItemsPlan", through="ItemsPlanEvento", related_name="PlanesEvento")
 	ItemsEstacion = models.ManyToManyField("ItemsEstacion", through="ItemsPlanEvento", related_name="PlanesEvento")
+	cantidad = models.PositiveSmallIntegerField(verbose_name="Cantidad", blank=False, null=False, default=1)
+	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	class Meta:
+		ordering = ['n']
 
 
 class ItemsPlanEvento(models.Model):
 	idItemsPlanEvento = models.AutoField(primary_key=True, verbose_name="#")
 	PlanesEvento = models.ForeignKey("PlanesEvento", verbose_name="Plan evento", related_name="ItemsPlanEvento", on_delete=models.CASCADE, blank=False, null=False)
 	ItemsPlan = models.ForeignKey("ItemsPlan", verbose_name="Item plan", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=False, null=True)
-	ItemsEstacion = models.ForeignKey("ItemsEstacion", verbose_name="Item estación", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=True, null=True)
+	ItemsEstacion = models.ForeignKey("ItemsEstacion", verbose_name="Item estación", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=True, null=True, default=None)
 	check = models.BooleanField(verbose_name="Check", default=False)
+	nItem = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	nPlan = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	class Meta:
+		ordering = ['PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem']
 
 
 class Planes(models.Model):
@@ -114,31 +122,40 @@ class Planes(models.Model):
 	Items = models.ManyToManyField("Items", through="ItemsPlan", related_name="Planes")
 	Trabajadores = models.ManyToManyField("Trabajadores", through="PlanesTrabajador", related_name="Planes")
 
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Plan", blank=False, null=False)
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False)
 
 
 class ItemsPlan(models.Model):
 	idItemsPlan = models.AutoField(primary_key=True, verbose_name="#")
 	Plan = models.ForeignKey("Planes", verbose_name="Plan", related_name="ItemsPlan", on_delete=models.CASCADE, blank=False, null=False)
-	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsPlan", on_delete=models.CASCADE, blank=False, null=False)
+	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsPlan", on_delete=models.SET(None), blank=False, null=False)
 	#item = models.CharField(max_length=255, verbose_name="Item", blank=False, null=False)
 	ItemsEstacion = models.ManyToManyField("ItemsEstacion", through="ItemsPlanEvento", related_name="ItemsPlan")
+	cantidad = models.PositiveSmallIntegerField(verbose_name="Cantidad", blank=False, null=False, default=1)
+	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	class Meta:
+		ordering = ['n']
 
 
 class Estaciones(models.Model):
 	idEstacion = models.AutoField(primary_key=True, verbose_name="#")
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Estación", blank=False, null=False)
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False)
 	Items = models.ManyToManyField("Items", through="ItemsEstacion", related_name="Estaciones")
 
 
 class ItemsEstacion(models.Model):
 	idItemsEstacion = models.AutoField(primary_key=True, verbose_name="#")
 	Estacion = models.ForeignKey("Estaciones", verbose_name="Estación", related_name="ItemsEstacion", on_delete=models.CASCADE, blank=False, null=False)
-	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsEstacion", on_delete=models.CASCADE, blank=False, null=False)
+	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsEstacion", on_delete=models.SET(None), blank=False, null=False)
 	#item = models.CharField(max_length=255, verbose_name="Item", blank=False, null=False)
+	cantidad = models.PositiveSmallIntegerField(verbose_name="Cantidad", blank=False, null=False, default=1)
+	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	class Meta:
+		ordering = ['n']
 
 
 class Items(models.Model):
 	idItem = models.AutoField(primary_key=True, verbose_name="#")
 	
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Item", blank=False, null=False)
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False)
+	multiple = models.BooleanField(verbose_name="Multiple", default=False)

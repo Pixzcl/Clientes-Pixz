@@ -11,6 +11,38 @@
 
 	<div id="right-panel" class="right-panel">
 
+	<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Nuevo item</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li><a href="{% url 'items' %}">Items</a></li>
+									<li class="active">Nuevo item</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-6">
 				<div class="page-header float-left">
@@ -30,10 +62,7 @@
 				</div>
 			</div>
 		</div>
-
-
-
-
+-->
 		<div class="content mt-3">
 			<div class="animated fadeIn">
 				<div class="row">
@@ -47,13 +76,24 @@
 							
 							<form id="form" method="post" enctype="multipart/form-data">
 								{% csrf_token %}
-								{% for field in items_form %}
+								<!--{% for field in items_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
 										<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
 										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
 									</div>
-								{% endfor %}
+								{% endfor %}-->
+								<div class="row form-group {% if items_form.nombre.error %} alert alert-error {% endif %}">
+									<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{items_form.nombre.label}} *</label></div>
+									<div class="col-lg-3 col-sm-6">{{items_form.nombre|append_attr:"class:form-control"}}</div>
+									<div class="col-lg-3 col-sm-6">{{items_form.nombre.errors}}</div>
+								</div>
+								<div class="row form-group {% if items_form.multiple.error %} alert alert-error {% endif %}">
+									<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{items_form.multiple.label}}</label></div>
+									<div class="col-lg-3 col-sm-6"><label class="switch switch-text switch-primary switch-pill switch-lg">{{items_form.multiple|append_attr:"class:switch-input"}}<span data-on="Si" data-off="No" class="switch-label"></span> <span class="switch-handle"></span></label><small class="form-text text-muted">Activar si se usa en grandes cantidades regularmente. Ej: Pinzas x4.</small></div>
+									<!--<div class="col-lg-3 col-sm-6"><label class="switch switch-3d switch-success switch-lg mr-3">{{items_form.multiple|append_attr:"class:switch-input"}}<span class="switch-label"></span> <span class="switch-handle"></span></label></div>-->
+									<div class="col-lg-3 col-sm-6">{{items_form.multiple.errors}}</div>
+								</div>
 								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 							</form>
 						</div>

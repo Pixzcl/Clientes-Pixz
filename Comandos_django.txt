@@ -5,7 +5,7 @@ python manage.py runserver
 
 
 Migrations: Actualizar Models.py (tablas)
-	python manage.py makemigrations [AppName]
+	python manage.py makemigrations
 	python manage.py migrate
 
 virtual_env:

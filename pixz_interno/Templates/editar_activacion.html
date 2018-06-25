@@ -11,6 +11,39 @@
 
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Editar activación {{activacion.nombre}} - {{activacion.Cliente.nombre}}</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li><a href="#">{{activacion.Cliente.nombre}}</a></li>
+									<li><a href="#">{{activacion.nombre}}</a></li>
+									<li class="active">Editar {{activacion.nombre}}</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-6">
 				<div class="page-header float-left">
@@ -31,10 +64,7 @@
 				</div>
 			</div>
 		</div>
-
-
-
-
+-->
 		<div class="content mt-3">
 			<div class="animated fadeIn">
 				<div class="row">
@@ -58,6 +88,11 @@
 										{% else %}
 											<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
 										{% endif %}
+
+										{% if field.label == "Nombre" and nombre_unico == False %}
+											<div class="col-lg-3 col-sm-6">Este nombre ya existe para el cliente.</div>
+										{% endif %}
+										
 										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
 									</div>
 								{% endfor %}

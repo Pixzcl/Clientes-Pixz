@@ -11,6 +11,39 @@
 
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Editar evento {{evento.nombre}} - {{evento.Activacion.nombre}} - {{evento.Activacion.Cliente.nombre}}</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li><a href="#">{{evento.Activacion.Cliente.nombre}}</a></li>
+									<li><a href="#">{{evento.Activacion.nombre}}</a></li>
+									<li class="active">Editar {{evento.nombre}}</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-6">
 				<div class="page-header float-left">
@@ -31,7 +64,7 @@
 				</div>
 			</div>
 		</div>
-
+-->
 
 
 
@@ -45,24 +78,52 @@
 							<strong class="card-title">Nuevo evento</strong>
 						</div>-->
 						<div class="card-body">
-							
 							<form id="form" method="post" enctype="multipart/form-data">
 				                {% csrf_token %}
 				                <input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
-				                {% if menuActivacion != "" %}<input type="hidden" name="menuActivacion" id="menuActivacion" value="{{menuActivacion}}" />{% endif %}
+				                 {% if menuActivacion != "" %}<input type="hidden" name="menuActivacion" id="menuActivacion" value="{{menuActivacion}}" />{% endif %}
 				                {% for field in eventos_form %}
-									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
-										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
-										{% if "select" in field|widget_type %}
-											<div class="col-lg-3 col-sm-6" >{{field|append_attr:"class:standardSelect"}}</div> <!--|append_attr:"multiple"}}</div>-->
-										{% else %}
-											<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
-										{% endif %}
-										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
-									</div>
+				                	{% if "cantidad" not in field.name %}
+										<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+											<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
+											<div class="col-lg-3 col-sm-6" >{{field}}</div>
+
+											{% if field.name == "ActivacionSelect" and activacion == -1 %}
+												<div class="col-lg-3 col-sm-6">Elija una activación</div>
+											{% endif %}
+											{% if field.name == "nombre" and nombre_unico == False %}
+												<div class="col-lg-3 col-sm-6">Este nombre ya existe para la activación.</div>
+											{% endif %}
+
+											{% if "plan" not in field.name %}
+												{% if field.errors %}
+													<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
+												{% endif %}
+												</div>
+											{% endif %}
+									{% else %}
+											<div class="col-lg-1 col-sm-2" >{{field}}</div>
+											<!--<div class="col-lg-3 col-sm-6">{{field.errors}}</div>-->
+											{% for error in mensaje_error %}
+												{% if field.label in error %}
+													<div class="col-lg-3 col-sm-6">{{error}}</div>
+												{% endif %}
+											{% endfor %}
+										</div>
+									{% endif %}
 								{% endfor %}
+
 								<input type="hidden" name="nPlanes" id="nPlanes" value="{{nPlanes}}" />
-								<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="document.getElementById('nPlanes').value=Number('{{nPlanes}}')+1; document.getElementById('form').submit();"><i class="fa fa-plus-circle"></i>&nbsp; Agregar plan</button></div>
+
+								<div class="row" >
+									<div class="col col-sm-2">
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Agregar plan</button></div>
+									</div>
+									<div class="col col-sm-2">
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-danger" onclick="agregar_o_quitar(-1)"><i class="fa fa-minus-circle"></i>&nbsp; Quitar plan</button></div>
+									</div>
+								</div>
+
 								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 				            </form>
 						</div>
@@ -80,7 +141,12 @@
 	<!-- Right Panel -->
 
 
-	
+	<script >
+		function agregar_o_quitar(n) {
+			document.getElementById('nPlanes').value=Number('{{nPlanes}}') + n;
+			document.getElementById('form').submit();
+		}
+	</script>
 
 
 {% endblock %}

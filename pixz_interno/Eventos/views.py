@@ -36,9 +36,9 @@ from django.utils.datastructures import MultiValueDictKeyError
 #	return render(request, 'clientes.html')
 
 def custom_redirect(url_name, *args, **kwargs):
-    url = reverse(url_name, args=args)
-    params = urlencode(kwargs)
-    return HttpResponseRedirect(url + "?%s" % params)
+	url = reverse(url_name, args=args)
+	params = urlencode(kwargs)
+	return HttpResponseRedirect(url + "?%s" % params)
 
 def index(request):
 	clientes = Clientes.objects.all()
@@ -119,11 +119,20 @@ def agregar_activacion(request):
 			idCliente = cliente.idCliente
 			form = ActivacionesSelectForm(request.POST, request.FILES)
 
+		nombre_unico = True
+
 		if form.is_valid():
-			activacion = form.save(commit=False)
-			activacion.Cliente = Clientes.objects.get(idCliente=idCliente)
-			activacion.save()
-			return custom_redirect('eventos', activacion=activacion.idActivacion)
+			activaciones = cliente.Activaciones.all()
+			nombre = request.POST['nombre']
+			for a in activaciones:
+				if a.nombre == nombre:
+					nombre_unico = False
+
+			if nombre_unico:
+				activacion = form.save(commit=False)
+				activacion.Cliente = Clientes.objects.get(idCliente=idCliente)
+				activacion.save()
+				return custom_redirect('eventos', activacion=activacion.idActivacion)
 	
 	else:
 		try:
@@ -133,10 +142,12 @@ def agregar_activacion(request):
 		except MultiValueDictKeyError:
 			cliente = ""
 			form = ActivacionesSelectForm()
+		nombre_unico = True
 
 	context = {
 		"activaciones_form": form,
 		"cliente": cliente,
+		"nombre_unico": nombre_unico,
 	}
 	return render(request, 'agregar_activacion.html', context)
 
@@ -155,59 +166,117 @@ def eventos(request):
 		cliente = ""
 		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios"]
 
+### No esta funcionando bien
+		# lista_planes = []
+		# plan = ""
+		# n = 0
+		# for i in range(eventos.count()):
+		# 	lista_planes.append([])
+		# 	for j in range(eventos[i].PlanesEvento.all().count()):
+		# 		if plan != eventos[i].PlanesEvento.all()[j].Plan.nombre:
+		# 			if plan != "":
+		# 				lista_planes[i].append([plan, n])
+		# 			n = 1
+		# 			plan = eventos[i].PlanesEvento.all()[j].Plan.nombre
+		# 		else:
+		# 			n += 1
+
+	lista_planes = []
+	for evento in eventos:
+		plan = ""
+		lista_planes.append([])
+		for planEvento in evento.PlanesEvento.all().order_by("n"):
+			if plan == planEvento.Plan.nombre:
+				lista_planes[-1][-1][1] += 1
+			else:
+				plan = planEvento.Plan.nombre
+				lista_planes[-1].append([plan, 1])
+
 	context = {
 		"cliente": cliente,
 		"activacion": activacion,
 		"titulos": titulos,
 		"pendientes": eventos.filter(fecha__gte=datetime.date.today()),
 		"eventos": eventos,
+		"lista_planes": lista_planes,
 	}
 	return render(request, 'eventos.html', context)
 
 
 def agregar_evento(request):
 	if request.method == 'POST':
+		
 		nPlanes = int(request.POST['nPlanes'])
-
+		activacion = -1
 		try:
-			int(request.POST['Activacion']) # (probar si viene de SelectForm o no)
-			idActivacion = request.POST['Activacion']
-			activacion = Activaciones.objects.get(idActivacion=idActivacion)
-			form = EventosForm(nPlanes, request.POST, request.FILES)
+			if request.POST['ActivacionSelect'] != "-1": # activacion no elejida
+				activacion = Activaciones.objects.get(idActivacion=request.POST['ActivacionSelect'])
+			form = EventosSelectForm(nPlanes, False, request.POST, request.FILES)
+			select = True
 		except:
-			activacion = request.POST['Activacion']
-			idActivacion = activacion.idActivacion
-			form = EventosSelectForm(nPlanes, request.POST, request.FILES)
-		
-		
-		
-		if form.is_valid():
-			evento = Eventos(Activacion=activacion)
-			#datetime.date(1943,3, 13)  #year, month, day
-			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
-			evento.nombre = request.POST['nombre']
-			evento.horas = request.POST['horas']
-			evento.comentarios = request.POST['comentarios']
-			evento.save()
+			if request.POST['Activacion'] != "-1":
+				activacion = Activaciones.objects.get(idActivacion=request.POST['Activacion'])
+			form = EventosForm(nPlanes, request.POST, request.FILES)
+			select = False
 
-			#planes = []
-			#for key, value in request.POST.items():
-			#	if "plan_" in key:
-			#		planes.append(Planes.objects.get(idPlan=value))
-			planes = []
-			for i in range(1, nPlanes+1):
-				planes.append(Planes.objects.get(idPlan=request.POST["plan_%d" % i]))
+		count = 0
+		mensaje_error = []
+		nombre_unico = True
+		values = []
+		for key, value in request.POST.items():
+			if "plan_" in key:
+				count += 1
+				if value == '-1':
+					mensaje_error.append("Elija el plan %d " % count)
+				elif value in values:
+					mensaje_error.append("Se repite el plan %d " % count)
+				values.append(value)
+		if count != int(nPlanes):
+			mensaje_error = []
 
-			for plan in planes:
-				planEvento = PlanesEvento(Evento=evento, Plan=plan)
-				planEvento.save()
+		if form.is_valid() and count == int(nPlanes) and mensaje_error == [] and activacion != -1:
 
-				for itemPlan in plan.ItemsPlan.all():
-					itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemPlan, ItemsEstacion=None)
-					itemPlanEvento.save()
+			eventos = activacion.Eventos.all()
+			nombre = request.POST['nombre']
+			for e in eventos:
+				if e.nombre == nombre:
+					nombre_unico = False
 
-			#return redirect('eventos')
-			return custom_redirect('evento', evento=evento.idEvento)
+			if nombre_unico:
+				evento = Eventos(Activacion=activacion)
+				#datetime.date(1943,3, 13)  #year, month, day
+				evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+				evento.nombre = request.POST['nombre']
+				evento.horas = request.POST['horas']
+				evento.comentarios = request.POST['comentarios']
+				evento.save()
+
+				planes = []
+				for i in range(1, nPlanes + 1):
+					planes.append([Planes.objects.get(idPlan=request.POST["plan_%d" % i]), int(request.POST["cantidad_%d" % i])])
+
+#				num = 0
+				i = 1
+				for plan, cantidad in planes:
+#					for i in range(1, cantidad + 1):
+#					num += 1
+#					planEvento = PlanesEvento(Evento=evento, Plan=plan, n=num)
+					planEvento = PlanesEvento(Evento=evento, Plan=plan, cantidad=cantidad, n=i)
+					planEvento.save()
+					i += 1
+
+					for nPlan in range(1, cantidad + 1):
+						for itemPlan in plan.ItemsPlan.all():
+							#if itemPlan.activo:
+							for nItem in range(1, itemPlan.cantidad + 1):
+#								itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemPlan, ItemsEstacion=None, n=n)
+								itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemPlan, ItemsEstacion=None, nPlan=nPlan, nItem=nItem)
+								itemPlanEvento.save()
+								if itemPlan.Item.multiple:
+									break
+
+				#return redirect('eventos')
+				return custom_redirect('evento', evento=evento.idEvento)
 	
 	else:
 		try:
@@ -219,15 +288,22 @@ def agregar_evento(request):
 			idActivacion = request.GET['activacion']
 			activacion = Activaciones.objects.get(idActivacion=idActivacion)
 			form = EventosForm(nPlanes)
+			select = False
 		except MultiValueDictKeyError:
 			activacion = ""
-			form = EventosSelectForm(nPlanes)
+			form = EventosSelectForm(nPlanes, False)
+			select = True
+		mensaje_error = []
+		nombre_unico = True
 
 	
 	context = {
 		"eventos_form": form,
 		"activacion": activacion,
 		"nPlanes": nPlanes,
+		"mensaje_error": mensaje_error,
+		"nombre_unico": nombre_unico,
+		"select": select,
 	}
 	return render(request, 'agregar_evento.html', context)
 
@@ -245,34 +321,70 @@ def planes(request):
 
 
 def agregar_plan(request):
-	nombre_unico = True
 	if request.method == 'POST':
+		nombre_unico = True
 		nItems = int(request.POST['nItems'])
 		form = PlanesForm(nItems, request.POST, request.FILES)
-		#form = PlanesForm2(request.POST, request.FILES)
-		print (len(request.POST))
+		
 		count = 0
+		mensaje_error = []
+		values = []
 		for key, value in request.POST.items():
 			if "item_" in key:
 				count += 1
-		if form.is_valid() and count == int(nItems):
+				if value == '-1':
+					mensaje_error.append("Elija el item %d " % count)
+				elif value in values:
+					mensaje_error.append("Se repite el item %d " % count)
+				values.append(value)
+		if count != int(nItems):
+			mensaje_error = []
+
+		if form.is_valid() and count == int(nItems) and mensaje_error == []:
+		# try:
+		# 	items = Items.objects.filter(idItem__in=request.POST.getlist("items"))
+		# 	#nItems = len(items)
+		# 	nombres = [item.nombre for item in items]
+		# 	fieldNum = -1 # para contar el csrf token
+		# 	for key in request.POST:
+		# 		fieldNum += 1
+		# 		if key == "items":
+		# 			break
+		# 	nombres = [""]*fieldNum + nombres # para calzar con ciclo en html linea 138
+		# except MultiValueDictKeyError:
+		# 	items = []
+		# 	#nItems = 0
+		# 	nombres = []
+		# form = PlanesForm(len(items), request.POST, request.FILES)
+		# paso = int(request.POST["paso"])
+		# if not(form.is_valid()):
+		# 	paso = 1
+		# else:
 			# verificar uniqueness
 			planes = Planes.objects.all()
+			nombre = request.POST['nombre']
 			for p in planes:
-				if p.nombre == request.POST['nombre']:
+				if p.nombre == nombre:
 					nombre_unico = False
-			if nombre_unico == True:
-				plan = Planes(nombre=request.POST['nombre'])
-				#plan.nombre = request.POST['nombre']
+		#			paso = 1
+		#	if nombre_unico and paso == 3:
+			if nombre_unico:
+				plan = Planes(nombre=nombre)
 				plan.save()
 
 				items = []
-				for key, value in request.POST.items():
-					if "item_" in key:
-						items.append(Items.objects.get(idItem=value))
-				for item in items:
-					itemsPlan = ItemsPlan(Plan=plan, Item=item)
+				for i in range(1, nItems + 1):
+					items.append([Items.objects.get(idItem=request.POST["item_%d" % i]), request.POST["cantidad_%d" % i]])
+		#		cantidades = []
+		#		for i in range(1, len(items)+1):
+		#			cantidades.append(request.POST['cantidad_%d' % i])
+
+		#		for item, cantidad in zip(items, cantidades):
+				n = 1
+				for item, cantidad in items:
+					itemsPlan = ItemsPlan(Plan=plan, Item=item, cantidad=cantidad, n=n)
 					itemsPlan.save()
+					n += 1
 
 				return redirect('planes')
 	else:
@@ -281,11 +393,17 @@ def agregar_plan(request):
 		except MultiValueDictKeyError:
 			nItems = 1
 		form = PlanesForm(nItems)
-		#form = PlanesForm2()
+		nombre_unico = True
+		mensaje_error = []
+	#	paso = 1
+	#	nombres = []
 	context = {
 		"planes_form": form,
 		"nItems": nItems,
 		"nombre_unico": nombre_unico,
+		"mensaje_error": mensaje_error,
+	#	"paso": paso,
+	#	"nombres": nombres
 	}
 	return render(request, 'agregar_plan.html', context)
 
@@ -303,29 +421,45 @@ def estaciones(request):
 
 
 def agregar_estacion(request):
-	nombre_unico = True
 	if request.method == 'POST':
+		nombre_unico = True
 		nItems = int(request.POST['nItems'])
 		form = EstacionesForm(nItems, request.POST, request.FILES)
+		
+		count = 0
+		mensaje_error = []
+		values = []
+		for key, value in request.POST.items():
+			if "item_" in key:
+				count += 1
+				if value == '-1':
+					mensaje_error.append("Elija el item %d " % count)
+				elif value in values:
+					mensaje_error.append("Se repite el item %d " % count)
+				values.append(value)
+		if count != int(nItems):
+			mensaje_error = []
 
-		if form.is_valid():
+		if form.is_valid() and count == int(nItems) and mensaje_error == []:
 			# verificar uniqueness
 			estaciones = Estaciones.objects.all()
+			nombre = request.POST['nombre']
 			for e in estaciones:
-				if e.nombre == request.POST['nombre']:
+				if e.nombre == nombre:
 					nombre_unico = False
-			if nombre_unico == True:
-				estacion = Estaciones(nombre=request.POST['nombre'])
-				#estacion.nombre = request.POST['nombre']
+			if nombre_unico:
+				estacion = Estaciones(nombre=nombre)
 				estacion.save()
 
 				items = []
-				for key, value in request.POST.items():
-					if "item_" in key:
-						items.append(Items.objects.get(idItem=value))
-				for item in items:
-					itemsEstacion = ItemsEstacion(Estacion=estacion, Item=item)
+				for i in range(1, nItems + 1):
+					items.append([Items.objects.get(idItem=request.POST["item_%d" % i]), request.POST["cantidad_%d" % i]])
+
+				n = 1
+				for item, cantidad in items:
+					itemsEstacion = ItemsEstacion(Estacion=estacion, Item=item, cantidad=cantidad, n=n)
 					itemsEstacion.save()
+					n += 1
 
 				return redirect('estaciones')
 	else:
@@ -334,18 +468,61 @@ def agregar_estacion(request):
 		except MultiValueDictKeyError:
 			nItems = 1
 		form = EstacionesForm(nItems)
+		nombre_unico = True
+		mensaje_error = []
+
 	context = {
 		"estaciones_form": form,
 		"nItems": nItems,
 		"nombre_unico": nombre_unico,
+		"mensaje_error": mensaje_error,
 	}
 	return render(request, 'agregar_estacion.html', context)
+
+# def agregar_estacion(request):
+# 	nombre_unico = True
+# 	if request.method == 'POST':
+# 		nItems = int(request.POST['nItems'])
+# 		form = EstacionesForm(nItems, request.POST, request.FILES)
+
+# 		if form.is_valid():
+# 			# verificar uniqueness
+# 			estaciones = Estaciones.objects.all()
+# 			for e in estaciones:
+# 				if e.nombre == request.POST['nombre']:
+# 					nombre_unico = False
+# 			if nombre_unico == True:
+# 				estacion = Estaciones(nombre=request.POST['nombre'])
+# 				#estacion.nombre = request.POST['nombre']
+# 				estacion.save()
+
+# 				items = []
+# 				for key, value in request.POST.items():
+# 					if "item_" in key:
+# 						items.append(Items.objects.get(idItem=value))
+# 				for item in items:
+# 					itemsEstacion = ItemsEstacion(Estacion=estacion, Item=item)
+# 					itemsEstacion.save()
+
+# 				return redirect('estaciones')
+# 	else:
+# 		try:
+# 			nItems = int(request.GET['nItems'])
+# 		except MultiValueDictKeyError:
+# 			nItems = 1
+# 		form = EstacionesForm(nItems)
+# 	context = {
+# 		"estaciones_form": form,
+# 		"nItems": nItems,
+# 		"nombre_unico": nombre_unico,
+# 	}
+# 	return render(request, 'agregar_estacion.html', context)
 
 
 def items(request):
 	items = Items.objects.all()
 	
-	titulos = ["#", "Item"]
+	titulos = ["#", "Item", "Multiple"]
 
 	context = {
 		"items": items,
@@ -381,6 +558,8 @@ def trabajadores(request):
 
 
 def agregar_trabajador(request):
+	print("ASdasd")
+	print (request.META['HTTP_REFERER'])
 	if request.method == 'POST':
 		evento = request.POST['evento']
 		form = TrabajadoresForm(request.POST, request.FILES)
@@ -463,13 +642,13 @@ def agregar_contacto_select(request):
 	return render(request, 'agregar_contacto.html', context)
 
 
+
+
 def evento(request):
 	error = False
 	if request.method == 'POST':
 		idEvento = request.POST['evento']
 		evento = Eventos.objects.get(idEvento=idEvento)
-		activacion = evento.Activacion
-		cliente = activacion.Cliente
 
 		coordinacion_form = None
 		logistica_form = None
@@ -484,15 +663,19 @@ def evento(request):
 				if contacto == "":
 					evento.Contacto = None
 				else:
-					Contacto = cliente.Contactos.get(idContacto=contacto)
+					Contacto = evento.Activacion.Cliente.Contactos.get(idContacto=contacto)
 					if Contacto != evento.Contacto:
 						evento.Contacto = Contacto
 
 				#datetime.date(1943,3, 13)  #year, month, day
-				#if (request.POST['fecha_instalacion_year'] != "0" and request.POST['fecha_instalacion_month'] != "0" and request.POST['fecha_instalacion_day'] != "0"):
-				evento.fecha_instalacion = datetime.date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
-				#if (request.POST['fecha_desinstalacion_year'] != "0" and request.POST['fecha_desinstalacion_month'] != "0" and request.POST['fecha_desinstalacion_day'] != "0"):
-				evento.fecha_desinstalacion = datetime.date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
+				if (request.POST['fecha_instalacion_year'] == "0" and request.POST['fecha_instalacion_month'] == "0" and request.POST['fecha_instalacion_day'] == "0"):
+					evento.fecha_instalacion = None
+				if (request.POST['fecha_instalacion_year'] != "0" and request.POST['fecha_instalacion_month'] != "0" and request.POST['fecha_instalacion_day'] != "0"):
+					evento.fecha_instalacion = datetime.date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
+				if (request.POST['fecha_desinstalacion_year'] == "0" and request.POST['fecha_desinstalacion_month'] == "0" and request.POST['fecha_desinstalacion_day'] == "0"):
+					evento.fecha_desinstalacion = None
+				if (request.POST['fecha_desinstalacion_year'] != "0" and request.POST['fecha_desinstalacion_month'] != "0" and request.POST['fecha_desinstalacion_day'] != "0"):
+					evento.fecha_desinstalacion = datetime.date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
 				
 				hora_instalacion = request.POST['hora_instalacion']
 				if hora_instalacion == "":
@@ -551,32 +734,39 @@ def evento(request):
 				for key, value in request.POST.items():
 					if "_" in key:
 						split = key.split("_")
-						planEvento = PlanesEvento.objects.get(idPlanesEvento=split[1])
-						itemPlan = ItemsPlan.objects.get(idItemsPlan=split[3])
-						if value == "":
+						planEvento = PlanesEvento.objects.get(idPlanesEvento=int(split[1]))
+						itemPlan = ItemsPlan.objects.get(idItemsPlan=int(split[3]))
+						nPlan = int(split[5])
+						nItem = int(split[7])
+						if value == "-1":
 							itemEstacion = None
 						else:
+							print ("value: ", value)
 							itemEstacion = ItemsEstacion.objects.get(idItemsEstacion=value)
 
-						try:
-							itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan)
-							itemPlanEvento.ItemsEstacion = itemEstacion
-						except ItemsPlanEvento.DoesNotExist:
-							itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemPlan, ItemsEstacion=itemEstacion)
+						# if itemPlan.Item.multiple:
+						# 	for i in range(itemPlan.cantidad):
+						# 		itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, n=(i+1))
+						# 		itemPlanEvento.ItemsEstacion = itemEstacion
+						# 		itemPlanEvento.save()
+						# else:
+						# 	itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, n=n)
+						# 	itemPlanEvento.ItemsEstacion = itemEstacion
+						# 	itemPlanEvento.save()
+
+						itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, nPlan=nPlan, nItem=nItem)
+						itemPlanEvento.ItemsEstacion = itemEstacion
 						itemPlanEvento.save()
 
 				#evento.save()
-				return custom_redirect('evento', evento=idEvento, tab="logistica")
+				return custom_redirect('evento', evento=idEvento)
 			else:
 				error = True
-
 	# GET				
 	else:
 		try:
 			idEvento = request.GET['evento']
 			evento = Eventos.objects.get(idEvento=idEvento)
-			activacion = evento.Activacion
-			cliente = activacion.Cliente
 		except MultiValueDictKeyError:
 			return redirect('eventos')
 		try:
@@ -606,28 +796,110 @@ def evento(request):
 				initial = {}
 				planesEvento = evento.PlanesEvento.all()
 				for planEvento in planesEvento:
-					for itemPlan in planEvento.Plan.ItemsPlan.all():
-						try:
-							init = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan).ItemsEstacion.idItemsEstacion
-						except ItemsPlanEvento.DoesNotExist:
-							init = None
-						except AttributeError: # (ItemsEstacion no definido en ItemsPlanEvento)
-							init = None
-						initial['planEvento_%d_itemPlan_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan)] = init
+					for nPlan in range(1, planEvento.cantidad + 1):
+						#activo problema :/
+						# if planEvento.ItemsPlanEvento.filter(ItemsPlan=itemPlan).count() > 0:
+						for itemPlan in planEvento.Plan.ItemsPlan.all():
+							for nItem in range(1, itemPlan.cantidad + 1):
+								try:
+									init = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, nItem=nItem, nPlan=nPlan).ItemsEstacion.idItemsEstacion
+								except AttributeError: # (ItemsEstacion no definido en ItemsPlanEvento)
+									init = None
+								initial['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)] = init
+								
+								if itemPlan.Item.multiple:
+									break;
 				logistica_planes_form = LogisticaPlanesForm(planesEvento, initial=initial)
 
 		except MultiValueDictKeyError:
 			edit = False
 		try:
-			tab = request.GET['tab']
-		except MultiValueDictKeyError:
+			#tab = request.GET['tab']
+			tab = "coordinacion"
+			origen = request.META['HTTP_REFERER']
+			if "edit=logistica" in origen or "evento_checklist" in origen:
+				tab = "logistica"
+		except:
 			tab = "coordinacion"
 
-		#itemsPlanEvento = ItemsPlanEvento.objects.filter(PlanesEvento__in=evento.PlanesEvento.all(), ItemsPlan__in=evento.Planes.)
+	# lista_planes = []
+	# for planEvento in evento.PlanesEvento.all().order_by("n"):
+	# 	i = 0
+	# 	#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
+	# 	filtro = planEvento.ItemsPlanEvento.all() #.order_by('PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem')
+	# 	for it in filtro:
+	# 		print (it.PlanesEvento.Plan.nombre, it.nPlan, it.ItemsPlan.Item.nombre, it.nItem)
+	# 	lista_planes.append([])
+	# 	for nPlan in range(1, planEvento.cantidad + 1):
+	# 		lista_planes[-1].append([])
+	# 		for itemPlan in planEvento.Plan.ItemsPlan.all().order_by("idItemsPlan"):
+	# 			lista_planes[-1][-1].append([])
+	# 			for nItem in range(1, itemPlan.cantidad + 1):
+	# 				if itemPlan.Item.multiple:
+	# 					num = itemPlan.cantidad
+	# 				else:
+	# 					num = nItem
+	# 				#print(num, itemPlan.Item.nombre)
+	# 				#print(filtro[i].ItemsPlan.Item.nombre)
+	# 				if edit == "logistica":
+	# 					if request.method == "GET":
+	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, logistica_planes_form['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)]])
+	# 					else:
+	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, request.POST['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)]])
+	# 				else:
+	# 					if filtro[i].ItemsEstacion != None:
+	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, filtro[i].ItemsEstacion.Estacion.nombre])
+	# 					else:
+	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, " - "])
+	# 				if itemPlan.Item.multiple:
+	# 					break;
+	# 				i += 1
+	lista_planes = []
+	for planEvento in evento.PlanesEvento.all().order_by("n"):
+		#i = 0
+		#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
+		itemsPlanEvento = planEvento.ItemsPlanEvento.all() #.order_by('PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem')
+		lista_planes.append([])
+		nPlan = planEvento.cantidad
+		#for nPlan in range(1, planEvento.cantidad + 1):
+		plan_actual = -1
+		nPlan_actual = -1
+		for it in itemsPlanEvento:
+			if it.nPlan != nPlan_actual or it.PlanesEvento.n != plan_actual:
+				lista_planes[-1].append([])
+				plan_actual = it.PlanesEvento.n
+				nPlan_actual = it.nPlan
+
+		#	print (it.PlanesEvento.Plan.nombre, it.nPlan, it.ItemsPlan.Item.nombre, it.nItem)
+			if it.ItemsPlan.Item.multiple:
+				num = it.ItemsPlan.cantidad
+			else:
+				num = it.nItem
+			#print(num, itemPlan.Item.nombre)
+			#print(filtro[i].ItemsPlan.Item.nombre)
+			if edit == "logistica":
+				if request.method == "GET":
+					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, logistica_planes_form['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, it.ItemsPlan.idItemsPlan, it.nPlan, it.nItem)]])
+				else:
+					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, request.POST['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, it.ItemsPlan.idItemsPlan, it.nPlan, it.nItem)]])
+			else:
+				if it.ItemsEstacion != None:
+					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, it.ItemsEstacion.Estacion.nombre])
+				else:
+					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, " - "])
+			#if itemPlan.Item.multiple:
+			#	break;
+			#i += 1
+
+
+	#for planEvento in planesEvento:
+	#	lista_planes.append([])
+	#	for itemPlan in planEvento.Plan.ItemsPlan.all():
+	#		lista_planes[-1].append([])
+	#		for n in range(1, itemPlan.cantidad + 1):
+	#			lista_planes[-1][-1].append(ItemsPlanEvento.objects.get(...))
 
 	context = {
-		"cliente": cliente,
-		"activacion": activacion,
 		"evento": evento,
 		"edit": edit,
 		"coordinacion_form": coordinacion_form,
@@ -635,8 +907,11 @@ def evento(request):
 		"logistica_planes_form": logistica_planes_form,
 		"error": error,
 		"tab": tab,
+		"lista_planes": lista_planes,
 	}
 	return render(request, 'evento.html', context)
+
+
 
 
 def evento_checklist(request):
@@ -658,18 +933,73 @@ def evento_checklist(request):
 		evento = Eventos.objects.get(idEvento=request.GET['evento'])
 		mensaje = ""
 
-	planesItemsEstaciones = []
-	for planEvento in evento.PlanesEvento.all():
-		planesItemsEstaciones.append([])
-		for itemPlanEvento in planEvento.ItemsPlanEvento.all().order_by("PlanesEvento", "ItemsPlan", "ItemsEstacion"):
+	# planesItemsEstaciones = []
+	# for planEvento in evento.PlanesEvento.all().order_by("n"):
+	# 	planesItemsEstaciones.append([])
+	# 	#for itemPlanEvento in planEvento.ItemsPlanEvento.all().order_by("PlanesEvento", "ItemsPlan", "ItemsEstacion"):
+	# 	for itemPlanEvento in planEvento.ItemsPlanEvento.all().order_by("n"):
+	# 		initial = {}
+	# 		initial['item_%d' % itemPlanEvento.idItemsPlanEvento] = itemPlanEvento.check
+	# 		planesItemsEstaciones[-1].append([itemPlanEvento.ItemsPlan, itemPlanEvento.ItemsEstacion, EventoChecklistForm(itemPlanEvento.idItemsPlanEvento, initial=initial)])
+
+	# lista_planes = []
+	# for planEvento in evento.PlanesEvento.all().order_by("n"):
+	# 	i = 0
+	# 	#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
+	# 	filtro = planEvento.ItemsPlanEvento.all() #.order_by("ItemsPlan", "n")
+	# 	lista_planes.append([])
+	# 	for nPlan in range(1, planEvento.cantidad + 1):
+	# 		lista_planes[-1].append([])
+	# 		for itemPlan in planEvento.Plan.ItemsPlan.all().order_by("idItemsPlan"):
+	# 			#lista_planes[-1].append([])
+	# 			for nItem in range(1, itemPlan.cantidad + 1):
+	# 				if itemPlan.Item.multiple:
+	# 					num = itemPlan.cantidad
+	# 				else:
+	# 					num = nItem
+
+	# 				initial = {}
+	# 				initial['item_%d' % filtro[i].idItemsPlanEvento] = filtro[i].check
+	# 				lista_planes[-1][-1].append([filtro[i].ItemsPlan, num, filtro[i].ItemsEstacion, EventoChecklistForm(filtro[i].idItemsPlanEvento, initial=initial)])
+
+	# 				if itemPlan.Item.multiple:
+	# 					break;
+	# 				i += 1
+
+	lista_planes = []
+	for planEvento in evento.PlanesEvento.all().order_by("n"):
+		#i = 0
+		#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
+		filtro = planEvento.ItemsPlanEvento.all() #.order_by('PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem')
+		lista_planes.append([])
+		nPlan = planEvento.cantidad
+		#for nPlan in range(1, planEvento.cantidad + 1):
+		plan_actual = -1
+		nPlan_actual = -1
+		for it in filtro:
+			if it.nPlan != nPlan_actual or it.PlanesEvento.n != plan_actual:
+				lista_planes[-1].append([])
+				plan_actual = it.PlanesEvento.n
+				nPlan_actual = it.nPlan
+
+		#	print (it.PlanesEvento.Plan.nombre, it.nPlan, it.ItemsPlan.Item.nombre, it.nItem)
+			if it.ItemsPlan.Item.multiple:
+				num = it.ItemsPlan.cantidad
+			else:
+				num = it.nItem
+			#print(num, itemPlan.Item.nombre)
+			#print(filtro[i].ItemsPlan.Item.nombre)
+
 			initial = {}
-			initial['item_%d' % itemPlanEvento.idItemsPlanEvento] = itemPlanEvento.check
-			planesItemsEstaciones[-1].append([itemPlanEvento.ItemsPlan, itemPlanEvento.ItemsEstacion, EventoChecklistForm(itemPlanEvento.idItemsPlanEvento, initial=initial)])
+			initial['item_%d' % it.idItemsPlanEvento] = it.check
+			lista_planes[-1][-1].append([it.ItemsPlan, num, it.ItemsEstacion, EventoChecklistForm(it.idItemsPlanEvento, initial=initial)])
+
+
 
 
 	context = {
 		"evento": evento,
-		"planesItemsEstaciones": planesItemsEstaciones,
+		"lista_planes": lista_planes,
 		"mensaje": mensaje,
 	}
 	return render(request, 'evento_checklist.html', context)
@@ -705,10 +1035,21 @@ def editar_activacion(request):
 			menuCliente = request.POST['menuCliente']
 		except MultiValueDictKeyError:
 			menuCliente = ""
-		if form.is_valid():
+
+		nombre_unico = True
+		nombre = request.POST['nombre']
+		cliente = Clientes.objects.get(idCliente=request.POST['Cliente'])
+		if (nombre != activacion.nombre and cliente.idCliente == activacion.Cliente.idCliente) or (cliente.idCliente != activacion.Cliente.idCliente):
+			activaciones = cliente.Activaciones.all()
+			for a in activaciones:
+				if a.nombre == nombre:
+					nombre_unico = False
+
+		if form.is_valid() and nombre_unico:
 			a = form.save(commit=False)
 			a.idActivacion = activacion.idActivacion
 			a.save()
+
 			if menuCliente != "":
 				return custom_redirect('activaciones', cliente=menuCliente)
 			else:
@@ -720,11 +1061,13 @@ def editar_activacion(request):
 			menuCliente = request.GET['cliente']
 		except MultiValueDictKeyError:
 			menuCliente = ""
+		nombre_unico = True
 
 	context = {
 		"activaciones_form": form,
 		"menuCliente": menuCliente,
 		"activacion": activacion,
+		"nombre_unico": nombre_unico,
 	}
 	return render(request, 'editar_activacion.html', context)
 
@@ -733,38 +1076,123 @@ def editar_evento(request):
 	if request.method == 'POST':
 		evento = Eventos.objects.get(idEvento=request.POST['evento'])
 		nPlanes = int(request.POST['nPlanes'])
-		form = EventosSelectForm(nPlanes, request.POST, request.FILES)
+		form = EventosSelectForm(nPlanes, True, request.POST, request.FILES)
 		try:
 			menuActivacion = request.POST['menuActivacion']
 		except MultiValueDictKeyError:
-			menuActivacion = ""
-		if form.is_valid():
+			menuActivacion = ""		
+
+		count = 0
+		mensaje_error = []
+		nombre_unico = True
+		values = []
+		for key, value in request.POST.items():
+			if "plan_" in key:
+				count += 1
+				if value == '-1':
+					mensaje_error.append("Elija el plan %d " % count)
+				elif value in values:
+					mensaje_error.append("Se repite el plan %d " % count)
+				values.append(value)
+		if count != int(nPlanes):
+			mensaje_error = []
+
+		nombre = request.POST['nombre']
+		activacion = Activaciones.objects.get(idActivacion=request.POST['ActivacionSelect'])
+		if (nombre != evento.nombre and activacion.idActivacion == evento.Activacion.idActivacion) or (activacion.idActivacion != evento.Activacion.idActivacion):
+			eventos = activacion.Eventos.all()
+			for e in eventos:
+				if e.nombre == nombre:
+					nombre_unico = False
+
+		if form.is_valid() and count == int(nPlanes) and mensaje_error == [] and nombre_unico:
 			#datetime.date(1943,3, 13)  #year, month, day
-			evento.Activacion = Activaciones.objects.get(idActivacion=request.POST['Activacion'])
+			if evento.Activacion.idActivacion != activacion.idActivacion:
+				evento.Activacion = activacion
 			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
-			evento.nombre = request.POST['nombre']
-			evento.horas = request.POST['horas']
-			evento.comentarios = request.POST['comentarios']
+			if evento.nombre != nombre:
+				evento.nombre = nombre
+			if evento.horas != request.POST['horas']:
+				evento.horas = request.POST['horas']
+			if evento.comentarios != request.POST['comentarios']:
+				evento.comentarios = request.POST['comentarios']
 			evento.save()
 
 			planesNuevos = []
 			for i in range(1, nPlanes+1):
-				planesNuevos.append(Planes.objects.get(idPlan=request.POST["plan_%d" % i]))
+				cantidad = int(request.POST["cantidad_%d" % i])
+				#for j in range(1, cantidad+1):
+				planesNuevos.append([Planes.objects.get(idPlan=request.POST["plan_%d" % i]), cantidad])
 
-			planesActuales = evento.PlanesEvento.all().order_by("idPlanesEvento")
-			actuales = len(planesActuales)
-			nuevos = len(planesNuevos)
-			for planActual, nuevoPlan in zip(planesActuales, planesNuevos):
-				if planActual.Plan.idPlan != nuevoPlan.idPlan:
+			# Eliminar planes que no se encuentran en la nueva lista
+			planesActuales = evento.PlanesEvento.all()
+			for planActual in planesActuales:
+				if planActual.Plan.idPlan not in [plan.idPlan for plan, cant in planesNuevos]:
 					planActual.delete()
-					PlanesEvento(Evento=evento, Plan=nuevoPlan).save()
 
-			if nuevos > actuales:
-				for nuevoPlan in planesNuevos[actuales:]:
-					PlanesEvento(Evento=evento, Plan=nuevoPlan).save()
-			elif actuales > nuevos:
-				for planActual in planesNuevos[actuales:]:
-					planActual.delete()
+			# Agregar nuevos planes y cambiar cantidades de los existentes
+			num = 0
+			for nuevoPlan, cantidad in planesNuevos:
+				#filtro = planesActuales.filter(Plan=nuevoPlan) #.order_by("n")
+				try:
+					planActual = planesActuales.get(Plan=nuevoPlan)
+				except PlanesEvento.DoesNotExist:
+					planActual = PlanesEvento(Evento=evento, Plan=nuevoPlan, cantidad=0)
+				dif = cantidad - planActual.cantidad
+				
+				num += 1
+				planActual.n = num
+				planActual.cantidad = cantidad
+				planActual.save()
+
+				if dif > 0:
+					for nPlan in range(cantidad - dif + 1, cantidad + 1):
+						for itemPlan in nuevoPlan.ItemsPlan.all():
+							#if itemPlan.activo:
+							for nItem in range(1, itemPlan.cantidad + 1):
+								itemPlanEvento = ItemsPlanEvento(PlanesEvento=planActual, ItemsPlan=itemPlan, ItemsEstacion=None, nPlan=nPlan, nItem=nItem)
+								itemPlanEvento.save()
+								if itemPlan.Item.multiple:
+									break
+				elif dif < 0:
+					for it in planActual.ItemsPlanEvento.all():
+						if it.nPlan > cantidad:
+							it.delete()
+
+			# planesActuales = evento.PlanesEvento.all().order_by("n")
+			# actuales = len(planesActuales)
+			# nuevos = len(planesNuevos)
+			# for planActual, nuevoPlan in zip(planesActuales, planesNuevos):
+			# 	if planActual.Plan.idPlan != nuevoPlan.idPlan:
+			# 		num = planActual.n
+			# 		planActual.delete()
+			# 		planEvento = PlanesEvento(Evento=evento, Plan=nuevoPlan, n=num)
+			# 		planEvento.save()
+			# 		for itemPlan in nuevoPlan.ItemsPlan.all():
+			# 				for n in range(1, itemPlan.cantidad + 1):
+			# 					itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemPlan, ItemsEstacion=None, n=n)
+			# 					itemPlanEvento.save()
+
+			# planesActuales = evento.PlanesEvento.all().order_by("n")
+			# if nuevos > actuales:
+			# 	for nuevoPlan in planesNuevos[actuales:]:
+			# 		num = 0
+			# 		for i in range(len(planesActuales)):
+			# 			if (i+1) != planesActuales[i].n:
+			# 				num = i+1
+			# 				break
+			# 		if num == 0:
+			# 			num = len(planesActuales) + 1
+
+			# 		planEvento = PlanesEvento(Evento=evento, Plan=nuevoPlan, n=num)
+			# 		planEvento.save()
+			# 		for itemPlan in nuevoPlan.ItemsPlan.all():
+			# 				for n in range(1, itemPlan.cantidad + 1):
+			# 					itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemPlan, ItemsEstacion=None, n=n)
+			# 					itemPlanEvento.save()
+			# elif actuales > nuevos:
+			# 	for planActual in planesNuevos[actuales:]:
+			# 		planActual.delete()
 
 			if menuActivacion != "":
 				return custom_redirect('eventos', activacion=menuActivacion)
@@ -773,14 +1201,38 @@ def editar_evento(request):
 	else:
 		evento = Eventos.objects.get(idEvento=request.GET['evento'])
 		nPlanes = evento.Planes.all().count()
-		initial={"Activacion":evento.Activacion, "nombre": evento.nombre, "fecha": evento.fecha, "horas": evento.horas, "comentarios": evento.comentarios}
-		for i, planEvento in zip(range(1,nPlanes+1), evento.PlanesEvento.all().order_by("idPlanesEvento")):
-				initial['plan_%d' % (i)] = planEvento.Plan.idPlan
-		form = EventosSelectForm(nPlanes, initial=initial)
+		initial={"ActivacionSelect":evento.Activacion.idActivacion, "nombre": evento.nombre, "fecha": evento.fecha, "horas": evento.horas, "comentarios": evento.comentarios}
+		
+		plan = -1
+		I = -1
+		cant = -1
+		for planEvento in evento.PlanesEvento.all(): #.order_by("n"):
+			initial['plan_%d' % (planEvento.n)] = planEvento.Plan.idPlan
+			initial['cantidad_%d' % (planEvento.n)] = planEvento.cantidad
+		# 	if plan == -1:
+		# 		I = 1
+		# 		cant = 1
+		# 		plan = planEvento.Plan.idPlan
+		# 		initial['plan_%d' % (I)] = planEvento.Plan.idPlan
+		# 	elif plan == planEvento.Plan.idPlan:
+		# 		cant += 1
+		# 	else:
+		# 		initial['cantidad_%d' % (I)] = cant
+		# 		I += 1
+		# 		cant = 1
+		# 		plan = planEvento.Plan.idPlan
+		# 		initial['plan_%d' % (I)] = plan
+		# initial['cantidad_%d' % (I)] = cant
+
+		# nPlanes = I
+		form = EventosSelectForm(nPlanes, True, initial=initial)
 		try:
 			menuActivacion = request.GET['activacion']
 		except MultiValueDictKeyError:
 			menuActivacion = ""
+		count = 0
+		mensaje_error = []
+		nombre_unico = True
 
 	
 	context = {
@@ -788,39 +1240,82 @@ def editar_evento(request):
 		"menuActivacion": menuActivacion,
 		"evento": evento,
 		"nPlanes": nPlanes,
+		"count": count,
+		"mensaje_error": mensaje_error,
+		"nombre_unico": nombre_unico,
 	}
 	return render(request, 'editar_evento.html', context)
 
 
 def editar_plan(request):
-	nombre_unico = True
 	if request.method == 'POST':
+		nombre_unico = True
 		nItems = int(request.POST['nItems'])
 		form = PlanesForm(nItems, request.POST, request.FILES)
-		#form = PlanesForm2(request.POST, request.FILES)
-		print (len(request.POST))
+		
 		count = 0
+		mensaje_error = []
+		values = []
 		for key, value in request.POST.items():
 			if "item_" in key:
 				count += 1
-		if form.is_valid() and count == int(nItems):
-			# verificar uniqueness
-			planes = Planes.objects.all()
-			for p in planes:
-				if p.nombre == request.POST['nombre']:
-					nombre_unico = False
-			if nombre_unico == True:
-				plan = Planes(nombre=request.POST['nombre'])
-				#plan.nombre = request.POST['nombre']
-				plan.save()
+				if value == '-1':
+					mensaje_error.append("Elija el item %d " % count)
+				elif value in values:
+					mensaje_error.append("Se repite el item %d " % count)
+				values.append(value)
+		if count != int(nItems):
+			mensaje_error = []
 
-				items = []
-				for key, value in request.POST.items():
-					if "item_" in key:
-						items.append(Items.objects.get(idItem=value))
-				for item in items:
-					itemsPlan = ItemsPlan(Plan=plan, Item=item)
-					itemsPlan.save()
+		# verificar uniqueness
+		planes = Planes.objects.all()
+		nombre = request.POST['nombre']
+		for p in planes:
+			if p.nombre == nombre:
+				nombre_unico = False
+
+		if form.is_valid() and count == int(nItems) and mensaje_error == [] and nombre_unico:			
+			plan = Planes(nombre=nombre)
+			plan.save()
+
+			itemsNuevos = []
+			for i in range(1, nItems + 1):
+				itemsNuevos.append([Items.objects.get(idItem=request.POST["item_%d" % i]), request.POST["cantidad_%d" % i]])
+			
+			# Eliminar items que no se encuentran en la nueva lista
+			itemsActuales = plan.ItemsPlan.all()
+			for itemActual in itemsActuales:
+				if itemActual.Item.idItem not in [item.idItem for item, cant in itemsNuevos]:
+					itemActual.delete()
+					#itemActual.activo = False
+
+			# Agregar nuevos items y cambiar cantidades de los existentes
+			num = 0
+			for nuevoItem, cantidad in itemsNuevos:
+				#filtro = planesActuales.filter(Plan=nuevoPlan) #.order_by("n")
+				try:
+					itemActual = itemsActuales.get(Item=nuevoItem)
+				except ItemsPlan.DoesNotExist:
+					itemActual = ItemsPlan(Plan=plan, cantidad=0, n=0)
+				dif = cantidad - itemActual.cantidad
+				
+				num += 1
+				itemActual.n = num
+				itemActual.cantidad = cantidad
+				itemActual.save()
+
+				# if dif > 0:
+				# 	for nPlan in range(cantidad - dif + 1, cantidad + 1):
+				# 		for itemPlan in nuevoPlan.ItemsPlan.all():
+				# 			for nItem in range(1, itemPlan.cantidad + 1):
+				# 				itemPlanEvento = ItemsPlanEvento(PlanesEvento=planActual, ItemsPlan=itemPlan, ItemsEstacion=None, nPlan=nPlan, nItem=nItem)
+				# 				itemPlanEvento.save()
+				# 				if itemPlan.Item.multiple:
+				# 					break
+				# elif dif < 0:
+				# 	for it in planActual.ItemsPlanEvento.all():
+				# 		if it.nPlan > cantidad:
+				# 			it.delete()
 
 				return redirect('planes')
 	else:
@@ -829,13 +1324,16 @@ def editar_plan(request):
 		except MultiValueDictKeyError:
 			nItems = 1
 		form = PlanesForm(nItems)
-		#form = PlanesForm2()
+		nombre_unico = True
+		mensaje_error = []
+	
 	context = {
 		"planes_form": form,
 		"nItems": nItems,
 		"nombre_unico": nombre_unico,
+		"mensaje_error": mensaje_error,
 	}
-	return render(request, 'agregar_plan.html', context)
+	return render(request, 'editar_plan.html', context)
 
 
 def editar_estacion(request):

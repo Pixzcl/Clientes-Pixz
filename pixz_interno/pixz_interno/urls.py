@@ -41,7 +41,7 @@ urlpatterns = [
 	url(r'^planes/', views.planes, name='planes'),
 	url(r'^agregar_plan/', views.agregar_plan, name='agregar_plan'),
 	url(r'^editar_plan/', views.editar_plan, name='editar_plan'),
-	url(r'^eliminar_plan/', views.eliminar_item, name='eliminar_item'),
+	url(r'^eliminar_plan/', views.eliminar_plan, name='eliminar_plan'),
 	
 	url(r'^estaciones/', views.estaciones, name='estaciones'),
 	url(r'^agregar_estacion/', views.agregar_estacion, name='agregar_estacion'),

@@ -7,9 +7,48 @@
 
 {% block content %}
 	<!-- Right Panel -->
-
 	<div id="right-panel" class="right-panel">
 
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								{% if cliente == "" %}
+									<h1>Todas las Activaciones</h1>
+								{% else %}
+									<h1>Cliente {{cliente.nombre}}</h1>
+								{% endif %}
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									{% if cliente != "" %}
+										<!--<li><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}">{{cliente.nombre}}</a></li>-->
+										<li class="active">{{cliente.nombre}}</li>
+									{% else %}
+										<li class="active">Activaciones</li>
+									{% endif %}
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</header>
+<!--
 		<div class="breadcrumbs">
 			<div class="col-sm-6">
 				<div class="page-header float-left">
@@ -36,10 +75,7 @@
 				</div>
 			</div>
 		</div>
-
-
-
-
+-->
 		<div class="content mt-3">
 			<div class="animated fadeIn">
 				<div class="row">
@@ -212,35 +248,44 @@
 
 
 	<script type="text/javascript">
+		var visible = false;
 		function mostrar() {
-			
+			visible = !visible;
 			var botones, i;
 			{% for activacion in activaciones %}
-				botones = document.getElementById("td_" + {{activacion.idActivacion}}).children;
-				for (i=0; i<botones.length; i++) {
-					if (botones[i].style.visibility == "hidden") {
-						botones[i].style.visibility = "visible";
-					}
-					else {
-						botones[i].style.visibility = "hidden";
+				try {
+					botones = document.getElementById("td_" + {{activacion.idActivacion}}).children;
+					for (i=0; i<botones.length; i++) {
+						//if (botones[i].style.visibility == "hidden") {
+						if (visible) {
+							botones[i].style.visibility = "visible";
+						}
+						else {
+							botones[i].style.visibility = "hidden";
+						}
 					}
 				}
+				catch(err) {}
 			{% endfor %}
 		}
 
+		var visible2 = false;
 		function mostrar2() {
-			
 			var botones, i;
 			{% for contacto in contactos %}
-				botones = document.getElementById("td_contacto_" + {{contacto.idContacto}}).children;
-				for (i=0; i<botones.length; i++) {
-					if (botones[i].style.visibility == "hidden") {
-						botones[i].style.visibility = "visible";
-					}
-					else {
-						botones[i].style.visibility = "hidden";
+				try {
+					botones = document.getElementById("td_contacto_" + {{contacto.idContacto}}).children;
+					for (i=0; i<botones.length; i++) {
+						//if (botones[i].style.visibility == "hidden") {
+						if (visible2) {
+							botones[i].style.visibility = "visible";
+						}
+						else {
+							botones[i].style.visibility = "hidden";
+						}
 					}
 				}
+				catch(err) {}
 			{% endfor %}
 		}
 	</script>

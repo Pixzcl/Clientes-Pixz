@@ -1,6 +1,7 @@
 {% extends "Base/base.html" %}
 {% load staticfiles %}
 {% load filtros %}
+{% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
 <!-- {% block eventos-li %} active {% endblock %} -->
@@ -9,24 +10,23 @@
 {% block content %}
 
 <!-- Right Panel -->
-
 	<div id="right-panel" class="right-panel">
 
 		<header id="header" class="header">
-
 			<div class="header-menu">
 
 				<div class="col-sm-4">
 					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
 					<div class="header-left">
+
 						<div class="page-header float-left">
 							<div class="page-title">
 								<h1>Checklist {{evento.nombre}}</h1>
 							</div>
 						</div>
+
 					</div>
 				</div>
-
 				
 				<div class="col-sm-8">
 					<div class="breadcrumbs">
@@ -42,12 +42,9 @@
 						</div>
 					</div>
 				</div>
+
 			</div>
-
 		</header>
-
-
-	
 <!--
 		<div class="breadcrumbs">
 			<div class="col-sm-4">
@@ -71,8 +68,6 @@
 			</div>
 		</div>
 -->
-
-
 
 		<div class="content mt-3">
 			<div class="animated fadeIn">
@@ -125,7 +120,7 @@
 										</div>
 										<div class="col-md-3">
 											<div class="card-body">
-												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&tab=logistica'"><i class="ti-back-left"></i>&nbsp; Volver a logística</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver a logística</button>
 											</div>
 										</div>
 									</div>
@@ -141,42 +136,44 @@
 								
 									
 									<div class="row">
-										{% for planEvento, plan in planesItemsEstaciones|zip:evento.Planes.all %}
-											<div class="col-md-6 col-sm-12">
-												<div class="card">
-													<div class="card-header">
-														<strong class="card-title">{{plan.nombre}}</strong>
-													</div>
-													<div class="card-body">
-														
-															<table class="table table-striped">
-																<thead>
-																	<tr>
-																		<th scope="col">Item</th>
-																		<th scope="col">Estación</th>
-																		<th scope="col">Cargado</th>
-																	</tr>
-																</thead>
-																<tbody>
-																	
-																	{% for itemPlan, itemEstacion, form in planEvento %}
+										{% for plan, planEvento in lista_planes|zip:evento.PlanesEvento.all %}
+											{% for nPlan in  plan %}
+												<div class="col-md-6 col-sm-12">
+													<div class="card">
+														<div class="card-header">
+															<strong class="card-title">{{planEvento.Plan.nombre}} {{forloop.counter}}</strong>
+														</div>
+														<div class="card-body">
+															
+																<table class="table table-striped">
+																	<thead>
 																		<tr>
-																			<td>{{itemPlan.Item.nombre}}</td>
-																			{% if itemEstacion != None %}
-																				<td>{{itemEstacion.Estacion.nombre}}</td>
-																				<td><label class="switch switch-3d switch-success switch-lg mr-3">{% for field in form %}{{field}}{% endfor %}<span class="switch-label"></span> <span class="switch-handle"></span></label></td>
-																			{% else %}
-																				<td><b>Pendiente</b></td>
-																				<td></td>
-																			{% endif %}
+																			<th scope="col">Item</th>
+																			<th scope="col">Estación</th>
+																			<th scope="col">Cargado</th>
 																		</tr>
-																	{% endfor %}
-																</tbody>
-															</table>
-														
+																	</thead>
+																	<tbody>
+																		
+																			{% for itemPlan, num, itemEstacion, form in nPlan %}
+																				<tr>
+																					<td>{{itemPlan.Item.nombre}} {% if itemPlan.Item.multiple %} ({{num}}){% else %} {{num}}{% endif %}</td>
+																					{% if itemEstacion != None %}
+																						<td>{{itemEstacion.Estacion.nombre}}</td>
+																						<td><label class="switch switch-3d switch-success switch-lg mr-3">{% for field in form %}{{field|append_attr:"class:switch-input"}}{% endfor %}<span class="switch-label"></span> <span class="switch-handle"></span></label></td>
+																					{% else %}
+																						<td><b>Pendiente</b></td>
+																						<td></td>
+																					{% endif %}
+																				</tr>
+																			{% endfor %}
+																		
+																	</tbody>
+																</table>
+														</div>
 													</div>
 												</div>
-											</div>
+											{% endfor %}
 										{% endfor %}
 									</div>
 
