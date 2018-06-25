@@ -104,6 +104,7 @@
 								<div class="nav nav-tabs" id="nav-tab" role="tablist">
 									{% if edit != "logistica" %}<a class="nav-item nav-link {% if edit == 'coordinacion' or tab == 'coordinacion' %}active{% endif %}" id="nav-coordinacion-tab" data-toggle="tab" href="#nav-coordinacion" role="tab" aria-controls="nav-coordinacion" aria-selected="true">Coordinación</a>{% endif %}
 									{% if edit != "coordinacion" %}<a class="nav-item nav-link {% if edit == 'logistica' or tab == 'logistica' %}active{% endif %}" id="nav-logistica-tab" data-toggle="tab" href="#nav-logistica" role="tab" aria-controls="nav-logistica" aria-selected="false">Logística</a>{% endif %}
+									{% if edit == False %}<a class="nav-item nav-link" id="nav-checkout-tab" data-toggle="tab" href="#nav-checkout" role="tab" aria-controls="nav-checkout" aria-selected="false">Checkout</a>{% endif %}
 								</div>
 							</nav>
 							<div class="tab-content pl-3 pt-2" id="nav-tabContent">
@@ -362,6 +363,70 @@
 									{% if edit == 'logistica' %}
 										</form>
 									{% endif %}
+								</div>
+							{% endif %}
+
+
+
+<!-- Checkout -->
+							{% if edit == False %}
+								<div class="tab-pane fade {% if edit == False %}show{% endif %}" id="nav-checkout" role="tabpanel" aria-labelledby="nav-checkout-tab">
+
+									<div class="row">
+
+										<div class="col-lg-6 col-sm-12">
+											<div class="card">
+												<div class="card-header">
+													<strong class="card-title">Pago trabajadores</strong>
+												</div>
+												<div class="card-body">
+													<table class="table table-striped">
+														<thead>
+															<tr>
+																<th scope="col">Trabajadores</th>
+																<th scope="col">Cargo(s)</th>
+																<th scope="col">Monto</th>
+															</tr>
+														</thead>
+														<tbody>
+															<!--{% for trabajador in evento.Trabajadores.all %}
+																<tr>
+																	<th scope="row">{{trabajador.nombre}}</th>
+																	<td>
+																		{% for trabajadorEvento in evento.TrabajadoresEvento.all %}
+																			{% if trabajadorEvento.Trabajador.nombre == trabajador.nombre %}
+																				{{trabajadorEvento.tipo}} 
+																			{% endif %}
+																		{% endfor %}
+																	</td>
+																	<td>
+																		-
+																	</td>
+																</tr>
+															{% endfor %}-->
+																<tr>
+																	<th scope="row">Ignacio Sfeir</th>
+																	<td>
+																		Montaje Desmontaje
+																	</td>
+																	<td>
+																		-
+																	</td>
+																</tr>
+																<tr>
+																	<th scope="row">Aldo Traverso</th>
+																	<td>
+																		Supervision Operacion
+																	</td>
+																	<td>
+																		-
+																	</td>
+																</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
 								</div>
 							{% endif %}
 

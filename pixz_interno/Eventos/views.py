@@ -558,7 +558,6 @@ def trabajadores(request):
 
 
 def agregar_trabajador(request):
-	print("ASdasd")
 	print (request.META['HTTP_REFERER'])
 	if request.method == 'POST':
 		evento = request.POST['evento']
