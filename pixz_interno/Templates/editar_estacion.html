@@ -120,7 +120,8 @@
 									</div>
 								</div>
 
-								<button type="button" class="btn btn-success" onclick="document.getElementById('boton_editar').click();" ><i class="ti-pencil-alt"></i>&nbsp; Guardar</button>
+								<!--<button type="button" class="btn btn-success" onclick="document.getElementById('boton_editar').click();" ><i class="ti-pencil-alt"></i>&nbsp; Guardar</button>-->
+								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 							</form>
 						</div>
 					</div>
@@ -141,14 +142,15 @@
 			document.getElementById('nItems').value=Number('{{nItems}}') + n;
 			document.getElementById('form').submit();
 		}
-
+/*
 		function nueva_estacion() {
 			document.getElementById('nueva_estacion').value='{{estacion.idEstacion}}';
 			document.getElementById('form').submit();
 		}
+*/
 	</script>
 
-
+<!--
 	<button id="boton_editar" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
 
 	<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
@@ -162,7 +164,7 @@
 				</div>
 				<div class="modal-body">
 					<p>
-						Cambios en los items afectarán a todos los eventos que usen esta estación, ¿estas seguro? También puedes crear una nueva estación con esta información.
+						Cambios en los items afectarán a <b>todos los eventos que usen esta estación</b>, ¿estas seguro? También puedes crear una nueva estación con esta información.
 					</p>
 				</div>
 				<div class="modal-footer">
@@ -172,5 +174,6 @@
 			</div>
 		</div>
 	</div>
+-->
 
 {% endblock %}

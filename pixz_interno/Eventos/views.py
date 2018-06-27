@@ -486,7 +486,7 @@ def agregar_estacion(request):
 			except MultiValueDictKeyError:
 				nItems = 1
 			form = EstacionesForm(nItems)
-		
+
 		nombre_unico = True
 		mensaje_error = []
 
@@ -1032,10 +1032,17 @@ def editar_cliente(request):
 	if request.method == 'POST':
 		cliente = Clientes.objects.get(idCliente=request.POST['cliente'])
 		form = ClientesForm(request.POST, request.FILES)
-		if form.is_valid():
-			c = form.save(commit=False)
-			c.idCliente = cliente.idCliente
-			c.save()
+		if form.is_valid() or cliente.nombre == request.POST['nombre']:
+			#c = form.save(commit=False)
+			#c.idCliente = cliente.idCliente
+			#c.save()
+			nombre = request.POST['nombre']
+			if cliente.nombre != nombre:
+				cliente.nombre = nombre
+			direccion = request.POST['direccion']
+			if cliente.direccion != direccion:
+				cliente.direccion = direccion
+			cliente.save()
 			return redirect('index')
 	else:
 		cliente = Clientes.objects.get(idCliente=request.GET['cliente'])
@@ -1397,13 +1404,13 @@ def editar_plan(request):
 
 def editar_estacion(request):
 	if request.method == 'POST':
-		nueva_estacion = request.POST['nueva_estacion']
-		if nueva_estacion != "-1":
-			initial = {}
-			for key, value in request.POST.items():
-				if "csrf" not in key:
-					initial[key] = value
-			return custom_redirect('agregar_estacion', editar=initial)
+		# nueva_estacion = request.POST['nueva_estacion']
+		# if nueva_estacion != "-1":
+		# 	initial = {}
+		# 	for key, value in request.POST.items():
+		# 		if "csrf" not in key:
+		# 			initial[key] = value
+		# 	return custom_redirect('agregar_estacion', editar=initial)
 
 		nombre_unico = True
 		estacion = Estaciones.objects.get(idEstacion=request.POST['estacion'])
@@ -1493,16 +1500,47 @@ def editar_estacion(request):
 
 def editar_item(request):
 	if request.method == 'POST':
+		item = Items.objects.get(idItem=request.POST['item'])
 		form = ItemsForm(request.POST, request.FILES)
-		if form.is_valid():
-			form.save()
+		if form.is_valid() or item.nombre == request.POST['nombre']:
+			#it = form.save(commit=False)
+			#it.idItem = item.idItem
+			#it.save()
+			nombre = request.POST['nombre']
+			if item.nombre != nombre:
+				item.nombre = nombre
+
+			multiple_anterior = item.multiple
+			try:
+				request.POST['multiple']
+				multiple = True
+			except MultiValueDictKeyError:
+				multiple = False
+			if item.multiple != multiple:
+				item.multiple = multiple
+			item.save()
+
+			if multiple_anterior and not(multiple):
+				for itemPlan in item.ItemsPlan.all():
+					for itemPlanEvento in itemPlan.ItemsPlanEvento.all():
+						for nItem in range(2, itemPlan.cantidad + 1):
+							itemPlanEvento = ItemsPlanEvento(PlanesEvento=itemPlanEvento.PlanesEvento, ItemsPlan=itemPlan, ItemsEstacion=None, nPlan=itemPlanEvento.nPlan, nItem=nItem)
+							itemPlanEvento.save()
+			elif not(multiple_anterior) and multiple:
+				for itemPlan in item.ItemsPlan.all():
+					for itemPlanEvento in itemPlan.ItemsPlanEvento.all():
+						if itemPlanEvento.nItem > 1:
+							itemPlanEvento.delete()
+
 			return redirect('items')
 	else:
-		form = ItemsForm()
+		item = Items.objects.get(idItem=request.GET['item'])
+		form = ItemsForm(initial={'nombre': item.nombre, 'multiple': item.multiple})
 	context = {
+		"item": item,
 		"items_form": form,
 	}
-	return render(request, 'agregar_item.html', context)
+	return render(request, 'editar_item.html', context)
 
 
 def editar_trabajador(request):

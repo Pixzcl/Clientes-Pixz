@@ -82,7 +82,8 @@
 
 				<div class="row">
 					<div class="card-body">
-						<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_item" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo item</button>
+						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_item" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo item</button>
+						<button type="button" class="btn btn-outline-primary" onclick="mostrar();"><i class="ti-pencil-alt"></i>&nbsp; Editar items</button>
 					</div>
 				</div>
 
@@ -105,7 +106,11 @@
 						<tbody>
 							{% for item in items %}
 								<tr>
-									<th scope="row">{{item.idItem}}</th>
+									<th scope="row" id="td_{{item.idItem}}">
+										{{item.idItem}}
+										<a style="visibility:hidden" href='{% url "editar_item" %}?item={{item.idItem}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{item.nombre}}', '{{item.idItem}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
+									</th>
 									<td>{{item.nombre}}</td>
 									<td>{% if item.multiple %}<i class="ti-check text-success"></i>{% else %}<i class="ti-close text-danger"></i>{% endif %}</td>
 								</tr>
@@ -124,6 +129,66 @@
 	</div><!-- /#right-panel -->
 
 	<!-- Right Panel -->
+
+
+	<script type="text/javascript">
+		var visible = false;
+		function mostrar() {
+			visible = !visible;
+			var botones, i;
+			{% for item in items %}
+				try {
+					botones = document.getElementById("td_" + {{item.idItem}}).children;
+					for (i=0; i<botones.length; i++) {
+						//if (botones[i].style.visibility == "hidden") {
+						if (visible) {
+							botones[i].style.visibility = "visible";
+						}
+						else {
+							botones[i].style.visibility = "hidden";
+						}
+					}
+				}
+				catch(err) {}
+			{% endfor %}
+		}
+	</script>
+
+
+	<button id="eliminar" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+
+	<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="h5_eliminar" class="modal-title" id="smallmodalLabel"></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p id="p_eliminar">
+						¿Estas seguro?
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button id="boton_eliminar" type="button" onclick="" class="btn btn-outline-danger" >Eliminar</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+	<script>
+		function eliminar(nombre, id) {
+			//document.getElementById("p_eliminar").innerHTML = "";
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar plan " + nombre;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_item" %}?item=' + id};
+			document.getElementById("eliminar").click();
+		}
+	</script>
 	
 
 

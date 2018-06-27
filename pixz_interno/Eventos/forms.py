@@ -137,6 +137,7 @@ class ItemsForm(forms.ModelForm):
 		model = Items
 		exclude = []
 		widgets = {
+			'nombre': forms.TextInput(attrs={'class': "form-control"}),
 			'multiple': forms.CheckboxInput(attrs={'class': "switch-input"}),
 		}
 
