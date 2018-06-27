@@ -1,5 +1,6 @@
 import os
 import datetime
+import ast
 from urllib.parse import urlencode
 
 from django.shortcuts import render, redirect, reverse
@@ -392,10 +393,17 @@ def agregar_plan(request):
 				return redirect('planes')
 	else:
 		try:
-			nItems = int(request.GET['nItems'])
+			editar = request.GET['editar']
+			editar = ast.literal_eval(editar)
+			nItems = int(editar['nItems'])
+			form = PlanesForm(nItems, initial=editar)
 		except MultiValueDictKeyError:
-			nItems = 1
-		form = PlanesForm(nItems)
+			try:
+				nItems = int(request.GET['nItems'])
+			except MultiValueDictKeyError:
+				nItems = 1
+			form = PlanesForm(nItems)
+
 		nombre_unico = True
 		mensaje_error = []
 	#	paso = 1
@@ -468,10 +476,17 @@ def agregar_estacion(request):
 				return redirect('estaciones')
 	else:
 		try:
-			nItems = int(request.GET['nItems'])
+			editar = request.GET['editar']
+			editar = ast.literal_eval(editar)
+			nItems = int(editar['nItems'])
+			form = EstacionesForm(nItems, initial=editar)
 		except MultiValueDictKeyError:
-			nItems = 1
-		form = EstacionesForm(nItems)
+			try:
+				nItems = int(request.GET['nItems'])
+			except MultiValueDictKeyError:
+				nItems = 1
+			form = EstacionesForm(nItems)
+		
 		nombre_unico = True
 		mensaje_error = []
 
@@ -1256,6 +1271,14 @@ def editar_evento(request):
 
 def editar_plan(request):
 	if request.method == 'POST':
+		nuevo_plan = request.POST['nuevo_plan']
+		if nuevo_plan != "-1":
+			initial = {}
+			for key, value in request.POST.items():
+				if "csrf" not in key:
+					initial[key] = value
+			return custom_redirect('agregar_plan', editar=initial)
+
 		nombre_unico = True
 		plan = Planes.objects.get(idPlan=request.POST['plan'])
 		nItems = int(request.POST['nItems'])
@@ -1293,7 +1316,8 @@ def editar_plan(request):
 				if plan.nombre != nombre:
 					plan.nombre = nombre
 				try:
-					mostrar = request.POST['mostrar']
+					if request.POST['mostrar'] == "on":
+						mostrar = True
 				except MultiValueDictKeyError:
 					mostrar = False
 				if plan.mostrar != mostrar:
@@ -1373,6 +1397,14 @@ def editar_plan(request):
 
 def editar_estacion(request):
 	if request.method == 'POST':
+		nueva_estacion = request.POST['nueva_estacion']
+		if nueva_estacion != "-1":
+			initial = {}
+			for key, value in request.POST.items():
+				if "csrf" not in key:
+					initial[key] = value
+			return custom_redirect('agregar_estacion', editar=initial)
+
 		nombre_unico = True
 		estacion = Estaciones.objects.get(idEstacion=request.POST['estacion'])
 		nItems = int(request.POST['nItems'])

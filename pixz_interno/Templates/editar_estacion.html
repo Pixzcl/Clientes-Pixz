@@ -107,6 +107,8 @@
 									{% endif %}
 								{% endfor %}
 
+								<input type="hidden" name="nueva_estacion" id="nueva_estacion" value="-1" />
+
 								<input type="hidden" name="nItems" id="nItems" value="{{nItems}}" />
 
 								<div class="row" >
@@ -118,7 +120,7 @@
 									</div>
 								</div>
 
-								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>				
+								<button type="button" class="btn btn-success" onclick="document.getElementById('boton_editar').click();" ><i class="ti-pencil-alt"></i>&nbsp; Guardar</button>
 							</form>
 						</div>
 					</div>
@@ -139,6 +141,36 @@
 			document.getElementById('nItems').value=Number('{{nItems}}') + n;
 			document.getElementById('form').submit();
 		}
+
+		function nueva_estacion() {
+			document.getElementById('nueva_estacion').value='{{estacion.idEstacion}}';
+			document.getElementById('form').submit();
+		}
 	</script>
+
+
+	<button id="boton_editar" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+
+	<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="h5_editar" class="modal-title" id="smallmodalLabel">Atención</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>
+						Cambios en los items afectarán a todos los eventos que usen esta estación, ¿estas seguro? También puedes crear una nueva estación con esta información.
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button id="boton_guardar" type="button" class="btn btn-success" onclick="document.getElementById('form').submit();" ><i class="ti-pencil-alt"></i>&nbsp; Guardar cambios</button>
+					<button id="boton_nuevo" type="button" class="btn btn-primary" onclick="nueva_estacion();"><i class="fa fa-plus-circle"></i>&nbsp; Nueva estacion</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 {% endblock %}

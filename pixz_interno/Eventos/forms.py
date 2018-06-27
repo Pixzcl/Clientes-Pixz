@@ -98,14 +98,10 @@ class EventosSelectForm(forms.Form):
 
 
 class PlanesForm(forms.Form):
-	#plan = forms.ChoiceField(label="Plan", choices=choices)
 	nombre = forms.CharField( max_length=255, label="Nombre", widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-	#item = forms.MultipleChoiceField(label="Item", widget=forms.SelectMultiple(choices=choices, attrs={'class': 'standardSelect'}))
 	
 	def __init__(self, nItems, *args, **kwargs):
 		super(PlanesForm, self).__init__(*args, **kwargs)
-		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = [['-1', '------']]
 		items = Items.objects.all()
 		for it in items:
@@ -122,12 +118,10 @@ class MostrarPlanForm(forms.Form):
 
 
 class EstacionesForm(forms.Form):
-	#plan = forms.ChoiceField(label="Plan", choices=choices)
-	nombre = forms.CharField(max_length=255, label="Nombre") #formset para verificar uniqueness
+	nombre = forms.CharField( max_length=255, label="Nombre", widget=forms.TextInput(attrs={'class': 'form-control'}))
 	
 	def __init__(self, nItems, *args, **kwargs):
 		super(EstacionesForm, self).__init__(*args, **kwargs)
-		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = [['-1', '------']]
 		items = Items.objects.all()
 		for it in items:
