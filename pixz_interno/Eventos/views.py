@@ -127,6 +127,7 @@ def agregar_activacion(request):
 			for a in activaciones:
 				if a.nombre == nombre:
 					nombre_unico = False
+					break
 
 			if nombre_unico:
 				activacion = form.save(commit=False)
@@ -241,6 +242,7 @@ def agregar_evento(request):
 			for e in eventos:
 				if e.nombre == nombre:
 					nombre_unico = False
+					break
 
 			if nombre_unico:
 				evento = Eventos(Activacion=activacion)
@@ -311,7 +313,7 @@ def agregar_evento(request):
 def planes(request):
 	planes = Planes.objects.all()
 	
-	titulos = ["#", "Plan", "Items"]
+	titulos = ["#", "Plan", "Items", "Elegible"]
 
 	context = {
 		"planes": planes,
@@ -366,6 +368,7 @@ def agregar_plan(request):
 			for p in planes:
 				if p.nombre == nombre:
 					nombre_unico = False
+					break
 		#			paso = 1
 		#	if nombre_unico and paso == 3:
 			if nombre_unico:
@@ -447,6 +450,7 @@ def agregar_estacion(request):
 			for e in estaciones:
 				if e.nombre == nombre:
 					nombre_unico = False
+					break
 			if nombre_unico:
 				estacion = Estaciones(nombre=nombre)
 				estacion.save()
@@ -491,6 +495,7 @@ def agregar_estacion(request):
 # 			for e in estaciones:
 # 				if e.nombre == request.POST['nombre']:
 # 					nombre_unico = False
+#					break
 # 			if nombre_unico == True:
 # 				estacion = Estaciones(nombre=request.POST['nombre'])
 # 				#estacion.nombre = request.POST['nombre']
@@ -724,6 +729,7 @@ def evento(request):
 						if trabajadorEvento_actual.Trabajador not in trabajadores:
 							#print(supervisor_actual.Trabajador.nombre)
 							trabajadorEvento_actual.delete()
+					trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
 
 					for trabajador in trabajadores:
 						if trabajador not in [trabajadorEvento_actual.Trabajador for trabajadorEvento_actual in trabajadoresEvento_actuales]:
@@ -1043,6 +1049,7 @@ def editar_activacion(request):
 			for a in activaciones:
 				if a.nombre == nombre:
 					nombre_unico = False
+					break
 
 		if form.is_valid() and nombre_unico:
 			a = form.save(commit=False)
@@ -1103,6 +1110,7 @@ def editar_evento(request):
 			for e in eventos:
 				if e.nombre == nombre:
 					nombre_unico = False
+					break
 
 		if form.is_valid() and count == int(nPlanes) and mensaje_error == [] and nombre_unico:
 			#datetime.date(1943,3, 13)  #year, month, day
@@ -1249,8 +1257,13 @@ def editar_evento(request):
 def editar_plan(request):
 	if request.method == 'POST':
 		nombre_unico = True
+		plan = Planes.objects.get(idPlan=request.POST['plan'])
 		nItems = int(request.POST['nItems'])
 		form = PlanesForm(nItems, request.POST, request.FILES)
+		try:
+			form_mostrar = MostrarPlanForm(initial={"mostrar": request.POST['mostrar']})
+		except MultiValueDictKeyError:
+			form_mostrar = MostrarPlanForm(initial={"mostrar": False})
 		
 		count = 0
 		mensaje_error = []
@@ -1266,67 +1279,90 @@ def editar_plan(request):
 		if count != int(nItems):
 			mensaje_error = []
 
-		# verificar uniqueness
-		planes = Planes.objects.all()
-		nombre = request.POST['nombre']
-		for p in planes:
-			if p.nombre == nombre:
-				nombre_unico = False
+		if form.is_valid() and count == int(nItems) and mensaje_error == []:
+			# verificar uniqueness
+			nombre = request.POST['nombre']
+			if nombre != plan.nombre:
+				planes = Planes.objects.all()
+				for p in planes:
+					if p.nombre == nombre:
+						nombre_unico = False
+						break
 
-		if form.is_valid() and count == int(nItems) and mensaje_error == [] and nombre_unico:			
-			plan = Planes(nombre=nombre)
-			plan.save()
-
-			itemsNuevos = []
-			for i in range(1, nItems + 1):
-				itemsNuevos.append([Items.objects.get(idItem=request.POST["item_%d" % i]), request.POST["cantidad_%d" % i]])
-			
-			# Eliminar items que no se encuentran en la nueva lista
-			itemsActuales = plan.ItemsPlan.all()
-			for itemActual in itemsActuales:
-				if itemActual.Item.idItem not in [item.idItem for item, cant in itemsNuevos]:
-					itemActual.delete()
-					#itemActual.activo = False
-
-			# Agregar nuevos items y cambiar cantidades de los existentes
-			num = 0
-			for nuevoItem, cantidad in itemsNuevos:
-				#filtro = planesActuales.filter(Plan=nuevoPlan) #.order_by("n")
+			if nombre_unico:
+				if plan.nombre != nombre:
+					plan.nombre = nombre
 				try:
-					itemActual = itemsActuales.get(Item=nuevoItem)
-				except ItemsPlan.DoesNotExist:
-					itemActual = ItemsPlan(Plan=plan, cantidad=0, n=0)
-				dif = cantidad - itemActual.cantidad
-				
-				num += 1
-				itemActual.n = num
-				itemActual.cantidad = cantidad
-				itemActual.save()
+					mostrar = request.POST['mostrar']
+				except MultiValueDictKeyError:
+					mostrar = False
+				if plan.mostrar != mostrar:
+					plan.mostrar = mostrar
+				plan.save()
 
-				# if dif > 0:
-				# 	for nPlan in range(cantidad - dif + 1, cantidad + 1):
-				# 		for itemPlan in nuevoPlan.ItemsPlan.all():
-				# 			for nItem in range(1, itemPlan.cantidad + 1):
-				# 				itemPlanEvento = ItemsPlanEvento(PlanesEvento=planActual, ItemsPlan=itemPlan, ItemsEstacion=None, nPlan=nPlan, nItem=nItem)
-				# 				itemPlanEvento.save()
-				# 				if itemPlan.Item.multiple:
-				# 					break
-				# elif dif < 0:
-				# 	for it in planActual.ItemsPlanEvento.all():
-				# 		if it.nPlan > cantidad:
-				# 			it.delete()
+
+				itemsNuevos = []
+				for i in range(1, nItems+1):
+					cantidad = int(request.POST["cantidad_%d" % i])
+					#for j in range(1, cantidad+1):
+					itemsNuevos.append([Items.objects.get(idItem=request.POST["item_%d" % i]), cantidad])
+
+				# Eliminar items que no se encuentran en la nueva lista
+				itemsActuales = plan.ItemsPlan.all()
+				for itemActual in itemsActuales:
+					if itemActual.Item.idItem not in [item.idItem for item, cant in itemsNuevos]:
+						itemActual.delete()
+
+				# Agregar nuevos items y cambiar cantidades de los existentes
+				num = 0
+				for nuevoItem, cantidad in itemsNuevos:
+					#filtro = planesActuales.filter(Plan=nuevoPlan) #.order_by("n")
+					try:
+						itemActual = itemsActuales.get(Item=nuevoItem)
+						nuevo = False
+					except ItemsPlan.DoesNotExist:
+						itemActual = ItemsPlan(Plan=plan, Item=nuevoItem, cantidad=0)
+						nuevo = True
+					dif = cantidad - itemActual.cantidad
+					
+					num += 1
+					itemActual.n = num
+					itemActual.cantidad = cantidad
+					itemActual.save()
+
+					if dif > 0:
+						for planEvento in plan.PlanesEvento.all():
+							for nPlan in range(1, planEvento.cantidad + 1):
+								for nItem in range(cantidad - dif + 1, cantidad + 1):
+									if not(itemActual.Item.multiple and not(nuevo)):
+										itemPlanEvento = ItemsPlanEvento(PlanesEvento=planEvento, ItemsPlan=itemActual, ItemsEstacion=None, nPlan=nPlan, nItem=nItem)
+										itemPlanEvento.save()
+									if itemActual.Item.multiple:
+										break
+					elif dif < 0:
+						for it in itemActual.ItemsPlanEvento.all():
+							if it.nItem > cantidad:
+								it.delete()
 
 				return redirect('planes')
 	else:
-		try:
-			nItems = int(request.GET['nItems'])
-		except MultiValueDictKeyError:
-			nItems = 1
-		form = PlanesForm(nItems)
+		plan = Planes.objects.get(idPlan=request.GET['plan'])
+		itemsPlan = plan.ItemsPlan.all()
+		nItems = itemsPlan.count()
+		initial = {"nombre": plan.nombre}
+		
+		for itemPlan in itemsPlan:
+			initial['item_%d' % (itemPlan.n)] = itemPlan.Item.idItem
+			initial['cantidad_%d' % (itemPlan.n)] = itemPlan.cantidad
+
+		form = PlanesForm(nItems, initial=initial)
 		nombre_unico = True
 		mensaje_error = []
-	
+		form_mostrar = MostrarPlanForm(initial={"mostrar": plan.mostrar})
+
 	context = {
+		"plan": plan,
+		"form_mostrar": form_mostrar,
 		"planes_form": form,
 		"nItems": nItems,
 		"nombre_unico": nombre_unico,
@@ -1336,43 +1372,91 @@ def editar_plan(request):
 
 
 def editar_estacion(request):
-	nombre_unico = True
 	if request.method == 'POST':
+		nombre_unico = True
+		estacion = Estaciones.objects.get(idEstacion=request.POST['estacion'])
 		nItems = int(request.POST['nItems'])
 		form = EstacionesForm(nItems, request.POST, request.FILES)
+		
+		count = 0
+		mensaje_error = []
+		values = []
+		for key, value in request.POST.items():
+			if "item_" in key:
+				count += 1
+				if value == '-1':
+					mensaje_error.append("Elija el item %d " % count)
+				elif value in values:
+					mensaje_error.append("Se repite el item %d " % count)
+				values.append(value)
+		if count != int(nItems):
+			mensaje_error = []
 
-		if form.is_valid():
+		if form.is_valid() and count == int(nItems) and mensaje_error == []:
 			# verificar uniqueness
-			estaciones = Estaciones.objects.all()
-			for e in estaciones:
-				if e.nombre == request.POST['nombre']:
-					nombre_unico = False
-			if nombre_unico == True:
-				estacion = Estaciones(nombre=request.POST['nombre'])
-				#estacion.nombre = request.POST['nombre']
+			nombre = request.POST['nombre']
+			if nombre != estacion.nombre:
+				estaciones = Estaciones.objects.all()
+				for e in estaciones:
+					if e.nombre == nombre:
+						nombre_unico = False
+						break
+
+			if nombre_unico:
+				if estacion.nombre != nombre:
+					estacion.nombre = nombre
 				estacion.save()
 
-				items = []
-				for key, value in request.POST.items():
-					if "item_" in key:
-						items.append(Items.objects.get(idItem=value))
-				for item in items:
-					itemsEstacion = ItemsEstacion(Estacion=estacion, Item=item)
-					itemsEstacion.save()
+
+				itemsNuevos = []
+				for i in range(1, nItems+1):
+					cantidad = int(request.POST["cantidad_%d" % i])
+					#for j in range(1, cantidad+1):
+					itemsNuevos.append([Items.objects.get(idItem=request.POST["item_%d" % i]), cantidad])
+
+				# Eliminar items que no se encuentran en la nueva lista
+				itemsActuales = estacion.ItemsEstacion.all()
+				for itemActual in itemsActuales:
+					if itemActual.Item.idItem not in [item.idItem for item, cant in itemsNuevos]:
+						itemActual.delete()
+
+				# Agregar nuevos items y cambiar cantidades de los existentes
+				num = 0
+				for nuevoItem, cantidad in itemsNuevos:
+					#filtro = planesActuales.filter(Plan=nuevoPlan) #.order_by("n")
+					try:
+						itemActual = itemsActuales.get(Item=nuevoItem)
+					except ItemsEstacion.DoesNotExist:
+						itemActual = ItemsEstacion(Estacion=estacion, Item=nuevoItem, cantidad=0)
+										
+					num += 1
+					itemActual.n = num
+					itemActual.cantidad = cantidad
+					itemActual.save()
 
 				return redirect('estaciones')
 	else:
-		try:
-			nItems = int(request.GET['nItems'])
-		except MultiValueDictKeyError:
-			nItems = 1
-		form = EstacionesForm(nItems)
+		estacion = Estaciones.objects.get(idEstacion=request.GET['estacion'])
+		itemsEstacion = estacion.ItemsEstacion.all()
+		nItems = itemsEstacion.count()
+		initial = {"nombre": estacion.nombre}
+		
+		for itemEstacion in itemsEstacion:
+			initial['item_%d' % (itemEstacion.n)] = itemEstacion.Item.idItem
+			initial['cantidad_%d' % (itemEstacion.n)] = itemEstacion.cantidad
+
+		form = EstacionesForm(nItems, initial=initial)
+		nombre_unico = True
+		mensaje_error = []
+
 	context = {
+		"estacion": estacion,
 		"estaciones_form": form,
 		"nItems": nItems,
 		"nombre_unico": nombre_unico,
+		"mensaje_error": mensaje_error,
 	}
-	return render(request, 'agregar_estacion.html', context)
+	return render(request, 'editar_estacion.html', context)
 
 
 def editar_item(request):

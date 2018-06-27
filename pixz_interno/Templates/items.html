@@ -107,7 +107,7 @@
 								<tr>
 									<th scope="row">{{item.idItem}}</th>
 									<td>{{item.nombre}}</td>
-									<td>{% if item.multiple == True %}<i class="ti-check text-success"></i>{% else %}<i class="ti-close text-danger"></i>{% endif %}</td>
+									<td>{% if item.multiple %}<i class="ti-check text-success"></i>{% else %}<i class="ti-close text-danger"></i>{% endif %}</td>
 								</tr>
 							{% endfor %}
 						</tbody>

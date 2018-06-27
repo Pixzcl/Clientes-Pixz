@@ -99,7 +99,7 @@ class PlanesEvento(models.Model):
 	ItemsPlan = models.ManyToManyField("ItemsPlan", through="ItemsPlanEvento", related_name="PlanesEvento")
 	ItemsEstacion = models.ManyToManyField("ItemsEstacion", through="ItemsPlanEvento", related_name="PlanesEvento")
 	cantidad = models.PositiveSmallIntegerField(verbose_name="Cantidad", blank=False, null=False, default=1)
-	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
 	class Meta:
 		ordering = ['n']
 
@@ -107,7 +107,7 @@ class PlanesEvento(models.Model):
 class ItemsPlanEvento(models.Model):
 	idItemsPlanEvento = models.AutoField(primary_key=True, verbose_name="#")
 	PlanesEvento = models.ForeignKey("PlanesEvento", verbose_name="Plan evento", related_name="ItemsPlanEvento", on_delete=models.CASCADE, blank=False, null=False)
-	ItemsPlan = models.ForeignKey("ItemsPlan", verbose_name="Item plan", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=False, null=True)
+	ItemsPlan = models.ForeignKey("ItemsPlan", verbose_name="Item plan", related_name="ItemsPlanEvento", on_delete=models.CASCADE, blank=False, null=True)
 	ItemsEstacion = models.ForeignKey("ItemsEstacion", verbose_name="Item estación", related_name="ItemsPlanEvento", on_delete=models.SET(None), blank=True, null=True, default=None)
 	check = models.BooleanField(verbose_name="Check", default=False)
 	nItem = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
@@ -128,11 +128,11 @@ class Planes(models.Model):
 class ItemsPlan(models.Model):
 	idItemsPlan = models.AutoField(primary_key=True, verbose_name="#")
 	Plan = models.ForeignKey("Planes", verbose_name="Plan", related_name="ItemsPlan", on_delete=models.CASCADE, blank=False, null=False)
-	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsPlan", on_delete=models.SET(None), blank=False, null=False)
+	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsPlan", on_delete=models.CASCADE, blank=False, null=False)
 	#item = models.CharField(max_length=255, verbose_name="Item", blank=False, null=False)
 	ItemsEstacion = models.ManyToManyField("ItemsEstacion", through="ItemsPlanEvento", related_name="ItemsPlan")
 	cantidad = models.PositiveSmallIntegerField(verbose_name="Cantidad", blank=False, null=False, default=1)
-	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
 	class Meta:
 		ordering = ['n']
 
@@ -146,10 +146,10 @@ class Estaciones(models.Model):
 class ItemsEstacion(models.Model):
 	idItemsEstacion = models.AutoField(primary_key=True, verbose_name="#")
 	Estacion = models.ForeignKey("Estaciones", verbose_name="Estación", related_name="ItemsEstacion", on_delete=models.CASCADE, blank=False, null=False)
-	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsEstacion", on_delete=models.SET(None), blank=False, null=False)
+	Item = models.ForeignKey("Items", verbose_name="Item", related_name="ItemsEstacion", on_delete=models.CASCADE, blank=False, null=False)
 	#item = models.CharField(max_length=255, verbose_name="Item", blank=False, null=False)
 	cantidad = models.PositiveSmallIntegerField(verbose_name="Cantidad", blank=False, null=False, default=1)
-	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
+	n = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
 	class Meta:
 		ordering = ['n']
 

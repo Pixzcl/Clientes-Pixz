@@ -1,14 +1,14 @@
 {% extends "Base/base.html" %}
 {% load staticfiles %}
 {% load widget_tweaks %}
+{% load filtros %}
 
 <!-- Activo en el menu: -->
 {% block planes-li %} active {% endblock %}
-{% block titulo %}Nuevo plan{% endblock %}
+{% block titulo %}Editar plan {{plan.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
-
 	<div id="right-panel" class="right-panel">
 
 		<header id="header" class="header">
@@ -20,7 +20,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Nuevo plan</h1>
+								<h1>Editar plan {{plan.nombre}}</h1>
 							</div>
 						</div>
 
@@ -32,8 +32,8 @@
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<li><a href="#">Planes</a></li>
-									<li class="active">Nuevo plan</li>
+									<li><a href="{% url 'planes' %}">Planes</a></li>
+									<li class="active">Editar {{plan.nombre}}</li>
 								</ol>
 							</div>
 						</div>
@@ -44,14 +44,14 @@
 		</header>
 <!--
 		<div class="breadcrumbs">
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<div class="page-header float-left">
 					<div class="page-title">
 						<h1>Nuevo plan</h1>
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-8">
+			<div class="col-sm-6">
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
@@ -79,23 +79,50 @@
 							
 							<form id="form" method="post" enctype="multipart/form-data">
 								{% csrf_token %}
+								<input type="hidden" name="plan" id="plan" value="{{plan.idPlan}}" />
+								<div class="row form-group">
+									<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{form_mostrar.mostrar.label}}</label></div>
+									<div class="col-lg-3 col-sm-6" ><label class="switch switch-3d switch-success switch-lg mr-3">{{form_mostrar.mostrar}}<span class="switch-label"></span> <span class="switch-handle"></span></label><small class="form-text text-muted">Desactivar si el plan está obsoleto y no se desea mostrarlo en la lista de planes al crear o editar un evento.</small></div>
+								</div>
 								{% for field in planes_form %}
-									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
-										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
-										{% if "select" in field|widget_type %}
-											<div class="col-lg-3 col-sm-6" >{{field|append_attr:"class:standardSelect"}}</div> <!--|append_attr:"multiple"}}</div>-->
-										{% else %}
-											<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
-										{% endif %}
-										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
-										{% if field.label == "Nombre" and nombre_unico == False %}
-											<div class="col-lg-3 col-sm-6">Este nombre ya existe.</div>
-										{% endif %}
-									</div>
+									{% if "cantidad" not in field.name %}
+										<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+											<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
+											<div class="col-lg-3 col-sm-6" >{{field}}</div>
+											{% if field.name == "nombre" and nombre_unico == False %}
+												<div class="col-lg-3 col-sm-6">Este nombre ya existe.</div>
+											{% endif %}
+
+											{% if "item" not in field.name %}
+												{% if field.errors %}
+													<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
+												{% endif %}
+												</div>
+											{% endif %}
+									{% else %}
+											<div class="col-lg-1 col-sm-2" >{{field}}</div>
+											<!--<div class="col-lg-3 col-sm-6">{{field.errors}}</div>-->
+											{% for error in mensaje_error %}
+												{% if field.label in error %}
+													<div class="col-lg-3 col-sm-6">{{error}}</div>
+												{% endif %}
+											{% endfor %}
+										</div>
+									{% endif %}
 								{% endfor %}
+
 								<input type="hidden" name="nItems" id="nItems" value="{{nItems}}" />
-								<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="document.getElementById('nItems').value=Number('{{nItems}}')+1; document.getElementById('form').submit();"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
-								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+
+								<div class="row" >
+									<div class="col col-sm-2">
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
+									</div>
+									<div class="col col-sm-2">
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-danger" onclick="agregar_o_quitar(-1)"><i class="fa fa-minus-circle"></i>&nbsp; Quitar item</button></div>
+									</div>
+								</div>
+
+								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>				
 							</form>
 						</div>
 					</div>
@@ -111,7 +138,11 @@
 
 	<!-- Right Panel -->
 
-	
-
+	<script >
+		function agregar_o_quitar(n) {
+			document.getElementById('nItems').value=Number('{{nItems}}') + n;
+			document.getElementById('form').submit();
+		}
+	</script>
 
 {% endblock %}

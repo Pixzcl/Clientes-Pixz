@@ -83,7 +83,7 @@
 				<div class="row">
 					<div class="card-body">
 						<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_plan" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo plan</button>
-						<!-- <button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar planes</button> -->
+						<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar planes</button>
 					</div>
 				</div>
 
@@ -117,6 +117,7 @@
 											x{{itemPlan.cantidad}} {{itemPlan.Item.nombre}}<br>
 										{% endfor %}
 									</td>
+									<td>{% if plan.mostrar %}<i class="ti-check text-success"></i>{% else %}<i class="ti-close text-danger"></i>{% endif %}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -177,7 +178,7 @@
 					</p>
 				</div>
 				<div class="modal-footer">
-					<button id="boton_eliminar" type="button" onclick="" class="btn btn-danger" >Eliminar</button>
+					<button id="boton_eliminar" type="button" onclick="" class="btn btn-outline-danger" >Eliminar</button>
 					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
 					
 				</div>

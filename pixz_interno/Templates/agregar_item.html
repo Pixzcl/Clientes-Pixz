@@ -90,7 +90,7 @@
 								</div>
 								<div class="row form-group {% if items_form.multiple.error %} alert alert-error {% endif %}">
 									<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{items_form.multiple.label}}</label></div>
-									<div class="col-lg-3 col-sm-6"><label class="switch switch-text switch-primary switch-pill switch-lg">{{items_form.multiple|append_attr:"class:switch-input"}}<span data-on="Si" data-off="No" class="switch-label"></span> <span class="switch-handle"></span></label><small class="form-text text-muted">Activar si se usa en grandes cantidades regularmente. Ej: Pinzas x4.</small></div>
+									<div class="col-lg-3 col-sm-6"><label class="switch switch-3d switch-success switch-lg mr-3">{{items_form.multiple}}<span class="switch-label"></span> <span class="switch-handle"></span></label><small class="form-text text-muted">Activar sólo si se usa en grandes cantidades regularmente. Ej: Pinzas x4 o Zapatillas x3.</small></div>
 									<!--<div class="col-lg-3 col-sm-6"><label class="switch switch-3d switch-success switch-lg mr-3">{{items_form.multiple|append_attr:"class:switch-input"}}<span class="switch-label"></span> <span class="switch-handle"></span></label></div>-->
 									<div class="col-lg-3 col-sm-6">{{items_form.multiple.errors}}</div>
 								</div>

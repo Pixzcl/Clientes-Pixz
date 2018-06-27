@@ -117,6 +117,9 @@ class PlanesForm(forms.Form):
 			self.fields['item_%d' % i] = forms.ChoiceField(label="Item %d" % i, choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
 			self.fields['cantidad_%d' % i] = forms.IntegerField(min_value=1, label="item %d " % i, widget=forms.NumberInput(attrs={'class': "form-control", 'value': 1}))
 
+class MostrarPlanForm(forms.Form):
+	mostrar = forms.BooleanField(required=False, label="Elegible", widget=forms.CheckboxInput(attrs={'class': "switch-input"}))
+
 
 class EstacionesForm(forms.Form):
 	#plan = forms.ChoiceField(label="Plan", choices=choices)
@@ -140,6 +143,7 @@ class ItemsForm(forms.ModelForm):
 		model = Items
 		exclude = []
 		widgets = {
+			'multiple': forms.CheckboxInput(attrs={'class': "switch-input"}),
 		}
 
 
@@ -242,4 +246,4 @@ class EventoChecklistForm(forms.Form):
 	def __init__(self, idItemPlanEvento, *args, **kwargs):
 		super(EventoChecklistForm, self).__init__(*args, **kwargs)
 
-		self.fields['item_%d' % idItemPlanEvento] = forms.BooleanField(required=False, label="Check")
+		self.fields['item_%d' % idItemPlanEvento] = forms.BooleanField(required=False, label="Check", widget=forms.CheckboxInput(attrs={'class': "switch-input"}))

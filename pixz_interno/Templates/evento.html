@@ -389,7 +389,7 @@
 															</tr>
 														</thead>
 														<tbody>
-															<!--{% for trabajador in evento.Trabajadores.all %}
+															{% for trabajador in evento.Trabajadores.all.distinct %}
 																<tr>
 																	<th scope="row">{{trabajador.nombre}}</th>
 																	<td>
@@ -403,25 +403,7 @@
 																		-
 																	</td>
 																</tr>
-															{% endfor %}-->
-																<tr>
-																	<th scope="row">Ignacio Sfeir</th>
-																	<td>
-																		Montaje Desmontaje
-																	</td>
-																	<td>
-																		-
-																	</td>
-																</tr>
-																<tr>
-																	<th scope="row">Aldo Traverso</th>
-																	<td>
-																		Supervision Operacion
-																	</td>
-																	<td>
-																		-
-																	</td>
-																</tr>
+															{% endfor %}
 														</tbody>
 													</table>
 												</div>
