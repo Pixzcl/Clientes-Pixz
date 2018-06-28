@@ -110,14 +110,15 @@
 
 								<div class="row" >
 									<div class="col col-sm-2">
-										<div style="padding-bottom:1em" ><button type="button" class="btn btn-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Agregar item</button></div>
 									</div>
 									<div class="col col-sm-2">
-										<div style="padding-bottom:1em" ><button type="button" class="btn btn-danger" onclick="agregar_o_quitar(-1)"><i class="fa fa-minus-circle"></i>&nbsp; Quitar item</button></div>
+										<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-danger" onclick="agregar_o_quitar(-1)"><i class="fa fa-minus-circle"></i>&nbsp; Quitar item</button></div>
 									</div>
 								</div>
 
-								<button type="submit" class="btn btn-outline-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+								<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "planes" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 
 <!-- boton siguiente -->
 <!--

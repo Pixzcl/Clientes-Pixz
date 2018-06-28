@@ -160,13 +160,13 @@ def eventos(request):
 		activacion = Activaciones.objects.get(idActivacion=idActivacion)
 		eventos = activacion.Eventos.all()
 		cliente = activacion.Cliente
-		titulos = ["#", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios"]
+		titulos = ["#", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios", "Pendientes"]
 	except MultiValueDictKeyError:
 		idActivacion = ""
 		activacion = ""
 		eventos = Eventos.objects.all()
 		cliente = ""
-		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios"]
+		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios", "Pendientes"]
 
 ### No esta funcionando bien
 		# lista_planes = []
@@ -201,6 +201,7 @@ def eventos(request):
 		"pendientes": eventos.filter(fecha__gte=datetime.date.today()),
 		"eventos": eventos,
 		"lista_planes": lista_planes,
+		"hoy": datetime.date.today()
 	}
 	return render(request, 'eventos.html', context)
 
@@ -249,6 +250,8 @@ def agregar_evento(request):
 				evento = Eventos(Activacion=activacion)
 				#datetime.date(1943,3, 13)  #year, month, day
 				evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+				evento.fecha_instalacion = evento.fecha
+				evento.fecha_desinstalacion = evento.fecha
 				evento.nombre = request.POST['nombre']
 				evento.horas = request.POST['horas']
 				evento.comentarios = request.POST['comentarios']
@@ -602,6 +605,33 @@ def agregar_trabajador(request):
 	return render(request, 'agregar_trabajador.html', context)
 
 
+def cargos(request):
+	cargos = Cargos.objects.all()
+	
+	#titulos = ["#", "Nombre", "RUT", "Teléfono", "Mail"]
+
+	context = {
+		"cargos": cargos,
+		#"titulos": titulos,
+	}
+	return render(request, 'cargos.html', context)
+
+
+def agregar_cargo(request):
+	if request.method == 'POST':
+		form = CargosForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+
+			return redirect('cargos')
+	else:
+		form = CargosForm()
+	context = {
+		"cargos_form": form,
+	}
+	return render(request, 'agregar_cargo.html', context)
+
+
 def contactos(request):
 	contactos = Contactos.objects.all()
 	
@@ -665,13 +695,13 @@ def agregar_contacto_select(request):
 
 def evento(request):
 	error = False
+	cargos = Cargos.objects.all()
 	if request.method == 'POST':
 		idEvento = request.POST['evento']
 		evento = Eventos.objects.get(idEvento=idEvento)
 
 		coordinacion_form = None
 		logistica_form = None
-		logistica_planes_form = None
 		edit = request.POST['edit']
 		tab = None
 		if edit == "coordinacion":
@@ -731,24 +761,29 @@ def evento(request):
 			logistica_planes_form = LogisticaPlanesForm(evento.PlanesEvento.all(), request.POST, request.FILES)
 			if logistica_form.is_valid() and logistica_planes_form.is_valid():
 			# Trabajadores
-				tipos = ["Supervisor", "Montaje", "Desmontaje", "Operador"]
-				for tipo in tipos:
+				#tipos = ["Supervisor", "Montaje", "Desmontaje", "Operador", "Freelance", "Promotora"]
+				#for tipo in tipos:
+				for cargo in cargos:
 					try:
-						idTrabajadores = request.POST.getlist(tipo)
+						#idTrabajadores = request.POST.getlist(tipo)
+						idTrabajadores = request.POST.getlist(cargo.nombre)
 						trabajadores = Trabajadores.objects.filter(idTrabajador__in=idTrabajadores)
 					except MultiValueDictKeyError:
 						continue # trabajadores = []
 
-					trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
+					#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
+					trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
 					for trabajadorEvento_actual in trabajadoresEvento_actuales:
 						if trabajadorEvento_actual.Trabajador not in trabajadores:
 							#print(supervisor_actual.Trabajador.nombre)
 							trabajadorEvento_actual.delete()
-					trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
+					#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
+					trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
 
 					for trabajador in trabajadores:
 						if trabajador not in [trabajadorEvento_actual.Trabajador for trabajadorEvento_actual in trabajadoresEvento_actuales]:
-							TrabajadoresEvento(Evento=evento, Trabajador=trabajador, tipo=tipo).save()
+							#TrabajadoresEvento(Evento=evento, Trabajador=trabajador, tipo=tipo).save()
+							TrabajadoresEvento(Evento=evento, Trabajador=trabajador, Cargo=cargo).save()
 			
 			# Planes
 				for key, value in request.POST.items():
@@ -782,6 +817,16 @@ def evento(request):
 				return custom_redirect('evento', evento=idEvento)
 			else:
 				error = True
+		elif edit == "checkin":
+			for key, value in request.POST.items():
+				if "item_" in key:
+					item = ItemsPlanEvento.objects.get(idItemsPlanEvento=key.split("_")[1])
+					if value == "on":
+						item.check = True
+					else:
+						item.check = False
+					item.save()
+			return custom_redirect('evento', evento=idEvento)
 	# GET				
 	else:
 		try:
@@ -792,7 +837,6 @@ def evento(request):
 		try:
 			coordinacion_form = None
 			logistica_form = None
-			logistica_planes_form = None
 			edit = request.GET['edit']
 			if edit == "coordinacion":
 				coordinacion_form = CoordinacionForm(initial={
@@ -805,15 +849,22 @@ def evento(request):
 					"hora_desinstalacion":evento.hora_desinstalacion, 
 					"direccion":evento.direccion
 					})
-			elif edit == "logistica":
-				logistica_form = LogisticaTrabajadoresForm(initial={
-					"Supervisor":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Supervisor")], 
-					"Montaje":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Montaje")], 
-					"Desmontaje":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Desmontaje")], 
-					"Operador":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Operador")]
-					})
 
-				initial = {}
+			elif edit == "logistica":
+				initial_trabajadores = {}
+				for cargo in cargos:
+					initial_trabajadores[cargo.nombre] = [trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(Cargo=cargo)]
+				logistica_form = LogisticaTrabajadoresForm(initial=initial_trabajadores)
+				#logistica_form = LogisticaTrabajadoresForm(initial={
+				#	"Supervisor":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Supervisor")], 
+				#	"Montaje":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Montaje")], 
+				#	"Desmontaje":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Desmontaje")], 
+				#	"Operador":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Operador")],
+				#	"Freelance":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Freelance")],
+				#	"Promotora":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Promotora")],
+				#	})
+
+				initial_planes = {}
 				planesEvento = evento.PlanesEvento.all()
 				for planEvento in planesEvento:
 					for nPlan in range(1, planEvento.cantidad + 1):
@@ -825,11 +876,17 @@ def evento(request):
 									init = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, nItem=nItem, nPlan=nPlan).ItemsEstacion.idItemsEstacion
 								except AttributeError: # (ItemsEstacion no definido en ItemsPlanEvento)
 									init = None
-								initial['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)] = init
+								initial_planes['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)] = init
 								
 								if itemPlan.Item.multiple:
 									break;
-				logistica_planes_form = LogisticaPlanesForm(planesEvento, initial=initial)
+				logistica_planes_form = LogisticaPlanesForm(planesEvento, initial=initial_planes)
+
+			elif edit == "checkin":
+				pass
+
+			elif edit == "checkout":
+				pass
 
 		except MultiValueDictKeyError:
 			edit = False
@@ -839,49 +896,18 @@ def evento(request):
 			origen = request.META['HTTP_REFERER']
 			if "edit=logistica" in origen or "evento_checklist" in origen:
 				tab = "logistica"
+			elif "edit=checkin" in origen:
+				tab = "checkin"
+			elif "edit=checkout" in origen:
+				tab = "checkout"
 		except:
 			tab = "coordinacion"
 
-	# lista_planes = []
-	# for planEvento in evento.PlanesEvento.all().order_by("n"):
-	# 	i = 0
-	# 	#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
-	# 	filtro = planEvento.ItemsPlanEvento.all() #.order_by('PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem')
-	# 	for it in filtro:
-	# 		print (it.PlanesEvento.Plan.nombre, it.nPlan, it.ItemsPlan.Item.nombre, it.nItem)
-	# 	lista_planes.append([])
-	# 	for nPlan in range(1, planEvento.cantidad + 1):
-	# 		lista_planes[-1].append([])
-	# 		for itemPlan in planEvento.Plan.ItemsPlan.all().order_by("idItemsPlan"):
-	# 			lista_planes[-1][-1].append([])
-	# 			for nItem in range(1, itemPlan.cantidad + 1):
-	# 				if itemPlan.Item.multiple:
-	# 					num = itemPlan.cantidad
-	# 				else:
-	# 					num = nItem
-	# 				#print(num, itemPlan.Item.nombre)
-	# 				#print(filtro[i].ItemsPlan.Item.nombre)
-	# 				if edit == "logistica":
-	# 					if request.method == "GET":
-	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, logistica_planes_form['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)]])
-	# 					else:
-	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, request.POST['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)]])
-	# 				else:
-	# 					if filtro[i].ItemsEstacion != None:
-	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, filtro[i].ItemsEstacion.Estacion.nombre])
-	# 					else:
-	# 						lista_planes[-1][-1][-1].append([filtro[i].ItemsPlan.Item, num, " - "])
-	# 				if itemPlan.Item.multiple:
-	# 					break;
-	# 				i += 1
 	lista_planes = []
-	for planEvento in evento.PlanesEvento.all().order_by("n"):
-		#i = 0
-		#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
+	for planEvento in evento.PlanesEvento.all():
 		itemsPlanEvento = planEvento.ItemsPlanEvento.all() #.order_by('PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem')
 		lista_planes.append([])
 		nPlan = planEvento.cantidad
-		#for nPlan in range(1, planEvento.cantidad + 1):
 		plan_actual = -1
 		nPlan_actual = -1
 		for it in itemsPlanEvento:
@@ -890,44 +916,35 @@ def evento(request):
 				plan_actual = it.PlanesEvento.n
 				nPlan_actual = it.nPlan
 
-		#	print (it.PlanesEvento.Plan.nombre, it.nPlan, it.ItemsPlan.Item.nombre, it.nItem)
 			if it.ItemsPlan.Item.multiple:
-				num = it.ItemsPlan.cantidad
+				num = "(x%d)" % it.ItemsPlan.cantidad
 			else:
 				num = it.nItem
-			#print(num, itemPlan.Item.nombre)
-			#print(filtro[i].ItemsPlan.Item.nombre)
+
+			initial_checkin = {}
+			initial_checkin['item_%d' % it.idItemsPlanEvento] = it.check
+
 			if edit == "logistica":
-				if request.method == "GET":
-					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, logistica_planes_form['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, it.ItemsPlan.idItemsPlan, it.nPlan, it.nItem)]])
-				else:
-					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, request.POST['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, it.ItemsPlan.idItemsPlan, it.nPlan, it.nItem)]])
+				estacion = logistica_planes_form['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, it.ItemsPlan.idItemsPlan, it.nPlan, it.nItem)]
+				check = None
+				print (estacion)
+			elif edit == "checkin":
+				estacion = it.ItemsEstacion
+				check = EventoChecklistForm(it.idItemsPlanEvento, initial={"item_%d" % it.idItemsPlanEvento: it.check})['item_%d' % it.idItemsPlanEvento]
 			else:
-				if it.ItemsEstacion != None:
-					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, it.ItemsEstacion.Estacion.nombre])
-				else:
-					lista_planes[-1][-1].append([it.ItemsPlan.Item, num, " - "])
-			#if itemPlan.Item.multiple:
-			#	break;
-			#i += 1
-
-
-	#for planEvento in planesEvento:
-	#	lista_planes.append([])
-	#	for itemPlan in planEvento.Plan.ItemsPlan.all():
-	#		lista_planes[-1].append([])
-	#		for n in range(1, itemPlan.cantidad + 1):
-	#			lista_planes[-1][-1].append(ItemsPlanEvento.objects.get(...))
+				estacion = it.ItemsEstacion
+				check = it.check
+			lista_planes[-1][-1].append([it.ItemsPlan.Item, num, estacion, check])
 
 	context = {
 		"evento": evento,
 		"edit": edit,
 		"coordinacion_form": coordinacion_form,
 		"logistica_form": logistica_form,
-		"logistica_planes_form": logistica_planes_form,
 		"error": error,
 		"tab": tab,
 		"lista_planes": lista_planes,
+		"cargos": cargos,
 	}
 	return render(request, 'evento.html', context)
 
@@ -1557,6 +1574,21 @@ def editar_trabajador(request):
 	return render(request, 'agregar_trabajador.html', context)
 
 
+def editar_cargo(request):
+	if request.method == 'POST':
+		form = CargosForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+
+			return redirect('cargos')
+	else:
+		form = CargosForm()
+	context = {
+		"cargos_form": form,
+	}
+	return render(request, 'agregar_cargo.html', context)
+
+
 def editar_contacto(request):
 	if request.method == 'POST':
 		form = ContactosFormSelect(request.POST, request.FILES)
@@ -1632,6 +1664,12 @@ def eliminar_trabajador(request):
 	trabajador = Trabajadores.objects.get(idTrabajador=request.GET['trabajador'])
 	trabajador.delete()
 	return redirect('trabajadores')
+
+
+def eliminar_cargo(request):
+	cargo = Cargos.objects.get(idCargo=request.GET['cargo'])
+	cargo.delete()
+	return redirect('cargos')
 
 
 

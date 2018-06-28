@@ -2,8 +2,8 @@
 {% load staticfiles %}
 
 <!-- Activo en el menu: -->
-{% block trabajadores-li %} active {% endblock %}
-{% block titulo %}Trabajadores{% endblock %}
+{% block cargos-li %} active {% endblock %}
+{% block titulo %}Cargos{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -19,7 +19,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Trabajadores</h1>
+								<h1>Cargos de los trabajadores</h1>
 							</div>
 						</div>
 
@@ -31,7 +31,7 @@
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<li class="active">Trabajadores</li>
+									<li class="active">Cargos</li>
 								</ol>
 							</div>
 						</div>
@@ -60,29 +60,30 @@
 			</div>
 		</div>
 -->
+
 		<div class="content mt-3">
             <div class="animated fadeIn">
-                
+<!--                
                 <div class="row">
 					<div class="col-lg-3 col-md-6 col-sm-8">
                         <div class="card">
                             <div class="card-body">
                                 <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-tablet text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
+                                    <div class="stat-icon dib"><i class="ti-tablet text-primary border-primary"></i></div>
                                     <div class="stat-content dib">
-                                        <div class="stat-text">Trabajadores</div>
-                                        <div class="stat-digit">{{trabajadores.count}}</div>
+                                        <div class="stat-text">Cargos</div>
+                                        <div class="stat-digit">{{cargos.count}}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
+-->
 
 				<div class="row">
 					<div class="card-body">
-						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_trabajador" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo trabajador</button>
+						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_cargo" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo cargo</button>
 					</div>
 				</div>
 
@@ -97,19 +98,15 @@
 					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
 						<thead>
 						  <tr>
-							{% for titulo in titulos %}
-								<th scope="col">{{titulo}}</th>
-							{% endfor %}
+							<th scope="col">#</th>
+							<th scope="col">Nombre</th>
 						  </tr>
 						</thead>
 						<tbody>
-							{% for trabajador in trabajadores %}
+							{% for cargo in cargos %}
 								<tr>
-									<th scope="row">{{trabajador.idTrabajador}}</th>
-									<td>{{trabajador.nombre}}</td>
-									<td>{% if trabajador.rut != None %}{{trabajador.rut}}{% else %} - {% endif %}</td>
-									<td>{% if trabajador.telefono != None %}{{trabajador.telefono}}{% else %} - {% endif %}</td>
-									<td>{% if trabajador.mail != None %}{{trabajador.mail}}{% else %} - {% endif %}</td>
+									<th scope="row">{{cargo.idCargo}}</th>
+									<td>{{cargo.nombre}}</td>
 								</tr>
 							{% endfor %}
 						</tbody>

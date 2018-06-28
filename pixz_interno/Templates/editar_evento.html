@@ -125,6 +125,7 @@
 								</div>
 
 								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+								<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "eventos" %}{% if menuActivacion != "" %}?activacion={{menuActivacion}}{% endif %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 				            </form>
 						</div>
 					</div>

@@ -115,7 +115,7 @@
 									</th>
 									<!-- dashboard del cliente??? -->
 									<!--<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}" >{{cliente.nombre}}</a></td>-->
-									<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}">{{cliente.nombre}}</a></td>
+									<td><a href="{% url 'activaciones' %}?cliente={{cliente.idCliente}}" style="color:#007bff; text-decoration: underline;">{{cliente.nombre}}</a></td>
 									<td>
 										{% if cliente.direccion != None %}
 											<a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{cliente.direccion}}" >{{cliente.direccion}}</a>

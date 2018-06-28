@@ -161,9 +161,9 @@
 										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{activacion.nombre}}', '{{activacion.idActivacion}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if cliente == "" %}
-										<td><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}">{{activacion.Cliente.nombre}}</a></td>
+										<td><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{activacion.Cliente.nombre}}</a></td>
 									{% endif %}
-									<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}">{{activacion.nombre}}</a></td>
+									<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{activacion.nombre}}</a></td>
 									<td>{{activacion.monto}}</td>
 									<td>{{activacion.descripcion}}</td>
 								</tr>

@@ -147,6 +147,19 @@ class TrabajadoresForm(forms.ModelForm):
 		model = Trabajadores
 		exclude = []
 		widgets = {
+			'nombre': forms.TextInput(attrs={'class': "form-control"}),
+			'rut': forms.TextInput(attrs={'class': "form-control"}),
+			'telefono': forms.TextInput(attrs={'class': "form-control"}),
+			'mail': forms.TextInput(attrs={'class': "form-control"}),
+		}
+
+
+class CargosForm(forms.ModelForm):
+	class Meta:
+		model = Cargos
+		exclude = []
+		widgets = {
+			'nombre': forms.TextInput(attrs={'class': "form-control"}),
 		}
 
 
@@ -194,11 +207,11 @@ class CoordinacionForm(forms.ModelForm):
 
 
 class LogisticaTrabajadoresForm(forms.Form):
-	empty = []
-	Supervisor = forms.MultipleChoiceField(required=False, label="Supervisor(es)", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
-	Montaje = forms.MultipleChoiceField(required=False, label="Montaje", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
-	Desmontaje = forms.MultipleChoiceField(required=False, label="Desmontaje", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
-	Operador = forms.MultipleChoiceField(required=False, label="Operador(es)", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	#empty = []
+	#Supervisor = forms.MultipleChoiceField(required=False, label="Supervisor(es)", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	#Montaje = forms.MultipleChoiceField(required=False, label="Montaje", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	#Desmontaje = forms.MultipleChoiceField(required=False, label="Desmontaje", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+	#Operador = forms.MultipleChoiceField(required=False, label="Operador(es)", choices=empty, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
 	
 	#Trabajadores = forms.ModelMultipleChoiceField(queryset=Trabajadores.objects.all())
 	def __init__(self, *args, **kwargs):
@@ -208,10 +221,13 @@ class LogisticaTrabajadoresForm(forms.Form):
 		for t in trabajadores:
 			choices.append([t.idTrabajador, t.nombre])
 
-		self.fields['Supervisor'].choices = choices
-		self.fields['Montaje'].choices = choices
-		self.fields['Desmontaje'].choices = choices
-		self.fields['Operador'].choices = choices
+		cargos = Cargos.objects.all()
+		for cargo in cargos:
+			self.fields[cargo.nombre] = forms.MultipleChoiceField(required=False, label=cargo.nombre, choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+		#self.fields['Supervisor'].choices = choices
+		#self.fields['Montaje'].choices = choices
+		#self.fields['Desmontaje'].choices = choices
+		#self.fields['Operador'].choices = choices
 	
 
 class LogisticaPlanesForm(forms.Form):

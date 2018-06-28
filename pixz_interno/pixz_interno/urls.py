@@ -57,6 +57,11 @@ urlpatterns = [
 	url(r'^agregar_trabajador/', views.agregar_trabajador, name='agregar_trabajador'),
 	url(r'^editar_trabajador/', views.editar_trabajador, name='editar_trabajador'),
 	url(r'^eliminar_trabajador/', views.eliminar_trabajador, name='eliminar_trabajador'),
+
+	url(r'^cargos/', views.cargos, name='cargos'),
+	url(r'^agregar_cargo/', views.agregar_cargo, name='agregar_cargo'),
+	url(r'^editar_cargo/', views.editar_cargo, name='editar_cargo'),
+	url(r'^eliminar_cargo/', views.eliminar_cargo, name='eliminar_cargo'),
 	
 	url(r'^contactos/', views.contactos, name='contactos'),
 	url(r'^agregar_contacto/', views.agregar_contacto, name='agregar_contacto'),

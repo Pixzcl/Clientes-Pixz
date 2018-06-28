@@ -110,7 +110,7 @@
 								<div class="stat-widget-one">
 									<div class="stat-icon dib"><i class="ti-camera text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
 									<div class="stat-content dib">
-										<div class="stat-text">Realizados</div>
+										<div class="stat-text">Eventos totales</div>
 										<div class="stat-digit">{{eventos.count}}</div>
 									</div>
 								</div>
@@ -124,7 +124,7 @@
 								<div class="stat-widget-one">
 									<div class="stat-icon dib"><i class="ti-camera text-warning border-warning"></i></div> <!--success/primary/warning/danger -->
 									<div class="stat-content dib">
-										<div class="stat-text">Pendientes</div>
+										<div class="stat-text">Eventos pendientes</div>
 										<div class="stat-digit">{{pendientes.count}}</div>
 									</div>
 								</div>
@@ -163,18 +163,18 @@
 						<tbody>
 							{% for evento, planes in eventos|zip:lista_planes %}
 								<tr>
-									<th scope="row" id="td_{{evento.idEvento}}">
+									<th scope="row" id="td_{{evento.idEvento}}" {% if evento.fecha >= hoy %}bgcolor="#ffc107"{% else %}bgcolor="28a745"{% endif %} >
 										{{evento.idEvento}}
 										<!--<i class="ti-info-alt text-success"></i>-->
-										<a style="visibility:hidden;" href='{% url "editar_evento" %}?evento={{evento.idEvento}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden;" href='{% url "editar_evento" %}?evento={{evento.idEvento}}{% if activacion != "" %}&activacion={{activacion.idActivacion}}{% endif %}' ><i class="ti-pencil-alt text-primary"></i></a>
 										<a style="visibility:hidden;" href="javascript:void(0)" onclick="eliminar('{{evento.nombre}}', '{{evento.idEvento}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if activacion == "" %}
-										<td><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></td>
-										<td><a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}">{{evento.Activacion.nombre}}</a></td>
+										<td><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.Cliente.nombre}}</a></td>
+										<td><a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.nombre}}</a></td>
 									{% endif %}
 									<!--<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" >{{evento.fecha}}</a></td>-->
-									<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}">{{evento.nombre}}</a></td>
+									<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >{{evento.nombre}}</a></td>
 									<td>{{evento.fecha}}</td>
 									<td>{{evento.horas}}</td>
 									<td>
@@ -191,6 +191,8 @@
 									</td>
 									<td>{{evento.comentarios}}</td>
 									<!--<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" >{{activacion.nombre}}</a></td>-->
+
+									<td>Pendiente</td>
 								</tr>
 							{% endfor %}
 						</tbody>
