@@ -1,12 +1,14 @@
 Git:
+	git remote add origin [https://github....]
+	git config credential.helper store  ## (guardar clave para que no la pida con cada push)
+	
 	git add [file]
 	git add -A (Todo)
 	git add -A . (Directorio actual)
-	git remote add origin [https://github....]
 	git commit -m "first commit"
 	git push -u origin master
 git push heroku master
-git subtree push --prefix pixz_interno heroku master     (subir solo subcarpeta del repositorio)
+git subtree push --prefix pixz_interno heroku master   ##  (subir solo subcarpeta del repositorio)
 
 runserver local
 	heroku local web -f Procfile.windows
