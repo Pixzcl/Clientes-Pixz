@@ -813,6 +813,8 @@ def evento(request):
 					recurrentesEvento.check = False
 				recurrentesEvento.save()
 
+			return custom_redirect('evento', evento=idEvento)
+
 		elif edit == "checkout":
 			#Pago trabajadores
 			###
