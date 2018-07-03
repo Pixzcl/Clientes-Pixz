@@ -154,15 +154,6 @@ class TrabajadoresForm(forms.ModelForm):
 		}
 
 
-class CargosForm(forms.ModelForm):
-	class Meta:
-		model = Cargos
-		exclude = []
-		widgets = {
-			'nombre': forms.TextInput(attrs={'class': "form-control"}),
-		}
-
-
 class ContactosForm(forms.ModelForm):
 	class Meta:
 		model = Contactos
@@ -253,8 +244,59 @@ class LogisticaPlanesForm(forms.Form):
 						#print(choices)
 						self.fields['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan, nPlan, nItem)] = forms.ChoiceField(required=False, label='planEvento_%d_itemPlan_%d' % (planEvento.idPlanesEvento, itemPlan.idItemsPlan), choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
 
+
 class EventoChecklistForm(forms.Form):
 	def __init__(self, idItemPlanEvento, *args, **kwargs):
 		super(EventoChecklistForm, self).__init__(*args, **kwargs)
 
 		self.fields['item_%d' % idItemPlanEvento] = forms.BooleanField(required=False, label="Check", widget=forms.CheckboxInput(attrs={'class': "switch-input"}))
+
+
+class CargosForm(forms.ModelForm):
+	class Meta:
+		model = Cargos
+		exclude = []
+		widgets = {
+			'nombre': forms.TextInput(attrs={'class': "form-control"}),
+			'n': forms.NumberInput(attrs={'class': "form-control"}),
+		}
+
+
+class RecurrentesForm(forms.ModelForm):
+	class Meta:
+		model = Recurrentes
+		exclude = []
+		widgets = {
+			'nombre': forms.TextInput(attrs={'class': "form-control"}),
+			'n': forms.NumberInput(attrs={'class': "form-control"}),
+		}
+
+
+class PendientesForm(forms.ModelForm):
+	class Meta:
+		model = Pendientes
+		exclude = []
+		widgets = {
+			'nombre': forms.TextInput(attrs={'class': "form-control"}),
+			'n': forms.NumberInput(attrs={'class': "form-control"}),
+		}
+
+
+class RecurrentesEventoForm(forms.Form):
+
+	def __init__(self, *args, **kwargs):
+		super(RecurrentesEventoForm, self).__init__(*args, **kwargs)
+
+		recurrentes = Recurrentes.objects.all()
+		for recurrente in recurrentes:
+			self.fields[recurrente.nombre.replace(" ", "")] = forms.BooleanField(required=False, label=recurrente.nombre, widget=forms.CheckboxInput(attrs={'class': "switch-input"}))
+
+
+class PendientesEventoForm(forms.Form):
+
+	def __init__(self, *args, **kwargs):
+		super(PendientesEventoForm, self).__init__(*args, **kwargs)
+
+		pendientes = Pendientes.objects.all()
+		for pendiente in pendientes:
+			self.fields[pendiente.nombre.replace(" ", "")] = forms.BooleanField(required=False, label=pendiente.nombre, widget=forms.CheckboxInput(attrs={'class': "switch-input"}))

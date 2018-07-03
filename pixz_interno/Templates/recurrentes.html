@@ -2,8 +2,9 @@
 {% load staticfiles %}
 
 <!-- Activo en el menu: -->
-{% block trabajadores-li %} active {% endblock %}
-{% block titulo %}Trabajadores{% endblock %}
+{% block menuOtros-li %} active {% endblock %}
+{% block recurrentes-li %} active {% endblock %}
+{% block titulo %}Tareas Recurrentes{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -19,7 +20,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Trabajadores</h1>
+								<h1>Tareas Recurrentes (Checklist)</h1>
 							</div>
 						</div>
 
@@ -31,7 +32,7 @@
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<li class="active">Trabajadores</li>
+									<li class="active">Tareas Recurrentes</li>
 								</ol>
 							</div>
 						</div>
@@ -60,30 +61,31 @@
 			</div>
 		</div>
 -->
+
 		<div class="content mt-3">
             <div class="animated fadeIn">
-                
+<!--                
                 <div class="row">
 					<div class="col-lg-3 col-md-6 col-sm-8">
                         <div class="card">
                             <div class="card-body">
                                 <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-tablet text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
+                                    <div class="stat-icon dib"><i class="ti-tablet text-primary border-primary"></i></div>
                                     <div class="stat-content dib">
-                                        <div class="stat-text">Trabajadores</div>
-                                        <div class="stat-digit">{{trabajadores.count}}</div>
+                                        <div class="stat-text">Cargos</div>
+                                        <div class="stat-digit">{{cargos.count}}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
+-->
 
 				<div class="row">
 					<div class="card-body">
-						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_trabajador" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo trabajador</button>
-						<button type="button" class="btn btn-outline-primary" onclick="mostrar();"><i class="ti-pencil-alt"></i>&nbsp; Editar trabajador</button>
+						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_recurrente" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nueva tarea recurrente</button>
+						<button type="button" class="btn btn-outline-primary" onclick="mostrar();"><i class="ti-pencil-alt"></i>&nbsp; Editar tarea</button>
 					</div>
 				</div>
 
@@ -98,23 +100,19 @@
 					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
 						<thead>
 						  <tr>
-							{% for titulo in titulos %}
-								<th scope="col">{{titulo}}</th>
-							{% endfor %}
+						  	<th scope="col">N°</th>
+							<th scope="col">Nombre</th>
 						  </tr>
 						</thead>
 						<tbody>
-							{% for trabajador in trabajadores %}
+							{% for recurrente in recurrentes %}
 								<tr>
-									<th scope="row" id="td_{{trabajador.idTrabajador}}">
-										{{trabajador.idTrabajador}}
-										<a style="visibility:hidden" href='{% url "editar_trabajador" %}?trabajador={{trabajador.idTrabajador}}' ><i class="ti-pencil-alt text-primary"></i></a>
-										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{trabajador.nombre}}', '{{trabajador.idTrabajador}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
+									<th scope="row" id="td_{{recurrente.idRecurrente}}">
+										{{recurrente.n}}
+										<a style="visibility:hidden" href='{% url "editar_recurrente" %}?recurrente={{recurrente.idRecurrente}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{recurrente.nombre}}', '{{recurrente.idRecurrente}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
-									<td>{{trabajador.nombre}}</td>
-									<td>{% if trabajador.rut != None %}{{trabajador.rut}}{% else %} - {% endif %}</td>
-									<td>{% if trabajador.telefono != None %}{{trabajador.telefono}}{% else %} - {% endif %}</td>
-									<td>{% if trabajador.mail != None %}{{trabajador.mail}}{% else %} - {% endif %}</td>
+									<td>{{recurrente.nombre}}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -131,15 +129,16 @@
 	</div><!-- /#right-panel -->
 
 	<!-- Right Panel -->
-	
-<script type="text/javascript">
+
+
+	<script type="text/javascript">
 		var visible = false;
 		function mostrar() {
 			visible = !visible;
 			var botones, i;
-			{% for trabajador in trabajadores %}
+			{% for recurrente in recurrentes %}
 				try {
-					botones = document.getElementById("td_" + {{trabajador.idTrabajador}}).children;
+					botones = document.getElementById("td_" + {{recurrente.idRecurrente}}).children;
 					for (i=0; i<botones.length; i++) {
 						//if (botones[i].style.visibility == "hidden") {
 						if (visible) {
@@ -184,11 +183,12 @@
 	<script>
 		function eliminar(nombre, id) {
 			//document.getElementById("p_eliminar").innerHTML = "";
-			document.getElementById("h5_eliminar").innerHTML = "Eliminar cargo " + nombre;
-			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_trabajador" %}?trabajador=' + id};
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar tarea " + nombre;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_recurrente" %}?recurrente=' + id};
 			document.getElementById("eliminar").click();
 		}
 	</script>
+	
 
 
 {% endblock %}

@@ -108,8 +108,8 @@
 									{% if edit == False or edit == "logistica" %}
 										<a class="nav-item nav-link {% if edit == 'logistica' or tab == 'logistica' %}active{% endif %}" id="nav-logistica-tab" data-toggle="tab" href="#nav-logistica" role="tab" aria-controls="nav-logistica" aria-selected="false">Logística</a>
 									{% endif %}
-									{% if edit == False or edit == "checkin" %}
-										<a class="nav-item nav-link {% if edit == 'checkin' or tab == 'checkin' %}active{% endif %}" id="nav-checkin-tab" data-toggle="tab" href="#nav-checkin" role="tab" aria-controls="nav-checkin" aria-selected="false">Checkin</a>
+									{% if edit == False or edit == "checklist" %}
+										<a class="nav-item nav-link {% if edit == 'checklist' or tab == 'checklist' %}active{% endif %}" id="nav-checklist-tab" data-toggle="tab" href="#nav-checklist" role="tab" aria-controls="nav-checklist" aria-selected="false">Checklist</a>
 									{% endif %}
 									{% if edit == False or edit == "checkout" %}
 										<a class="nav-item nav-link {% if edit == 'checkout' or tab == 'checkout' %}active{% endif %}" id="nav-checkout-tab" data-toggle="tab" href="#nav-checkout" role="tab" aria-controls="nav-checkout" aria-selected="false">Checkout</a>
@@ -271,7 +271,6 @@
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=logistica'"><i class="ti-pencil-alt"></i>&nbsp; Editar logística</button>
-												<!--<button type="button" class="btn btn-outline-info" onclick="location.href='{% url "evento_checklist" %}?evento={{evento.idEvento}}'"><i class="ti-check-box"></i>&nbsp; Checklist</button>-->
 											{% endif %}
 										</div>
 									</div>
@@ -432,10 +431,10 @@
 							{% endif %}
 
 
-<!-- Checkin -->
-							{% if edit == False or edit == "checkin" %}
-								<div class="tab-pane fade show {% if edit == 'checkin' or tab == 'checkin' %}active{% endif %}" id="nav-checkin" role="tabpanel" aria-labelledby="nav-checkin-tab">
-									{% if edit == 'checkin' %}
+<!-- Checklist -->
+							{% if edit == False or edit == "checklist" %}
+								<div class="tab-pane fade show {% if edit == 'checklist' or tab == 'checklist' %}active{% endif %}" id="nav-checklist" role="tabpanel" aria-labelledby="nav-checklist-tab">
+									{% if edit == 'checklist' %}
 										<form id="form" method="post" enctype="multipart/form-data">
 											{% csrf_token %}
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
@@ -444,11 +443,11 @@
 									<div class="row">
 										<div class="card-body">
 											
-											{% if edit == 'checkin' %}
+											{% if edit == 'checklist' %}
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
-												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checkin'"><i class="ti-pencil-alt"></i>&nbsp; Editar checkin</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checklist'"><i class="ti-pencil-alt"></i>&nbsp; Editar checklist</button>
 											{% endif %}
 										</div>
 									</div>
@@ -461,8 +460,40 @@
 													<strong class="card-title">Tareas recurrentes</strong>
 												</div>
 												<div class="card-body">
-													En construcción<br>
-													revisar cadena de correos + enviar planilla resumen a cliente + armar itinerario + acreditacion trabajadores y camión
+													<table class="table table-striped">
+														<!--<thead>
+															<tr>
+																<th scope="col">Tarea</th>
+																<th scope="col">Realizada</th>
+															</tr>
+														</thead>-->
+														<tbody>
+															{% if edit == "checklist" %}
+																{% for tarea in lista_recurrentes %}
+																	<tr>
+																		<td>{{tarea.label}}</td>
+																		<td>
+																			<input type='hidden' value='Off' name={{tarea.name}}>
+																			<label class="switch switch-3d switch-success switch-lg mr-3">{{tarea}}<span class="switch-label"></span> <span data-on="On" data-off="Off" class="switch-handle"></span></label>
+																		</td>
+																	</tr>
+																{% endfor %}
+															{% else %}
+																{% for tarea, check in lista_recurrentes %}
+																	<tr>
+																		<td>{{tarea}}</td>
+																		<td>
+																			{% if check %}
+																				<i class="ti-check text-success"></i>
+																			{% else %}
+																				<i class="ti-close text-danger"></i>
+																			{% endif %}
+																		</td>
+																	</tr>
+																{% endfor %}
+															{% endif %}
+														</tbody>
+													</table>
 												</div>
 											</div>
 										</div>
@@ -503,11 +534,11 @@
 																								</td>
 																								<td>
 																									{% if estacion != None %}
-																										{% if edit == "checkin" %}
-																											<input type='hidden' value='0' name={{check.name}}>
+																										{% if edit == "checklist" %}
+																											<input type='hidden' value='Off' name={{check.name}}>
 																											<td><label class="switch switch-3d switch-success switch-lg mr-3">{{check}}<span class="switch-label"></span> <span data-on="On" data-off="Off" class="switch-handle"></span></label></td>
 																										{% else %}
-																											{% if check == True %}
+																											{% if check %}
 																												<i class="ti-check text-success"></i>
 																											{% else %}
 																												<i class="ti-close text-danger"></i>
@@ -531,7 +562,7 @@
 
 									</div>
 
-									{% if edit == 'checkin' %}
+									{% if edit == 'checklist' %}
 										<div class="row">
 											<div class="card-body">
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
@@ -548,22 +579,19 @@
 <!-- Checkout -->
 							{% if edit == False or edit == "checkout" %}
 								<div class="tab-pane fade show {% if edit == 'checkout' or tab == 'checkout' %}active{% endif %}" id="nav-checkout" role="tabpanel" aria-labelledby="nav-checkout-tab">
+									{% if edit == 'checkout' %}
+										<form id="form" method="post" enctype="multipart/form-data">
+											{% csrf_token %}
+											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
+											<input type="hidden" name="edit" id="edit" value={{edit}} />
+									{% endif %}
 									<div class="row">
 										<div class="card-body">
-											<!--
 											{% if edit == 'checkout' %}
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
-												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checkout'"><i class="ti-pencil-alt"></i>&nbsp; Editar logística</button>
-												<button type="button" class="btn btn-outline-info" onclick="location.href='{% url "evento_checklist" %}?evento={{evento.idEvento}}'"><i class="ti-check-box"></i>&nbsp; Checklist</button>
-											{% endif %}
-											-->
-											{% if edit == 'checkin' %}
-												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
-												<button type="button" class="btn btn-outline-primary" ><i class="ti-back-left"></i>&nbsp; Volver</button>
-											{% else %}
-												<button type="button" class="btn btn-outline-primary" ><i class="ti-pencil-alt"></i>&nbsp; Editar checkout</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checkout'"><i class="ti-pencil-alt"></i>&nbsp; Editar checkout</button>
 											{% endif %}
 										</div>
 									</div>
@@ -576,8 +604,40 @@
 													<strong class="card-title">Tareas pendientes</strong>
 												</div>
 												<div class="card-body">
-													En construcción<br>
-													Filtar fotos + respaldar + subir a smugmug + enviar a cliente + emitir factura
+													<table class="table table-striped">
+														<!--<thead>
+															<tr>
+																<th scope="col">Tarea</th>
+																<th scope="col">Realizada</th>
+															</tr>
+														</thead>-->
+														<tbody>
+															{% if edit == "checkout" %}
+																{% for tarea in lista_pendientes %}
+																	<tr>
+																		<td>{{tarea.label}}</td>
+																		<td>
+																			<input type='hidden' value='Off' name={{tarea.name}}>
+																			<label class="switch switch-3d switch-success switch-lg mr-3">{{tarea}}<span class="switch-label"></span> <span data-on="On" data-off="Off" class="switch-handle"></span></label>
+																		</td>
+																	</tr>
+																{% endfor %}
+															{% else %}
+																{% for tarea, check in lista_pendientes %}
+																	<tr>
+																		<td>{{tarea}}</td>
+																		<td>
+																			{% if check %}
+																				<i class="ti-check text-success"></i>
+																			{% else %}
+																				<i class="ti-close text-danger"></i>
+																			{% endif %}
+																		</td>
+																	</tr>
+																{% endfor %}
+															{% endif %}
+														</tbody>
+													</table>
 												</div>
 											</div>
 										</div>
@@ -619,6 +679,15 @@
 										</div>
 
 									</div>
+									{% if edit == 'checkout' %}
+										<div class="row">
+											<div class="card-body">
+												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+											</div>
+										</div>
+										</form>
+									{% endif %}
 								</div>
 							{% endif %}
 

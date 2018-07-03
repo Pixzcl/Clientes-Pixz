@@ -605,33 +605,6 @@ def agregar_trabajador(request):
 	return render(request, 'agregar_trabajador.html', context)
 
 
-def cargos(request):
-	cargos = Cargos.objects.all()
-	
-	#titulos = ["#", "Nombre", "RUT", "Teléfono", "Mail"]
-
-	context = {
-		"cargos": cargos,
-		#"titulos": titulos,
-	}
-	return render(request, 'cargos.html', context)
-
-
-def agregar_cargo(request):
-	if request.method == 'POST':
-		form = CargosForm(request.POST, request.FILES)
-		if form.is_valid():
-			form.save()
-
-			return redirect('cargos')
-	else:
-		form = CargosForm()
-	context = {
-		"cargos_form": form,
-	}
-	return render(request, 'agregar_cargo.html', context)
-
-
 def contactos(request):
 	contactos = Contactos.objects.all()
 	
@@ -696,6 +669,8 @@ def agregar_contacto_select(request):
 def evento(request):
 	error = False
 	cargos = Cargos.objects.all()
+	recurrentes = Recurrentes.objects.all()
+	pendientes = Pendientes.objects.all()
 	if request.method == 'POST':
 		idEvento = request.POST['evento']
 		evento = Eventos.objects.get(idEvento=idEvento)
@@ -817,7 +792,8 @@ def evento(request):
 				return custom_redirect('evento', evento=idEvento)
 			else:
 				error = True
-		elif edit == "checkin":
+		elif edit == "checklist":
+			# Cargar al camion
 			for key, value in request.POST.items():
 				if "item_" in key:
 					item = ItemsPlanEvento.objects.get(idItemsPlanEvento=key.split("_")[1])
@@ -826,8 +802,34 @@ def evento(request):
 					else:
 						item.check = False
 					item.save()
+
+			# Tareas recurrentes
+			for recurrente in recurrentes:
+				value = request.POST[recurrente.nombre.replace(" ", "")]
+				recurrentesEvento = recurrente.RecurrentesEvento.get(Evento=evento)
+				if value == "on":
+					recurrentesEvento.check = True
+				else:
+					recurrentesEvento.check = False
+				recurrentesEvento.save()
+
+		elif edit == "checkout":
+			#Pago trabajadores
+			###
+
+			# Tareas pendientes
+			for pendiente in pendientes:
+				value = request.POST[pendiente.nombre.replace(" ", "")]
+				pendientesEvento = pendiente.PendientesEvento.get(Evento=evento)
+				if value == "on":
+					pendientesEvento.check = True
+				else:
+					pendientesEvento.check = False
+				pendientesEvento.save()
+
 			return custom_redirect('evento', evento=idEvento)
-	# GET				
+
+	# GET
 	else:
 		try:
 			idEvento = request.GET['evento']
@@ -855,14 +857,6 @@ def evento(request):
 				for cargo in cargos:
 					initial_trabajadores[cargo.nombre] = [trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(Cargo=cargo)]
 				logistica_form = LogisticaTrabajadoresForm(initial=initial_trabajadores)
-				#logistica_form = LogisticaTrabajadoresForm(initial={
-				#	"Supervisor":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Supervisor")], 
-				#	"Montaje":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Montaje")], 
-				#	"Desmontaje":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Desmontaje")], 
-				#	"Operador":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Operador")],
-				#	"Freelance":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Freelance")],
-				#	"Promotora":[trabajadorEvento.Trabajador.idTrabajador for trabajadorEvento in evento.TrabajadoresEvento.filter(tipo="Promotora")],
-				#	})
 
 				initial_planes = {}
 				planesEvento = evento.PlanesEvento.all()
@@ -882,7 +876,7 @@ def evento(request):
 									break;
 				logistica_planes_form = LogisticaPlanesForm(planesEvento, initial=initial_planes)
 
-			elif edit == "checkin":
+			elif edit == "checklist":
 				pass
 
 			elif edit == "checkout":
@@ -890,14 +884,15 @@ def evento(request):
 
 		except MultiValueDictKeyError:
 			edit = False
+
 		try:
 			#tab = request.GET['tab']
 			tab = "coordinacion"
 			origen = request.META['HTTP_REFERER']
 			if "edit=logistica" in origen or "evento_checklist" in origen:
 				tab = "logistica"
-			elif "edit=checkin" in origen:
-				tab = "checkin"
+			elif "edit=checklist" in origen:
+				tab = "checklist"
 			elif "edit=checkout" in origen:
 				tab = "checkout"
 		except:
@@ -921,20 +916,56 @@ def evento(request):
 			else:
 				num = it.nItem
 
-			initial_checkin = {}
-			initial_checkin['item_%d' % it.idItemsPlanEvento] = it.check
+			initial_checklist = {}
+			initial_checklist['item_%d' % it.idItemsPlanEvento] = it.check
 
 			if edit == "logistica":
 				estacion = logistica_planes_form['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, it.ItemsPlan.idItemsPlan, it.nPlan, it.nItem)]
 				check = None
 				print (estacion)
-			elif edit == "checkin":
+			elif edit == "checklist":
 				estacion = it.ItemsEstacion
 				check = EventoChecklistForm(it.idItemsPlanEvento, initial={"item_%d" % it.idItemsPlanEvento: it.check})['item_%d' % it.idItemsPlanEvento]
 			else:
 				estacion = it.ItemsEstacion
 				check = it.check
 			lista_planes[-1][-1].append([it.ItemsPlan.Item, num, estacion, check])
+
+	# Tareas recurrentes
+	for recurrente in recurrentes:
+		try:
+			recurrente.RecurrentesEvento.get(Evento=evento)
+		except RecurrentesEvento.DoesNotExist:
+			ev = RecurrentesEvento(Recurrente=recurrente, Evento=evento)
+			ev.save()
+
+	if edit == "checklist":
+		initial = {}
+		for recurrente in recurrentes:
+			initial[recurrente.nombre.replace(" ", "")] = RecurrentesEvento.objects.get(Evento=evento, Recurrente=recurrente).check
+		lista_recurrentes = RecurrentesEventoForm(initial=initial)
+	else:
+		lista_recurrentes = []
+		for recurrente in recurrentes:
+			lista_recurrentes.append([recurrente.nombre, recurrente.RecurrentesEvento.get(Evento=evento).check])
+
+	# Tareas pendientes
+	for pendiente in pendientes:
+		try:
+			pendiente.PendientesEvento.get(Evento=evento)
+		except PendientesEvento.DoesNotExist:
+			ev = PendientesEvento(Pendiente=pendiente, Evento=evento)
+			ev.save()
+
+	if edit == "checkout":
+		initial = {}
+		for pendiente in pendientes:
+			initial[pendiente.nombre.replace(" ", "")] = PendientesEvento.objects.get(Evento=evento, Pendiente=pendiente).check
+		lista_pendientes = PendientesEventoForm(initial=initial)
+	else:
+		lista_pendientes = []
+		for pendiente in pendientes:
+			lista_pendientes.append([pendiente.nombre, pendiente.PendientesEvento.get(Evento=evento).check])
 
 	context = {
 		"evento": evento,
@@ -945,101 +976,104 @@ def evento(request):
 		"tab": tab,
 		"lista_planes": lista_planes,
 		"cargos": cargos,
+		"lista_recurrentes": lista_recurrentes,
+		"lista_pendientes": lista_pendientes,
 	}
 	return render(request, 'evento.html', context)
 
 
 
 
-def evento_checklist(request):
-	if request.method == 'POST':
-		idEvento = request.POST['evento']
-		evento = Eventos.objects.get(idEvento=idEvento)
-
-		for key, value in request.POST.items():
-			if "item_" in key:
-				item = ItemsPlanEvento.objects.get(idItemsPlanEvento=key.split("_")[1])
-				if value == "on":
-					item.check = True
-				else:
-					item.check = False
-				item.save()
-		mensaje = "¡Cambios guardados!"
-
-	else:
-		evento = Eventos.objects.get(idEvento=request.GET['evento'])
-		mensaje = ""
-
-	# planesItemsEstaciones = []
-	# for planEvento in evento.PlanesEvento.all().order_by("n"):
-	# 	planesItemsEstaciones.append([])
-	# 	#for itemPlanEvento in planEvento.ItemsPlanEvento.all().order_by("PlanesEvento", "ItemsPlan", "ItemsEstacion"):
-	# 	for itemPlanEvento in planEvento.ItemsPlanEvento.all().order_by("n"):
-	# 		initial = {}
-	# 		initial['item_%d' % itemPlanEvento.idItemsPlanEvento] = itemPlanEvento.check
-	# 		planesItemsEstaciones[-1].append([itemPlanEvento.ItemsPlan, itemPlanEvento.ItemsEstacion, EventoChecklistForm(itemPlanEvento.idItemsPlanEvento, initial=initial)])
-
-	# lista_planes = []
-	# for planEvento in evento.PlanesEvento.all().order_by("n"):
-	# 	i = 0
-	# 	#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
-	# 	filtro = planEvento.ItemsPlanEvento.all() #.order_by("ItemsPlan", "n")
-	# 	lista_planes.append([])
-	# 	for nPlan in range(1, planEvento.cantidad + 1):
-	# 		lista_planes[-1].append([])
-	# 		for itemPlan in planEvento.Plan.ItemsPlan.all().order_by("idItemsPlan"):
-	# 			#lista_planes[-1].append([])
-	# 			for nItem in range(1, itemPlan.cantidad + 1):
-	# 				if itemPlan.Item.multiple:
-	# 					num = itemPlan.cantidad
-	# 				else:
-	# 					num = nItem
-
-	# 				initial = {}
-	# 				initial['item_%d' % filtro[i].idItemsPlanEvento] = filtro[i].check
-	# 				lista_planes[-1][-1].append([filtro[i].ItemsPlan, num, filtro[i].ItemsEstacion, EventoChecklistForm(filtro[i].idItemsPlanEvento, initial=initial)])
-
-	# 				if itemPlan.Item.multiple:
-	# 					break;
-	# 				i += 1
-
-	lista_planes = []
-	for planEvento in evento.PlanesEvento.all().order_by("n"):
-		#i = 0
-		#filtro = ItemsPlanEvento.objects.filter(PlanesEvento=planEvento, ItemsPlan__in=planEvento.ItemsPlan.all()).order_by("ItemsPlan", "n")
-		filtro = planEvento.ItemsPlanEvento.all() #.order_by('PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem')
-		lista_planes.append([])
-		nPlan = planEvento.cantidad
-		#for nPlan in range(1, planEvento.cantidad + 1):
-		plan_actual = -1
-		nPlan_actual = -1
-		for it in filtro:
-			if it.nPlan != nPlan_actual or it.PlanesEvento.n != plan_actual:
-				lista_planes[-1].append([])
-				plan_actual = it.PlanesEvento.n
-				nPlan_actual = it.nPlan
-
-		#	print (it.PlanesEvento.Plan.nombre, it.nPlan, it.ItemsPlan.Item.nombre, it.nItem)
-			if it.ItemsPlan.Item.multiple:
-				num = it.ItemsPlan.cantidad
-			else:
-				num = it.nItem
-			#print(num, itemPlan.Item.nombre)
-			#print(filtro[i].ItemsPlan.Item.nombre)
-
-			initial = {}
-			initial['item_%d' % it.idItemsPlanEvento] = it.check
-			lista_planes[-1][-1].append([it.ItemsPlan, num, it.ItemsEstacion, EventoChecklistForm(it.idItemsPlanEvento, initial=initial)])
-
-
-
+def cargos(request):
+	cargos = Cargos.objects.all()
+	
+	#titulos = ["#", "Nombre", "RUT", "Teléfono", "Mail"]
 
 	context = {
-		"evento": evento,
-		"lista_planes": lista_planes,
-		"mensaje": mensaje,
+		"cargos": cargos,
+		#"titulos": titulos,
 	}
-	return render(request, 'evento_checklist.html', context)
+	return render(request, 'cargos.html', context)
+
+
+def agregar_cargo(request):
+	if request.method == 'POST':
+		form = CargosForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+
+			return redirect('cargos')
+	else:
+		cargos = Cargos.objects.all().reverse()
+		initial ={}
+		if len(cargos) > 0:
+			initial["n"] = cargos[0].n + 1
+		form = CargosForm(initial=initial)
+	context = {
+		"cargos_form": form,
+	}
+	return render(request, 'agregar_cargo.html', context)
+
+
+def recurrentes(request):
+	recurrentes = Recurrentes.objects.all()
+	
+	#titulos = ["#", "Nombre", "RUT", "Teléfono", "Mail"]
+
+	context = {
+		"recurrentes": recurrentes,
+		#"titulos": titulos,
+	}
+	return render(request, 'recurrentes.html', context)
+
+
+def agregar_recurrente(request):
+	if request.method == 'POST':
+		form = RecurrentesForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+
+			return redirect('recurrentes')
+	else:
+		recurrentes = Recurrentes.objects.all().reverse()
+		initial ={}
+		if len(recurrentes) > 0:
+			initial["n"] = recurrentes[0].n + 1
+		form = RecurrentesForm(initial=initial)
+	context = {
+		"recurrentes_form": form,
+	}
+	return render(request, 'agregar_recurrente.html', context)
+
+
+def pendientes(request):
+	pendientes = Pendientes.objects.all()
+	
+	context = {
+		"pendientes": pendientes,
+		#"titulos": titulos,
+	}
+	return render(request, 'pendientes.html', context)
+
+
+def agregar_pendiente(request):
+	if request.method == 'POST':
+		form = PendientesForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+
+			return redirect('pendientes')
+	else:
+		pendientes = Pendientes.objects.all().reverse()
+		initial ={}
+		if len(pendientes) > 0:
+			initial["n"] = pendientes[0].n + 1
+		form = PendientesForm(initial=initial)
+	context = {
+		"pendientes_form": form,
+	}
+	return render(request, 'agregar_pendiente.html', context)
+
 
 
 ############################################################## Editar ##############################################################
@@ -1518,12 +1552,12 @@ def editar_estacion(request):
 def editar_item(request):
 	if request.method == 'POST':
 		item = Items.objects.get(idItem=request.POST['item'])
+		nombre = request.POST['nombre']
 		form = ItemsForm(request.POST, request.FILES)
-		if form.is_valid() or item.nombre == request.POST['nombre']:
+		if form.is_valid() or item.nombre == nombre:
 			#it = form.save(commit=False)
 			#it.idItem = item.idItem
 			#it.save()
-			nombre = request.POST['nombre']
 			if item.nombre != nombre:
 				item.nombre = nombre
 
@@ -1562,31 +1596,42 @@ def editar_item(request):
 
 def editar_trabajador(request):
 	if request.method == 'POST':
+		trabajador = Trabajadores.objects.get(idTrabajador=request.POST["trabajador"])
+		nombre = request.POST['nombre']
+		rut = request.POST['rut']
+		telefono = request.POST['telefono']
+		mail = request.POST['mail']
+
+		unicos = True
+		trabajadores = Trabajadores.objects.all()
+		for t in trabajadores:
+			if trabajador != t and (t.nombre == nombre or t.rut == rut or t.telefono == telefono or t.mail == mail):
+				unicos = False
+				break
+
 		form = TrabajadoresForm(request.POST, request.FILES)
-		if form.is_valid():
-			form.save()
+		if form.is_valid() or unicos:
+			if trabajador.nombre != nombre:
+				trabajador.nombre = nombre
+			if trabajador.rut != rut:
+				trabajador.rut = rut
+			if trabajador.telefono != telefono:
+				trabajador.telefono = telefono
+			if trabajador.mail != mail:
+				trabajador.mail = mail
+
+			trabajador.save()
+
 			return redirect('trabajadores')
 	else:
-		form = TrabajadoresForm()
+		trabajador = Trabajadores.objects.get(idTrabajador=request.GET["trabajador"])
+		initial = {"nombre":trabajador.nombre, "rut":trabajador.rut, "telefono":trabajador.telefono, "mail":trabajador.mail}
+		form = TrabajadoresForm(initial=initial)
 	context = {
+		"trabajador": trabajador,
 		"trabajadores_form": form,
 	}
-	return render(request, 'agregar_trabajador.html', context)
-
-
-def editar_cargo(request):
-	if request.method == 'POST':
-		form = CargosForm(request.POST, request.FILES)
-		if form.is_valid():
-			form.save()
-
-			return redirect('cargos')
-	else:
-		form = CargosForm()
-	context = {
-		"cargos_form": form,
-	}
-	return render(request, 'agregar_cargo.html', context)
+	return render(request, 'editar_trabajador.html', context)
 
 
 def editar_contacto(request):
@@ -1602,6 +1647,81 @@ def editar_contacto(request):
 		"cliente": None,
 	}
 	return render(request, 'agregar_contacto.html', context)
+
+
+def editar_cargo(request):
+	if request.method == 'POST':
+		cargo = Cargos.objects.get(idCargo=request.POST["cargo"])
+		nombre = request.POST['nombre']
+		form = CargosForm(request.POST, request.FILES)
+		if form.is_valid() or cargo.nombre == nombre:
+			if cargo.nombre != nombre:
+				cargo.nombre = nombre
+			n = request.POST["n"]
+			if cargo.n != n:
+				cargo.n = n
+			cargo.save()
+
+			return redirect('cargos')
+	else:
+		cargo = Cargos.objects.get(idCargo=request.GET["cargo"])
+		initial = {"nombre":cargo.nombre, "n":cargo.n}
+		form = CargosForm(initial=initial)
+	context = {
+		"cargo": cargo,
+		"cargos_form": form,
+	}
+	return render(request, 'editar_cargo.html', context)
+
+
+def editar_recurrente(request):
+	if request.method == 'POST':
+		recurrente = Recurrentes.objects.get(idRecurrente=request.POST["recurrente"])
+		nombre = request.POST['nombre']
+		form = RecurrentesForm(request.POST, request.FILES)
+		if form.is_valid() or recurrente.nombre == nombre:
+			if recurrente.nombre != nombre:
+				recurrente.nombre = nombre
+			n = request.POST["n"]
+			if recurrente.n != n:
+				recurrente.n = n
+			recurrente.save()
+
+			return redirect('recurrentes')
+	else:
+		recurrente = Recurrentes.objects.get(idRecurrente=request.GET["recurrente"])
+		initial = {"nombre":recurrente.nombre, "n":recurrente.n}
+		form = RecurrentesForm(initial=initial)
+	context = {
+		"recurrente": recurrente,
+		"recurrentes_form": form,
+	}
+	return render(request, 'editar_recurrente.html', context)
+
+
+def editar_pendiente(request):
+	if request.method == 'POST':
+		pendiente = Pendientes.objects.get(idPendiente=request.POST["pendiente"])
+		nombre = request.POST['nombre']
+		form = PendientesForm(request.POST, request.FILES)
+		if form.is_valid() or pendiente.nombre == nombre:
+			if pendiente.nombre != nombre:
+				pendiente.nombre = nombre
+			n = request.POST["n"]
+			if pendiente.n != n:
+				pendiente.n = n
+			pendiente.save()
+
+			return redirect('pendientes')
+	else:
+		pendiente = Pendientes.objects.get(idPendiente=request.GET["pendiente"])
+		initial = {"nombre":pendiente.nombre, "n":pendiente.n}
+		form = PendientesForm(initial=initial)
+	context = {
+		"pendiente": pendiente,
+		"pendientes_form": form,
+	}
+	return render(request, 'editar_pendiente.html', context)
 
 
 
@@ -1670,6 +1790,18 @@ def eliminar_cargo(request):
 	cargo = Cargos.objects.get(idCargo=request.GET['cargo'])
 	cargo.delete()
 	return redirect('cargos')
+
+
+def eliminar_recurrente(request):
+	recurrente = Recurrentes.objects.get(idRecurrente=request.GET['recurrente'])
+	recurrente.delete()
+	return redirect('recurrentes')
+
+
+def eliminar_pendiente(request):
+	pendiente = Pendientes.objects.get(idPendiente=request.GET['pendiente'])
+	pendiente.delete()
+	return redirect('pendientes')
 
 
 

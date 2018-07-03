@@ -20,7 +20,7 @@ from django.db import models
 
 class Clientes(models.Model):
 	idCliente = models.AutoField(primary_key=True, verbose_name="#")
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un cliente con este nombre"})
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un cliente con este nombre."})
 	direccion = models.CharField(max_length=255, verbose_name="Dirección", blank=True, null=True, default="")
 	
 
@@ -58,12 +58,17 @@ class Eventos(models.Model):
 	fin_servicio = models.TimeField(verbose_name="Fin del servicio", blank=True, null=True)
 	direccion = models.CharField(max_length=255, verbose_name="Dirección", blank=True, null=True)
 
+	# Tareas recurrentes en checklist
+	Recurrentes = models.ManyToManyField("Recurrentes", through="RecurrentesEvento", related_name="Eventos")
+	# Tareas pendientes en checkout
+	Pendientes = models.ManyToManyField("Pendientes", through="PendientesEvento", related_name="Eventos")
+
 
 class Contactos(models.Model):
 	idContacto = models.AutoField(primary_key=True, verbose_name="#")
 	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Contactos", on_delete=models.SET(None), blank=False, null=True)
 	
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un contacto con este nombre"})
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un contacto con este nombre."})
 	#rut = models.CharField(max_length=255, verbose_name="RUT", blank=True, null=True, default="")
 	telefono = models.CharField(max_length=255, verbose_name="Teléfono", blank=True, null=True, default="")
 	mail = models.EmailField(max_length=255, verbose_name="Mail", blank=True, null=True, default="")
@@ -72,10 +77,10 @@ class Contactos(models.Model):
 class Trabajadores(models.Model):
 	idTrabajador = models.AutoField(primary_key=True, verbose_name="#")
 
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un trabajador con este nombre"})
-	rut = models.CharField(unique=True, max_length=255, verbose_name="RUT", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este RUT"})
-	telefono = models.CharField(unique=True, max_length=255, verbose_name="Teléfono", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este teléfono"})
-	mail = models.EmailField(unique=True, max_length=255, verbose_name="Mail", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este mail"})
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un trabajador con este nombre."})
+	rut = models.CharField(unique=True, max_length=255, verbose_name="RUT", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este RUT."})
+	telefono = models.CharField(unique=True, max_length=255, verbose_name="Teléfono", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este teléfono."})
+	mail = models.EmailField(unique=True, max_length=255, verbose_name="Mail", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este mail."})
 
 
 class TrabajadoresEvento(models.Model):
@@ -84,11 +89,6 @@ class TrabajadoresEvento(models.Model):
 	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="TrabajadoresEvento", on_delete=models.CASCADE, blank=False, null=False)
 	Cargo = models.ForeignKey("Cargos", verbose_name="Cargo", related_name="TrabajadoresEvento", on_delete=models.SET(None), blank=True, null=True)
 	#tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
-
-
-class Cargos(models.Model):
-	idCargo = models.AutoField(primary_key=True, verbose_name="#")
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un cargo con este nombre"})
 
 
 class PlanesTrabajador(models.Model):
@@ -127,7 +127,7 @@ class Planes(models.Model):
 	Items = models.ManyToManyField("Items", through="ItemsPlan", related_name="Planes")
 	Trabajadores = models.ManyToManyField("Trabajadores", through="PlanesTrabajador", related_name="Planes")
 
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un plan con este nombre"})
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un plan con este nombre."})
 
 
 class ItemsPlan(models.Model):
@@ -144,7 +144,7 @@ class ItemsPlan(models.Model):
 
 class Estaciones(models.Model):
 	idEstacion = models.AutoField(primary_key=True, verbose_name="#")
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe una estación con este nombre"})
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe una estación con este nombre."})
 	Items = models.ManyToManyField("Items", through="ItemsEstacion", related_name="Estaciones")
 
 
@@ -162,5 +162,43 @@ class ItemsEstacion(models.Model):
 class Items(models.Model):
 	idItem = models.AutoField(primary_key=True, verbose_name="#")
 	
-	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un item con este nombre"})
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un item con este nombre."})
 	multiple = models.BooleanField(verbose_name="Multiple", default=False)
+
+
+class Cargos(models.Model):
+	idCargo = models.AutoField(primary_key=True, verbose_name="#")
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un cargo con este nombre."})
+	n = models.PositiveSmallIntegerField(verbose_name="N°", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
+	class Meta:
+		ordering = ['n']
+
+#Tareas recurrentes en checklist
+class Recurrentes(models.Model):
+	idRecurrente = models.AutoField(primary_key=True, verbose_name="#")
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe una tarea recurrente con este nombre."})
+	n = models.PositiveSmallIntegerField(verbose_name="N°", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
+	class Meta:
+		ordering = ['n']
+
+#Tareas pendientes en checkout
+class Pendientes(models.Model):
+	idPendiente = models.AutoField(primary_key=True, verbose_name="#")
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe una tarea pendiente con este nombre."})
+	n = models.PositiveSmallIntegerField(verbose_name="N°", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
+	class Meta:
+		ordering = ['n']
+
+
+class RecurrentesEvento(models.Model):
+	idRecurrentesEvento = models.AutoField(primary_key=True, verbose_name="#")
+	Recurrente = models.ForeignKey("Recurrentes", verbose_name="Recurrentes", related_name="RecurrentesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="RecurrentesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	check = models.BooleanField(verbose_name="Check", default=False)
+
+
+class PendientesEvento(models.Model):
+	idPlanesTrabajador = models.AutoField(primary_key=True, verbose_name="#")
+	Pendiente = models.ForeignKey("Pendientes", verbose_name="Pendientes", related_name="PendientesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="PendientesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	check = models.BooleanField(verbose_name="Check", default=False)

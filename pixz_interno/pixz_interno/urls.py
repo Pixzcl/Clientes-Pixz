@@ -69,7 +69,15 @@ urlpatterns = [
 	url(r'^editar_contacto/', views.editar_contacto, name='editar_contacto'),
 	url(r'^eliminar_contacto/', views.eliminar_contacto, name='eliminar_contacto'),
 
-	url(r'^evento_checklist/', views.evento_checklist, name='evento_checklist'),
+	url(r'^recurrentes/', views.recurrentes, name='recurrentes'),
+	url(r'^agregar_recurrente/', views.agregar_recurrente, name='agregar_recurrente'),
+	url(r'^editar_recurrente/', views.editar_recurrente, name='editar_recurrente'),
+	url(r'^eliminar_recurrente/', views.eliminar_recurrente, name='eliminar_recurrente'),
+
+	url(r'^pendientes/', views.pendientes, name='pendientes'),
+	url(r'^agregar_pendiente/', views.agregar_pendiente, name='agregar_pendiente'),
+	url(r'^editar_pendiente/', views.editar_pendiente, name='editar_pendiente'),
+	url(r'^eliminar_pendiente/', views.eliminar_pendiente, name='eliminar_pendiente'),
 	
 	
 

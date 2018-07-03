@@ -58,24 +58,51 @@
 					<!--<li class="{% block agregar-trabajador-li %}{% endblock %}" >
 						<a href="{% url 'agregar_trabajador' %}"> <i class="menu-icon fa fa-male"></i>Nuevo trabajador</a>
 					</li>-->
-					<li class="{% block cargos-li %}{% endblock %}" >
-						<a href="{% url 'cargos' %}"> <i class="menu-icon ti-hummer"></i>Cargos</a>
-					</li>
+					
 					
 					<!--<li class="{% block contactos-li %}{% endblock %}" >
 						<a href="{% url 'contactos' %}"> <i class="menu-icon fa fa-user"></i>Contactos</a>
 					</li>-->
 
 					<h3 class="menu-title">Configuración</h3>
-					<li class="{% block planes-li %}{% endblock %}" >
-						<a href="{% url 'planes' %}"> <i class="menu-icon ti-spray"></i>Planes</a>
+
+					<li class="menu-item-has-children dropdown {% block menuPlanes-li %}{% endblock %}">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-list-ul"></i>Config Planes</a>
+						<ul class="sub-menu children dropdown-menu">
+							<li class="{% block planes-li %}{% endblock %}" >
+								<i class="menu-icon ti-spray"></i>
+								<a href="{% url 'planes' %}">Planes</a>
+							</li>
+							<li class="{% block estaciones-li %}{% endblock %}" >
+								<i class="menu-icon ti-layout"></i>
+								<a href="{% url 'estaciones' %}">Estaciones</a>
+							</li>
+							<li class="{% block items-li %}{% endblock %}" >
+								<i class="menu-icon ti-tablet"></i>
+								<a href="{% url 'items' %}">Items</a>
+							</li>
+						</ul>
 					</li>
-					<li class="{% block estaciones-li %}{% endblock %}" >
-						<a href="{% url 'estaciones' %}"> <i class="menu-icon ti-layout"></i>Estaciones</a>
+
+					<li class="menu-item-has-children dropdown {% block menuOtros-li %}{% endblock %}">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-list-ul"></i>Otros</a>
+						<ul class="sub-menu children dropdown-menu">
+							<li class="{% block cargos-li %}{% endblock %}" >
+								<i class="menu-icon ti-hummer"></i>
+								<a href="{% url 'cargos' %}">Cargos</a>
+							</li>
+							<li class="{% block recurrentes-li %}{% endblock %}" >
+								<i class="menu-icon fa fa-check-circle"></i>
+								<a href="{% url 'recurrentes' %}">Tareas Recurrentes</a>
+							</li>
+							<li class="{% block pendientes-li %}{% endblock %}" >
+								<i class="menu-icon fa fa-check-square"></i>
+								<a href="{% url 'pendientes' %}">Tareas Pendientes</a>
+							</li>
+						</ul>
 					</li>
-					<li class="{% block items-li %}{% endblock %}" >
-						<a href="{% url 'items' %}"> <i class="menu-icon ti-tablet"></i>Items</a>
-					</li>
+
+
 				<!--
 					<li class="{% block agregar-plan-li %}{% endblock %}" >
 						<a href="{% url 'agregar_plan' %}"> <i class="menu-icon ti-spray"></i>Nuevo plan</a>

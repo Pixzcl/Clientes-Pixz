@@ -4,7 +4,7 @@
 
 <!-- Activo en el menu: -->
 {% block trabajadores-li %} active {% endblock %}
-{% block titulo %}Nuevo trabajador{% endblock %}
+{% block titulo %}Editar trabajador {{trabajador.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -20,7 +20,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Nuevo trabajador</h1>
+								<h1>Editar trabajador {{trabajador.nombre}}</h1>
 							</div>
 						</div>
 
@@ -32,8 +32,8 @@
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<li><a href="#">Trabajadores</a></li>
-									<li class="active">Nuevo trabajador</li>
+									<li><a href="{% url 'trabajadores' %}">Trabajadores</a></li>
+									<li class="active">Editar {{trabajador.nombre}}</li>
 								</ol>
 							</div>
 						</div>
@@ -44,14 +44,14 @@
 		</header>
 <!--
 		<div class="breadcrumbs">
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<div class="page-header float-left">
 					<div class="page-title">
 						<h1>Nuevo trabajador</h1>
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-8">
+			<div class="col-sm-6">
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
@@ -79,10 +79,11 @@
 							
 							<form id="form" method="post" enctype="multipart/form-data">
 								{% csrf_token %}
+								<input type="hidden" name="trabajador" id="trabajador" value="{{trabajador.idTrabajador}}" />
 								{% for field in trabajadores_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
-										<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
+										<div class="col-lg-3 col-sm-6">{{field}}</div>
 										<div class="col-lg-7 col-sm-4">{{field.errors}}</div>
 									</div>
 								{% endfor %}

@@ -5,7 +5,7 @@
 <!-- Activo en el menu: -->
 {% block menuOtros-li %} active {% endblock %}
 {% block cargos-li %} active {% endblock %}
-{% block titulo %}Nuevo cargo{% endblock %}
+{% block titulo %}Editar tarea {{recurrente.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -21,7 +21,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Nuevo cargo</h1>
+								<h1>Editar cargo {{cargo.nombre}}</h1>
 							</div>
 						</div>
 
@@ -33,8 +33,8 @@
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<li><a href="{% url 'cargos' %}">Cargos</a></li>
-									<li class="active">Nuevo cargo</li>
+									<li><a href="{% url 'cargos' %}">Cargos trabajadores</a></li>
+									<li class="active">Editar {{cargo.nombre}}</li>
 								</ol>
 							</div>
 						</div>
@@ -80,6 +80,7 @@
 							
 							<form id="form" method="post" enctype="multipart/form-data">
 								{% csrf_token %}
+								<input type="hidden" name="cargo" id="cargo" value="{{cargo.idCargo}}" />
 								{% for field in cargos_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
