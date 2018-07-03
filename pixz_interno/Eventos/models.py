@@ -58,6 +58,10 @@ class Eventos(models.Model):
 	fin_servicio = models.TimeField(verbose_name="Fin del servicio", blank=True, null=True)
 	direccion = models.CharField(max_length=255, verbose_name="Dirección", blank=True, null=True)
 
+	# Tareas recurrentes en checklist
+	Recurrentes = models.ManyToManyField("Recurrentes", through="RecurrentesEvento", related_name="Eventos")
+	# Tareas pendientes en checkout
+	Pendientes = models.ManyToManyField("Pendientes", through="PendientesEvento", related_name="Eventos")
 
 
 class Contactos(models.Model):
@@ -169,3 +173,32 @@ class Cargos(models.Model):
 	class Meta:
 		ordering = ['n']
 
+#Tareas recurrentes en checklist
+class Recurrentes(models.Model):
+	idRecurrente = models.AutoField(primary_key=True, verbose_name="#")
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe una tarea recurrente con este nombre."})
+	n = models.PositiveSmallIntegerField(verbose_name="N°", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
+	class Meta:
+		ordering = ['n']
+
+#Tareas pendientes en checkout
+class Pendientes(models.Model):
+	idPendiente = models.AutoField(primary_key=True, verbose_name="#")
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe una tarea pendiente con este nombre."})
+	n = models.PositiveSmallIntegerField(verbose_name="N°", blank=False, null=False, default=1) # solo para mantenerlo en el orden que se ingrese
+	class Meta:
+		ordering = ['n']
+
+
+class RecurrentesEvento(models.Model):
+	idRecurrentesEvento = models.AutoField(primary_key=True, verbose_name="#")
+	Recurrente = models.ForeignKey("Recurrentes", verbose_name="Recurrentes", related_name="RecurrentesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="RecurrentesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	check = models.BooleanField(verbose_name="Check", default=False)
+
+
+class PendientesEvento(models.Model):
+	idPlanesTrabajador = models.AutoField(primary_key=True, verbose_name="#")
+	Pendiente = models.ForeignKey("Pendientes", verbose_name="Pendientes", related_name="PendientesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="PendientesEvento", on_delete=models.CASCADE, blank=False, null=False)
+	check = models.BooleanField(verbose_name="Check", default=False)
