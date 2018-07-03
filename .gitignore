@@ -1,3 +1,5 @@
 virtual/
-*.sqlite3
 staticfiles/
+
+*.sqlite3
+*.pyc
