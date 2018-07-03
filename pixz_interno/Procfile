@@ -1,2 +1,2 @@
-release: python manage.py migrate
+release: python manage.py migrate Eventos 0018_auto_20180628_1402
 web: gunicorn pixz_interno.wsgi --log-file -
