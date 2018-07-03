@@ -1,6 +1,7 @@
 heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 
 *editar trabajadores, contactos
+N° tooltip: orden en que se mostrarán
 
 capacitacion trabajadores?
 ver collectstatic en release
