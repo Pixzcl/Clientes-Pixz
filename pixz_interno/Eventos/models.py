@@ -22,6 +22,9 @@ class Clientes(models.Model):
 	idCliente = models.AutoField(primary_key=True, verbose_name="#")
 	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un cliente con este nombre."})
 	direccion = models.CharField(max_length=255, verbose_name="Dirección", blank=True, null=True, default="")
+
+	class Meta:
+		ordering = ['-idCliente']
 	
 
 class Activaciones(models.Model):
@@ -32,6 +35,9 @@ class Activaciones(models.Model):
 	monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
 	#tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
 	descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, default="")
+
+	class Meta:
+		ordering = ['-idActivacion']
 
 
 class Eventos(models.Model):
@@ -71,7 +77,7 @@ class Eventos(models.Model):
 	errores_tecnicos = models.TextField(verbose_name="Errores técnicos", blank=True, null=True, default="")
 	
 	class Meta:
-		ordering = ['fecha', 'Activacion']
+		ordering = ['-idEvento', '-Activacion']
 
 
 class Contactos(models.Model):
@@ -83,6 +89,9 @@ class Contactos(models.Model):
 	telefono = models.CharField(max_length=255, verbose_name="Teléfono", blank=True, null=True, default="")
 	mail = models.EmailField(max_length=255, verbose_name="Mail", blank=True, null=True, default="")
 
+	class Meta:
+		ordering = ['-idContacto']
+
 
 class Trabajadores(models.Model):
 	idTrabajador = models.AutoField(primary_key=True, verbose_name="#")
@@ -91,6 +100,9 @@ class Trabajadores(models.Model):
 	rut = models.CharField(unique=True, max_length=255, verbose_name="RUT", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este RUT."})
 	telefono = models.CharField(unique=True, max_length=255, verbose_name="Teléfono", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este teléfono."})
 	mail = models.EmailField(unique=True, max_length=255, verbose_name="Mail", blank=True, null=True, default="", error_messages={"unique":"Ya existe un trabajador con este mail."})
+
+	class Meta:
+		ordering = ['-idTrabajador']
 
 
 class TrabajadoresEvento(models.Model):
