@@ -992,12 +992,12 @@ def evento(request):
 			lista_planes[-1][-1].append([it.ItemsPlan.Item, num, estacion, check])
 
 	# Tareas recurrentes
-	#for recurrente in recurrentes:
-		#try:
-		#	recurrente.RecurrentesEvento.get(Evento=evento)
-		#except RecurrentesEvento.DoesNotExist:
-		#	ev = RecurrentesEvento(Recurrente=recurrente, Evento=evento)
-		#	ev.save()
+	for recurrente in recurrentes:
+		try:
+			recurrente.RecurrentesEvento.get(Evento=evento)
+		except RecurrentesEvento.DoesNotExist:
+			ev = RecurrentesEvento(Recurrente=recurrente, Evento=evento)
+			ev.save()
 
 	if edit == "checklist":
 		initial = {}
@@ -1010,12 +1010,12 @@ def evento(request):
 			lista_recurrentes.append([recurrente.nombre, recurrente.RecurrentesEvento.get(Evento=evento).check])
 
 	# Tareas pendientes
-	#for pendiente in pendientes:
-		#try:
-		#	pendiente.PendientesEvento.get(Evento=evento)
-		#except PendientesEvento.DoesNotExist:
-		#	ev = PendientesEvento(Pendiente=pendiente, Evento=evento)
-		#	ev.save()
+	for pendiente in pendientes:
+		try:
+			pendiente.PendientesEvento.get(Evento=evento)
+		except PendientesEvento.DoesNotExist:
+			ev = PendientesEvento(Pendiente=pendiente, Evento=evento)
+			ev.save()
 
 	if edit == "checkout":
 		initial = {}
