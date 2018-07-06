@@ -63,10 +63,20 @@ class Eventos(models.Model):
 	# Tareas pendientes en checkout
 	Pendientes = models.ManyToManyField("Pendientes", through="PendientesEvento", related_name="Eventos")
 
+	estado = models.CharField(max_length=255, verbose_name="Estado", blank=False, null=False, default="Coordinación")
+
+	satisfaccion = models.SmallIntegerField(verbose_name="Satisfacción", blank=True, null=True)
+	comentarios_satisfaccion = models.TextField(verbose_name="Comentarios satisfacción", blank=True, null=True, default="")
+
+	errores_tecnicos = models.TextField(verbose_name="Errores técnicos", blank=True, null=True, default="")
+	
+	class Meta:
+		ordering = ['fecha', 'Activacion']
+
 
 class Contactos(models.Model):
 	idContacto = models.AutoField(primary_key=True, verbose_name="#")
-	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Contactos", on_delete=models.SET(None), blank=False, null=True)
+	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Contactos", on_delete=models.SET(None), blank=True, null=True)
 	
 	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un contacto con este nombre."})
 	#rut = models.CharField(max_length=255, verbose_name="RUT", blank=True, null=True, default="")

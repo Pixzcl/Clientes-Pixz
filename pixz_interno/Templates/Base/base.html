@@ -52,17 +52,27 @@
 					<!--<li class="{% block agregar-evento-li %}{% endblock %}" >
 						<a href="{% url 'agregar_evento' %}?idCliente=1&idActivacion=1"> <i class="menu-icon fa fa-plus-square-o"></i>Nuevo evento</a>
 					</li>-->
-					<li class="{% block trabajadores-li %}{% endblock %}" >
-						<a href="{% url 'trabajadores' %}"> <i class="menu-icon fa fa-male"></i>Trabajadores</a>
-					</li>
+					
 					<!--<li class="{% block agregar-trabajador-li %}{% endblock %}" >
 						<a href="{% url 'agregar_trabajador' %}"> <i class="menu-icon fa fa-male"></i>Nuevo trabajador</a>
 					</li>-->
 					
 					
-					<!--<li class="{% block contactos-li %}{% endblock %}" >
-						<a href="{% url 'contactos' %}"> <i class="menu-icon fa fa-user"></i>Contactos</a>
-					</li>-->
+
+
+					<li class="menu-item-has-children dropdown {% block menuPersonas-li %}{% endblock %}">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-male"></i>Personas</a>
+						<ul class="sub-menu children dropdown-menu">
+							<li class="{% block trabajadores-li %}{% endblock %}" >
+								<i class="menu-icon fa fa-male"></i>
+								<a href="{% url 'trabajadores' %}">Trabajadores</a>
+							</li>
+							<li class="{% block contactos-li %}{% endblock %}" >
+								<i class="menu-icon fa fa-phone"></i>
+								<a href="{% url 'contactos' %}">Contactos</a>
+							</li>
+						</ul>
+					</li>
 
 					<h3 class="menu-title">Configuración</h3>
 

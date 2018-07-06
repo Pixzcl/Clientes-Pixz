@@ -109,10 +109,10 @@
 										<a class="nav-item nav-link {% if edit == 'logistica' or tab == 'logistica' %}active{% endif %}" id="nav-logistica-tab" data-toggle="tab" href="#nav-logistica" role="tab" aria-controls="nav-logistica" aria-selected="false">Logística</a>
 									{% endif %}
 									{% if edit == False or edit == "checklist" %}
-										<a class="nav-item nav-link {% if edit == 'checklist' or tab == 'checklist' %}active{% endif %}" id="nav-checklist-tab" data-toggle="tab" href="#nav-checklist" role="tab" aria-controls="nav-checklist" aria-selected="false">Checklist</a>
+										<a class="nav-item nav-link {% if edit == 'checklist' or tab == 'checklist' %}active{% endif %}" id="nav-checklist-tab" data-toggle="tab" href="#nav-checklist" role="tab" aria-controls="nav-checklist" aria-selected="false">Check-list</a>
 									{% endif %}
 									{% if edit == False or edit == "checkout" %}
-										<a class="nav-item nav-link {% if edit == 'checkout' or tab == 'checkout' %}active{% endif %}" id="nav-checkout-tab" data-toggle="tab" href="#nav-checkout" role="tab" aria-controls="nav-checkout" aria-selected="false">Checkout</a>
+										<a class="nav-item nav-link {% if edit == 'checkout' or tab == 'checkout' %}active{% endif %}" id="nav-checkout-tab" data-toggle="tab" href="#nav-checkout" role="tab" aria-controls="nav-checkout" aria-selected="false">Check-out</a>
 									{% endif %}
 								</div>
 							</nav>
@@ -151,7 +151,7 @@
 																<td>{% if evento.Contacto.nombre != None %}{{evento.Contacto.nombre}}{% else %} - {% endif %}</td>
 															{% else %}
 																<td>{{coordinacion_form.Contacto}}</td>
-																<td><button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_contacto" %}?cliente={{evento.Activacion.Cliente.idCliente}}&evento={{evento.idEvento}}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo</button></td>
+																<td><button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_contacto_select" %}?evento={{evento.idEvento}}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo</button></td>
 																<td>{{coordinacion_form.Contacto.errors}}</td>
 															{% endif %}
 														</tr>
@@ -447,7 +447,7 @@
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
-												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checklist'"><i class="ti-pencil-alt"></i>&nbsp; Editar checklist</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checklist'"><i class="ti-pencil-alt"></i>&nbsp; Editar check-list</button>
 											{% endif %}
 										</div>
 									</div>
@@ -591,7 +591,7 @@
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
-												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checkout'"><i class="ti-pencil-alt"></i>&nbsp; Editar checkout</button>
+												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checkout'"><i class="ti-pencil-alt"></i>&nbsp; Editar check-out</button>
 											{% endif %}
 										</div>
 									</div>
@@ -622,6 +622,18 @@
 																		</td>
 																	</tr>
 																{% endfor %}
+																<!--<tr>
+																	<td>
+																		<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#smallmodal" ><i class="fa fa-book"></i>&nbsp; Reporte</button>
+																	</td>
+																	<td>
+																		{% if evento.satisfaccion != None %}
+																			<i class="ti-check text-success"></i>
+																		{% else %}
+																			<i class="ti-close text-danger"></i>
+																		{% endif %}
+																	</td>
+																</tr>-->
 															{% else %}
 																{% for tarea, check in lista_pendientes %}
 																	<tr>
@@ -635,6 +647,18 @@
 																		</td>
 																	</tr>
 																{% endfor %}
+																<!--<tr>
+																	<td>
+																		Reporte
+																	</td>
+																	<td>
+																		{% if evento.satisfaccion != None %}
+																			<i class="ti-check text-success"></i>
+																		{% else %}
+																			<i class="ti-close text-danger"></i>
+																		{% endif %}
+																	</td>
+																</tr>-->
 															{% endif %}
 														</tbody>
 													</table>
@@ -659,7 +683,7 @@
 														<tbody>
 															{% for trabajador in evento.Trabajadores.all.distinct %}
 																<tr>
-																	<th scope="row">{{trabajador.nombre}}</th>
+																	<td >{{trabajador.nombre}}</td>
 																	<td>
 																		{% for trabajadorEvento in evento.TrabajadoresEvento.all %}
 																			{% if trabajadorEvento.Trabajador.nombre == trabajador.nombre %}
@@ -674,6 +698,135 @@
 															{% endfor %}
 														</tbody>
 													</table>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-lg-12 col-sm-12">
+											<div class="card">
+												<div class="card-header">
+													<strong class="card-title">Reportes</strong>
+												</div>
+												<div class="card-body">
+													<div class="row">
+														<div class="col-lg-6 col-sm-12">
+															<div class="card">
+																<div class="card-header">
+																	<strong class="card-title">Satisfacción del cliente</strong>
+																</div>
+															<div class="card-body">
+																<div class="row">
+																	<div class="col-lg-12 col-sm-12">
+																		{% if edit == "checkout" %}
+																			<div class="row">
+																				<div class="col-lg-12 col-sm-12">
+																					<!--{% comment %}{{reporte_form.satisfaccion}}{% endcomment %}-->
+
+																					<!--<div class="form-check-inline form-check">
+																						<label for="inline-radio1" class="form-check-label ">
+																						  <input type="radio" id="inline-radio1" name="inline-radios" value="option1" class="form-check-input"><i class="fa fa-frown-o text-danger border-danger"></i>
+																						</label>
+																						<label for="inline-radio2" class="form-check-label ">
+																						  <input type="radio" id="inline-radio2" name="inline-radios" value="option2" class="form-check-input"><i class="fa fa-meh-o text-warning border-warning"></i>
+																						</label>
+																						<label for="inline-radio3" class="form-check-label ">
+																						  <input type="radio" id="inline-radio3" name="inline-radios" value="option3" class="form-check-input"><i class="fa fa-smile-o text-success border-success"></i>
+																						</label>
+																					  </div>-->
+																					<!--<div class="form-check">
+																						<div class="radio">
+																						  <label for="radio3" class="form-check-label text-success">
+																							<input type="radio" id="radio3" name="satisfaccion" value="1" class="form-check-input"><i class="fa fa-smile-o text-success border-success"></i>&nbsp; Contento
+																						  </label>
+																						</div>
+																						<div class="radio">
+																						  <label for="radio2" class="form-check-label text-warning">
+																							<input type="radio" id="radio2" name="satisfaccion" value="0" class="form-check-input"><i class="fa fa-meh-o text-warning border-warning"></i>&nbsp; Aceptable
+																						  </label>
+																						</div>
+																						<div class="radio">
+																						  <label for="radio1" class="form-check-label text-danger">
+																							<input type="radio" id="radio1" name="satisfaccion" value="-1" class="form-check-input"><i class="fa fa-frown-o text-danger border-danger"></i>&nbsp; Enojado
+																						  </label>
+																						</div>
+																					</div>-->
+																					{% for radio in reporte_form.satisfaccion %}
+																						<div class="radio">
+																						  <label for="radio1" class="form-check-label text-danger">
+																							{{radio.tag}}
+																							{% if forloop.counter == 1 %}
+																								<i class="fa fa-smile-o text-success border-success"></i>&nbsp; Contento
+																							{% elif forloop.counter == 2 %}
+																								<i class="fa fa-meh-o text-warning border-warning"></i>&nbsp; Aceptable
+																							{% elif forloop.counter == 3 %}
+																								<i class="fa fa-frown-o text-danger border-danger"></i>&nbsp; Enojado
+																							{% endif %}
+																						  </label>
+																						</div>
+																					{% endfor %}
+
+																				</div>
+																			</div>
+																			<div class="row">
+																				<div class="col-lg-12 col-sm-12">
+																					{{reporte_form.comentarios_satisfaccion}}
+																				</div>
+																			</div>
+																		{% else %}
+																			<div class="row">
+																				<div class="col-lg-12 col-sm-12">
+																					{% if evento.satisfaccion == None %}
+																						<b>No evaluado</b>
+																					{% elif evento.satisfaccion == 1 %}
+																						<label class="text-success"><i class="fa fa-smile-o text-success border-success"></i>&nbsp; Contento</label>
+																					{% elif evento.satisfaccion == 0 %}
+																						<label class="text-warning"><i class="fa fa-meh-o text-warning border-warning"></i>&nbsp; Aceptable</label>
+																					{% elif evento.satisfaccion == -1 %}
+																						<label class="text-danger"><i class="fa fa-frown-o text-danger border-danger"></i>&nbsp; Enojado</label>
+																					{% endif %}
+																				</div>
+																			</div>
+
+																			<div class="row">
+																				<div class="col-lg-12 col-sm-12">
+																					{% if evento.comentarios_satisfaccion == "" %}
+																						 - 
+																					{% else %}
+																						{{evento.comentarios_satisfaccion}}
+																					{% endif %}
+																				</div>
+																			</div>
+																		{% endif %}
+																	</div>
+																</div>
+															</div>
+															</div>
+														</div>
+
+														<div class="col-lg-6 col-sm-12">
+															<div class="card">
+																<div class="card-header">
+																	<strong class="card-title">Errores técnicos</strong>
+																</div>
+															<div class="card-body">
+																<div class="row">
+																	<div class="col-lg-12 col-sm-12">
+																		{% if edit == "checkout" %}
+																			{{reporte_form.errores_tecnicos}}
+																		{% else %}
+																			{% if evento.comentarios_satisfaccion == "" %}
+																				 - 
+																			{% else %}
+																				{{evento.errores_tecnicos}}
+																			{% endif %}
+																		{% endif %}
+																	</div>
+																</div>
+															</div>
+															</div>
+														</div>
+
+													</div>
 												</div>
 											</div>
 										</div>
@@ -714,37 +867,63 @@
 
 
 
-				{% if error == True %}
-				<button id="error" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
+	{% if error == True %}
+		<button id="error" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#smallmodal">Small</button>
 
-				<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
-					<div class="modal-dialog modal-md" role="document">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title" id="smallmodalLabel">Error</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div class="modal-body">
-								<p>
-									Hubo un error actualizando uno de los datos, revisar.
-								</p>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
-							</div>
-						</div>
+		<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-md" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="smallmodalLabel">Error</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>
+							Hubo un error actualizando uno de los datos, revisar.
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
 					</div>
 				</div>
+			</div>
+		</div>
 
-				<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
-				<script>
-					$( document ).ready(function() {
-						document.getElementById("error").click();
-					});
-				</script>
-				{% endif %}
+		<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
+		<script>
+			$( document ).ready(function() {
+				document.getElementById("error").click();
+			});
+		</script>
+	{% endif %}
+
+	{% if edit == "checkout" %}
+		<div class="modal fade" id="smallmodal" tabindex="-1" role="dialog" aria-labelledby="smallmodalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-md" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 id="h5_eliminar" class="modal-title" id="smallmodalLabel">Reporte de Satisfacción de cliente y errores</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p id="p_eliminar">
+							<input type="text">
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Aceptar</button>
+						<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="ti-back-left"></i>&nbsp; Cancelar</button>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	
 
 
 

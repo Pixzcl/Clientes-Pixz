@@ -3,6 +3,7 @@
 {% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
+{% block menuPersonas-li %} active {% endblock %}
 {% block trabajadores-li %} active {% endblock %}
 {% block titulo %}Editar trabajador {{trabajador.nombre}}{% endblock %}
 
@@ -84,7 +85,11 @@
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
 										<div class="col-lg-3 col-sm-6">{{field}}</div>
-										<div class="col-lg-7 col-sm-4">{{field.errors}}</div>
+										{% for error in mensaje_error %}
+											{% if field.label in error %}
+												<div class="col-lg-4 col-sm-6">{{error}}</div>
+											{% endif %}
+										{% endfor %}
 									</div>
 								{% endfor %}
 								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>

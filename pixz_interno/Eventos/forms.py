@@ -165,6 +165,10 @@ class ContactosFormSelect(forms.ModelForm):
 		model = Contactos
 		exclude = []
 		widgets = {
+			'Cliente': forms.Select(attrs={'class': "form-control"}),
+			'nombre': forms.TextInput(attrs={'class': "form-control"}),
+			'telefono': forms.TextInput(attrs={'class': "form-control"}),
+			'mail': forms.TextInput(attrs={'class': "form-control"}),
 		}
 	def __init__(self, *args, **kwargs):
 		super(ContactosFormSelect, self).__init__(*args, **kwargs)
@@ -191,11 +195,15 @@ class CoordinacionForm(forms.ModelForm):
 				"fecha_desinstalacion": forms.SelectDateWidget(empty_label=("Año", "Mes", "Día"), attrs={'class': "standardSelect"}),
 				"direccion": forms.TextInput(attrs={'class': "form-control"}),
 			}
-	def __init__(self, *args, **kwargs):
+	def __init__(self, evento, *args, **kwargs):
 		super(CoordinacionForm, self).__init__(*args, **kwargs)
 		#self.fields['user'].queryset = User.objects.all()
-		self.fields['Contacto'].label_from_instance = lambda obj: obj.nombre # lambda obj: "%s %s" % (obj.last_name, obj.first_name)
-
+		#self.fields['Contacto'].label_from_instance = lambda obj: obj.nombre # lambda obj: "%s %s" % (obj.last_name, obj.first_name)
+		contactos = evento.Activacion.Cliente.Contactos.all()
+		choices = [["", '------']]
+		for contacto in contactos:
+			choices.append([contacto.idContacto, contacto.nombre])
+		self.fields['Contacto'].choices = choices
 
 class LogisticaTrabajadoresForm(forms.Form):
 	#empty = []
@@ -300,3 +308,9 @@ class PendientesEventoForm(forms.Form):
 		pendientes = Pendientes.objects.all()
 		for pendiente in pendientes:
 			self.fields[pendiente.nombre.replace(" ", "")] = forms.BooleanField(required=False, label=pendiente.nombre, widget=forms.CheckboxInput(attrs={'class': "switch-input"}))
+
+class ReportesForm(forms.Form):
+	choices=[[1,""],[0,""],[-1,""]]
+	satisfaccion = forms.IntegerField(label="Satisfacción", widget=forms.RadioSelect(choices=choices, attrs={'class': "form-check-input"}))
+	comentarios_satisfaccion = forms.CharField(required=False, max_length=255, label="Comentarios Satisfacción", widget=forms.Textarea(attrs={'rows': 4, 'class': "form-control"}))
+	errores_tecnicos = forms.CharField(required=False, max_length=255, label="Errores técnicos", widget=forms.Textarea(attrs={'rows': 4, 'class': "form-control"}))

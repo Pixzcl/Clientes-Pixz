@@ -3,8 +3,8 @@
 {% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
-{% block encargados-li %} active {% endblock %}
-{% block titulo %}Nuevo contacto{% if cliente != "" %} - {{cliente.nombre}}{% endif %}{% endblock %}
+{% block menuPersonas-li %} active {% endblock %}
+{% block titulo %}Editar contacto {{contacto.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -20,7 +20,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Nuevo contacto para cliente {{cliente.nombre}}</h1>
+								<h1>Editar contacto {{contacto.nombre}}</h1>
 							</div>
 						</div>
 
@@ -32,8 +32,8 @@
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<li><a href="#">{{cliente.nombre}}</a></li>
-									<li class="active">Nuevo contacto</li>
+									<li><a href="{% url 'contactos' %}">Contactos</a></li>
+									<li class="active">Editar {{contacto.nombre}}</li>
 								</ol>
 							</div>
 						</div>
@@ -44,25 +44,28 @@
 		</header>
 <!--
 		<div class="breadcrumbs">
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<div class="page-header float-left">
 					<div class="page-title">
-						<h1>Nuevo contacto para cliente {{cliente.nombre}}</h1>
+						<h1>Nuevo trabajador</h1>
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-8">
+			<div class="col-sm-6">
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							<li><a href="#">{{cliente.nombre}}</a></li>
-							<li class="active">Nuevo contacto</li>
+							<li><a href="#">Trabajadores</a></li>
+							<li class="active">Nuevo trabajador</li>
 						</ol>
 					</div>
 				</div>
 			</div>
 		</div>
 -->
+
+
+
 		<div class="content mt-3">
 			<div class="animated fadeIn">
 				<div class="row">
@@ -76,12 +79,16 @@
 							
 							<form id="form" method="post" enctype="multipart/form-data">
 								{% csrf_token %}
-								{% if cliente != None %}<input type="hidden" name="cliente" id="cliente" value="{{cliente.idCliente}}" />{% endif %}
+								<input type="hidden" name="contacto" id="contacto" value="{{contacto.idContacto}}" />
 								{% for field in contactos_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
-										<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
-										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
+										<div class="col-lg-3 col-sm-6">{{field}}</div>
+										{% for error in mensaje_error %}
+											{% if field.label in error %}
+												<div class="col-lg-4 col-sm-6">{{error}}</div>
+											{% endif %}
+										{% endfor %}
 									</div>
 								{% endfor %}
 								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>

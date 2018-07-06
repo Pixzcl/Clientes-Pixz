@@ -160,13 +160,13 @@ def eventos(request):
 		activacion = Activaciones.objects.get(idActivacion=idActivacion)
 		eventos = activacion.Eventos.all()
 		cliente = activacion.Cliente
-		titulos = ["#", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios", "Pendientes"]
+		titulos = ["#", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios", "Estado"]
 	except MultiValueDictKeyError:
 		idActivacion = ""
 		activacion = ""
 		eventos = Eventos.objects.all()
 		cliente = ""
-		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios", "Pendientes"]
+		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios", "Estado"]
 
 ### No esta funcionando bien
 		# lista_planes = []
@@ -651,15 +651,43 @@ def agregar_contacto(request):
 
 def agregar_contacto_select(request):
 	if request.method == 'POST':
+		try:
+			evento = request.POST['evento']
+		except MultiValueDictKeyError:
+			evento = ""
+		try:
+			cliente = request.POST['cliente']
+		except MultiValueDictKeyError:
+			cliente = ""
+
 		form = ContactosFormSelect(request.POST, request.FILES)
 		if form.is_valid():
 			form.save()
-			return redirect('contactos')
+
+			if evento != "":
+				return custom_redirect('evento', evento=evento, edit="coordinacion")
+			elif cliente != "":
+				return custom_redirect('activaciones', cliente=cliente)
+			else:
+				return redirect('contactos')
 	else:
-		form = ContactosFormSelect()
+		initial = {}
+		try:
+			evento = request.GET['evento']
+			initial["Cliente"] = Eventos.objects.get(idEvento=evento).Activacion.Cliente.idCliente
+		except MultiValueDictKeyError:
+			evento = ""
+		try:
+			cliente = request.GET['cliente']
+			initial["Cliente"] = Clientes.objects.get(idCliente=cliente)
+		except MultiValueDictKeyError:
+			cliente = ""
+
+		form = ContactosFormSelect(initial=initial)
 	context = {
 		"contactos_form": form,
-		"cliente": None,
+		"cliente": cliente,
+		"evento": evento,
 	}
 	return render(request, 'agregar_contacto.html', context)
 
@@ -680,7 +708,7 @@ def evento(request):
 		edit = request.POST['edit']
 		tab = None
 		if edit == "coordinacion":
-			coordinacion_form = CoordinacionForm(request.POST, request.FILES)
+			coordinacion_form = CoordinacionForm(evento, request.POST, request.FILES)
 			if coordinacion_form.is_valid():
 				
 				contacto = request.POST['Contacto']
@@ -727,7 +755,7 @@ def evento(request):
 
 				evento.direccion = request.POST['direccion']
 				evento.save()
-				return custom_redirect('evento', evento=idEvento)
+				#return custom_redirect('evento', evento=idEvento)
 			else:
 				error = True
 
@@ -771,7 +799,6 @@ def evento(request):
 						if value == "-1":
 							itemEstacion = None
 						else:
-							print ("value: ", value)
 							itemEstacion = ItemsEstacion.objects.get(idItemsEstacion=value)
 
 						# if itemPlan.Item.multiple:
@@ -789,7 +816,7 @@ def evento(request):
 						itemPlanEvento.save()
 
 				#evento.save()
-				return custom_redirect('evento', evento=idEvento)
+				#return custom_redirect('evento', evento=idEvento)
 			else:
 				error = True
 		elif edit == "checklist":
@@ -813,7 +840,7 @@ def evento(request):
 					recurrentesEvento.check = False
 				recurrentesEvento.save()
 
-			return custom_redirect('evento', evento=idEvento)
+			#return custom_redirect('evento', evento=idEvento)
 
 		elif edit == "checkout":
 			#Pago trabajadores
@@ -828,6 +855,38 @@ def evento(request):
 				else:
 					pendientesEvento.check = False
 				pendientesEvento.save()
+# Falta pagos
+# Falta pagos
+
+			# Reportes
+			try:
+				evento.satisfaccion = int(request.POST["satisfaccion"])
+			except MultiValueDictKeyError:
+				pass
+			evento.comentarios_satisfaccion = request.POST["comentarios_satisfaccion"]
+			evento.errores_tecnicos = request.POST["errores_tecnicos"]
+
+			evento.save()
+
+			#return custom_redirect('evento', evento=idEvento)
+		if not error:
+			estado = "Ok"
+			evento = Eventos.objects.get(idEvento=idEvento)
+			empty = ["", None]
+			
+			if evento.fecha_instalacion in empty or evento.fecha_desinstalacion in empty or evento.hora_instalacion in empty or evento.hora_desinstalacion in empty or evento.inicio_servicio in empty or evento.fin_servicio in empty or evento.direccion in empty or evento.Contacto in empty:
+				estado = "Coordinación"
+			elif evento.Trabajadores.all().count() == 0 or None in [it.ItemsEstacion for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=evento.PlanesEvento.all())]:
+				estado = "Logística"
+			elif False in [tarea.check for tarea in evento.RecurrentesEvento.all()] or False in [it.check for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=evento.PlanesEvento.all())]:
+				estado = "Check-list"
+ # Falta pagos
+			elif False in [tarea.check for tarea in evento.PendientesEvento.all()]: # Falta pagos
+				estado = "Check-out"
+ # Falta pagos
+			#print(estado)
+			evento.estado = estado
+			evento.save()
 
 			return custom_redirect('evento', evento=idEvento)
 
@@ -843,7 +902,7 @@ def evento(request):
 			logistica_form = None
 			edit = request.GET['edit']
 			if edit == "coordinacion":
-				coordinacion_form = CoordinacionForm(initial={
+				coordinacion_form = CoordinacionForm(evento, initial={
 					"Contacto":evento.Contacto, 
 					"inicio_servicio":evento.inicio_servicio, 
 					"fin_servicio":evento.fin_servicio, 
@@ -891,7 +950,7 @@ def evento(request):
 			#tab = request.GET['tab']
 			tab = "coordinacion"
 			origen = request.META['HTTP_REFERER']
-			if "edit=logistica" in origen or "evento_checklist" in origen:
+			if "edit=logistica" in origen:
 				tab = "logistica"
 			elif "edit=checklist" in origen:
 				tab = "checklist"
@@ -924,7 +983,6 @@ def evento(request):
 			if edit == "logistica":
 				estacion = logistica_planes_form['planEvento_%d_itemPlan_%d_nPlan_%d_nItem_%d' % (planEvento.idPlanesEvento, it.ItemsPlan.idItemsPlan, it.nPlan, it.nItem)]
 				check = None
-				print (estacion)
 			elif edit == "checklist":
 				estacion = it.ItemsEstacion
 				check = EventoChecklistForm(it.idItemsPlanEvento, initial={"item_%d" % it.idItemsPlanEvento: it.check})['item_%d' % it.idItemsPlanEvento]
@@ -934,12 +992,12 @@ def evento(request):
 			lista_planes[-1][-1].append([it.ItemsPlan.Item, num, estacion, check])
 
 	# Tareas recurrentes
-	for recurrente in recurrentes:
-		try:
-			recurrente.RecurrentesEvento.get(Evento=evento)
-		except RecurrentesEvento.DoesNotExist:
-			ev = RecurrentesEvento(Recurrente=recurrente, Evento=evento)
-			ev.save()
+	#for recurrente in recurrentes:
+		#try:
+		#	recurrente.RecurrentesEvento.get(Evento=evento)
+		#except RecurrentesEvento.DoesNotExist:
+		#	ev = RecurrentesEvento(Recurrente=recurrente, Evento=evento)
+		#	ev.save()
 
 	if edit == "checklist":
 		initial = {}
@@ -952,22 +1010,30 @@ def evento(request):
 			lista_recurrentes.append([recurrente.nombre, recurrente.RecurrentesEvento.get(Evento=evento).check])
 
 	# Tareas pendientes
-	for pendiente in pendientes:
-		try:
-			pendiente.PendientesEvento.get(Evento=evento)
-		except PendientesEvento.DoesNotExist:
-			ev = PendientesEvento(Pendiente=pendiente, Evento=evento)
-			ev.save()
+	#for pendiente in pendientes:
+		#try:
+		#	pendiente.PendientesEvento.get(Evento=evento)
+		#except PendientesEvento.DoesNotExist:
+		#	ev = PendientesEvento(Pendiente=pendiente, Evento=evento)
+		#	ev.save()
 
 	if edit == "checkout":
 		initial = {}
 		for pendiente in pendientes:
 			initial[pendiente.nombre.replace(" ", "")] = PendientesEvento.objects.get(Evento=evento, Pendiente=pendiente).check
 		lista_pendientes = PendientesEventoForm(initial=initial)
+
+		initial = {}
+		initial["satisfaccion"] = evento.satisfaccion
+		initial["comentarios_satisfaccion"] = evento.comentarios_satisfaccion
+		initial["errores_tecnicos"] = evento.errores_tecnicos
+		reporte_form = ReportesForm(initial=initial)
 	else:
 		lista_pendientes = []
 		for pendiente in pendientes:
 			lista_pendientes.append([pendiente.nombre, pendiente.PendientesEvento.get(Evento=evento).check])
+		reporte_form = ""
+
 
 	context = {
 		"evento": evento,
@@ -980,6 +1046,7 @@ def evento(request):
 		"cargos": cargos,
 		"lista_recurrentes": lista_recurrentes,
 		"lista_pendientes": lista_pendientes,
+		"reporte_form": reporte_form,
 	}
 	return render(request, 'evento.html', context)
 
@@ -1597,22 +1664,28 @@ def editar_item(request):
 
 
 def editar_trabajador(request):
+	mensaje_error = []
 	if request.method == 'POST':
 		trabajador = Trabajadores.objects.get(idTrabajador=request.POST["trabajador"])
 		nombre = request.POST['nombre']
 		rut = request.POST['rut']
 		telefono = request.POST['telefono']
 		mail = request.POST['mail']
-
-		unicos = True
 		trabajadores = Trabajadores.objects.all()
+
 		for t in trabajadores:
-			if trabajador != t and (t.nombre == nombre or t.rut == rut or t.telefono == telefono or t.mail == mail):
-				unicos = False
-				break
+			if trabajador != t:
+				if t.nombre == nombre:
+					mensaje_error.append("Ya existe un Trabajador con este Nombre.")
+				if t.rut == rut:
+					mensaje_error.append("Ya existe un Trabajador con este RUT.")
+				if t.telefono == telefono:
+					mensaje_error.append("Ya existe un Trabajador con este Teléfono.")
+				if t.mail == mail:
+					mensaje_error.append("Ya existe un Trabajador con este Mail.")
 
 		form = TrabajadoresForm(request.POST, request.FILES)
-		if form.is_valid() or unicos:
+		if len(mensaje_error) == 0:
 			if trabajador.nombre != nombre:
 				trabajador.nombre = nombre
 			if trabajador.rut != rut:
@@ -1632,23 +1705,57 @@ def editar_trabajador(request):
 	context = {
 		"trabajador": trabajador,
 		"trabajadores_form": form,
+		"mensaje_error":mensaje_error,
 	}
 	return render(request, 'editar_trabajador.html', context)
 
-
 def editar_contacto(request):
+	mensaje_error = []
 	if request.method == 'POST':
+		contacto = Contactos.objects.get(idContacto=request.POST["contacto"])
+		nombre = request.POST['nombre']
+		telefono = request.POST['telefono']
+		mail = request.POST['mail']
+		contactos = Contactos.objects.all()
+
+		for c in contactos:
+			if contacto != c:
+				if c.nombre == nombre and nombre != "":
+					mensaje_error.append("Ya existe un Contacto con este Nombre.")
+				if c.telefono == telefono and telefono != "":
+					mensaje_error.append("Ya existe un Contacto con este Teléfono.")
+				if c.mail == mail and mail != "":
+					mensaje_error.append("Ya existe un Contacto con este Mail.")
+
 		form = ContactosFormSelect(request.POST, request.FILES)
-		if form.is_valid():
-			form.save()
+		if len(mensaje_error) == 0:
+			idCliente = request.POST["Cliente"]
+			if idCliente == "":
+				contacto.Cliente = None
+			else:
+				cliente = Clientes.objects.get(idCliente=idCliente)
+				if contacto.Cliente != cliente:
+					contacto.Cliente = cliente
+			if contacto.nombre != nombre:
+				contacto.nombre = nombre
+			if contacto.telefono != telefono:
+				contacto.telefono = telefono
+			if contacto.mail != mail:
+				contacto.mail = mail
+
+			contacto.save()
+
 			return redirect('contactos')
 	else:
-		form = ContactosFormSelect()
+		contacto = Contactos.objects.get(idContacto=request.GET["contacto"])
+		initial = {"Cliente":contacto.Cliente, "nombre":contacto.nombre, "telefono":contacto.telefono, "mail":contacto.mail}
+		form = ContactosFormSelect(initial=initial)
 	context = {
+		"contacto": contacto,
 		"contactos_form": form,
-		"cliente": None,
+		"mensaje_error":mensaje_error,
 	}
-	return render(request, 'agregar_contacto.html', context)
+	return render(request, 'editar_contacto.html', context)
 
 
 def editar_cargo(request):

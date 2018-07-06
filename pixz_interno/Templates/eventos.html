@@ -148,7 +148,7 @@
 							<div class="card-body">
 								<div class="row">
 									<div class="card-body">
-										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_evento" %}{% if activacion != "" %}?activacion={{activacion.idActivacion}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar evento</button>
+										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_evento" %}{% if activacion != "" %}?activacion={{activacion.idActivacion}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo evento</button>
 										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar eventos</button>
 									</div>
 								</div>
@@ -189,10 +189,17 @@
 										{% endfor %}
 									-->
 									</td>
-									<td>{{evento.comentarios}}</td>
-									<!--<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" >{{activacion.nombre}}</a></td>-->
+									<td >{{evento.comentarios}}</td>
 
-									<td>Pendiente</td>
+									<td {% if evento.estado == "Ok" %}bgcolor="#28a745"
+										{% elif evento.estado == "Coordinación" %}bgcolor="#ffc107"
+										{% elif evento.estado == "Logística" %}bgcolor="#fd7e14"
+										{% elif evento.estado == "Check-list" %}bgcolor="red"
+										{% elif evento.estado == "Check-out" %}bgcolor="#868e96"
+										{% elif evento.estado == "Facturación" %}bgcolor="#007bff"
+										{% endif %} >
+										<b>{{evento.estado}}</b>
+									</td>
 								</tr>
 							{% endfor %}
 						</tbody>

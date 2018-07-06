@@ -140,7 +140,7 @@
 							<div class="card-body">
 								<div class="row">
 									<div class="card-body">
-										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_activacion" %}{% if cliente != "" %}?cliente={{cliente.idCliente}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar activación</button>
+										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_activacion" %}{% if cliente != "" %}?cliente={{cliente.idCliente}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nueva activación</button>
 										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar activaciones</button>
 									</div>
 								</div>
@@ -203,7 +203,7 @@
 								<div class="card-body">
 									<div class="row">
 										<div class="card-body">
-											<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_contacto" %}?cliente={{cliente.idCliente}}'"><i class="fa fa-plus-circle"></i>&nbsp; Agregar contacto</button>
+											<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_contacto_select" %}?cliente={{cliente.idCliente}}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo contacto</button>
 											<button type="button" class="btn btn-outline-primary" onclick="mostrar2()"><i class="ti-pencil-alt"></i>&nbsp; Editar contactos</button>
 										</div>
 									</div>

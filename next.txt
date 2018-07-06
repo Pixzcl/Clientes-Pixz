@@ -1,13 +1,10 @@
 heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 
-*editar trabajadores, contactos
-N° tooltip: orden en que se mostrarán
 
 capacitacion trabajadores?
 ver collectstatic en release
 
 --
-a eventos intentar agregar columna con "pendientes" que diga en orden lo que falta: coordinación, logistica, checklist, checkout (con colores)
 
 *agregar dentro del evento algo para reportar errores.. y que se genere un ticket o aviso hasta que lo soluciones
 
