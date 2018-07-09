@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
 	#url(r'^admin/', admin.site.urls),
 	url(r'^$', views.index, name='index'),
+	url(r'^clientes/', views.clientes, name='clientes'),
 	url(r'^agregar_cliente/', views.agregar_cliente, name='agregar_cliente'),
 	url(r'^editar_cliente/', views.editar_cliente, name='editar_cliente'),
 	url(r'^eliminar_cliente/', views.eliminar_cliente, name='eliminar_cliente'),

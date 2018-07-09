@@ -1,5 +1,5 @@
 import os
-import datetime
+from datetime import date, timedelta
 import ast
 from urllib.parse import urlencode
 
@@ -29,19 +29,28 @@ from django.utils.datastructures import MultiValueDictKeyError
 
 
 
-#def index(request):
-#	return render(request, 'index.html')
-
-
-#def clientes(request):
-#	return render(request, 'clientes.html')
 
 def custom_redirect(url_name, *args, **kwargs):
 	url = reverse(url_name, args=args)
 	params = urlencode(kwargs)
 	return HttpResponseRedirect(url + "?%s" % params)
 
+
 def index(request):
+	eventos = Eventos.objects.all()
+	errores = Errores.objects.all()
+	print(errores)
+	context = {
+		"errores": errores,
+		"semanas1": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).count(),
+		"semanas2": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=2)).count(),
+		"mes": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(days=30)).count(),
+		"totales": eventos.count(),
+	}
+	return render(request, 'index.html', context)
+
+
+def clientes(request):
 	clientes = Clientes.objects.all()
 	
 	campos = Clientes._meta.get_fields()
@@ -56,7 +65,7 @@ def index(request):
 		"clientes": clientes,
 		"titulos": titulos,
 	}
-	return render(request, 'index.html', context)
+	return render(request, 'clientes.html', context)
 
 
 def agregar_cliente(request):
@@ -92,7 +101,7 @@ def activaciones(request):
 	pendientes = []
 	venta = 0
 	for activacion in activaciones:
-		if activacion.Eventos.filter(fecha__gte=datetime.date.today()).count() > 0:
+		if activacion.Eventos.filter(fecha__gte=date.today()).count() > 0:
 			pendientes.append(activacion)
 		venta += activacion.monto
 
@@ -198,10 +207,10 @@ def eventos(request):
 		"cliente": cliente,
 		"activacion": activacion,
 		"titulos": titulos,
-		"pendientes": eventos.filter(fecha__gte=datetime.date.today()),
+		"pendientes": eventos.filter(fecha__gte=date.today()),
 		"eventos": eventos,
 		"lista_planes": lista_planes,
-		"hoy": datetime.date.today()
+		"hoy": date.today()
 	}
 	return render(request, 'eventos.html', context)
 
@@ -248,8 +257,8 @@ def agregar_evento(request):
 
 			if nombre_unico:
 				evento = Eventos(Activacion=activacion)
-				#datetime.date(1943,3, 13)  #year, month, day
-				evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+				#date(1943,3, 13)  #year, month, day
+				evento.fecha = date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
 				evento.fecha_instalacion = evento.fecha
 				evento.fecha_desinstalacion = evento.fecha
 				evento.nombre = request.POST['nombre']
@@ -637,7 +646,7 @@ def agregar_contacto(request):
 			cliente = Clientes.objects.get(idCliente=idCliente)
 			form = ContactosForm(initial={"Cliente": cliente})
 		except MultiValueDictKeyError:
-			return redirect('index')
+			return redirect('clientes')
 		try:
 			evento = request.GET['evento']
 		except MultiValueDictKeyError:
@@ -696,6 +705,8 @@ def agregar_contacto_select(request):
 
 def evento(request):
 	error = False
+	reporte = False
+	nErrores = 0
 	cargos = Cargos.objects.all()
 	recurrentes = Recurrentes.objects.all()
 	pendientes = Pendientes.objects.all()
@@ -719,15 +730,15 @@ def evento(request):
 					if Contacto != evento.Contacto:
 						evento.Contacto = Contacto
 
-				#datetime.date(1943,3, 13)  #year, month, day
+				#date(1943,3, 13)  #year, month, day
 				if (request.POST['fecha_instalacion_year'] == "0" and request.POST['fecha_instalacion_month'] == "0" and request.POST['fecha_instalacion_day'] == "0"):
 					evento.fecha_instalacion = None
 				if (request.POST['fecha_instalacion_year'] != "0" and request.POST['fecha_instalacion_month'] != "0" and request.POST['fecha_instalacion_day'] != "0"):
-					evento.fecha_instalacion = datetime.date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
+					evento.fecha_instalacion = date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
 				if (request.POST['fecha_desinstalacion_year'] == "0" and request.POST['fecha_desinstalacion_month'] == "0" and request.POST['fecha_desinstalacion_day'] == "0"):
 					evento.fecha_desinstalacion = None
 				if (request.POST['fecha_desinstalacion_year'] != "0" and request.POST['fecha_desinstalacion_month'] != "0" and request.POST['fecha_desinstalacion_day'] != "0"):
-					evento.fecha_desinstalacion = datetime.date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
+					evento.fecha_desinstalacion = date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
 				
 				hora_instalacion = request.POST['hora_instalacion']
 				if hora_instalacion == "":
@@ -864,12 +875,32 @@ def evento(request):
 			except MultiValueDictKeyError:
 				pass
 			evento.comentarios_satisfaccion = request.POST["comentarios_satisfaccion"]
-			evento.errores_tecnicos = request.POST["errores_tecnicos"]
 
-			evento.save()
+			errores_evento = evento.Errores.all()
+			nErrores = int(request.POST["nErrores"])
+			errores_nuevos = []
+			for key, value in request.POST.items():
+				if "error" in key:
+					errores_nuevos.append(value)
+			print ("errores_nuevos: ", len(errores_nuevos))
+			print ("nErrores: ", nErrores)
+			if len(errores_nuevos) != nErrores:
+				reporte = True
+			else:
+				for i in range(1, len(errores_evento) - len(errores_nuevos) + 1):
+					errores_evento[len(errores_evento) - i].delete()
+				for i in range(len(errores_nuevos)):
+					if i < len(errores_evento):
+						errores_evento[i].error = errores_nuevos[i]
+						errores_evento[i].save()
+					else:
+						nuevo_error = Errores(Evento=evento, error=errores_nuevos[i])
+						nuevo_error.save()
 
-			#return custom_redirect('evento', evento=idEvento)
-		if not error:
+				evento.save()
+
+				#return custom_redirect('evento', evento=idEvento)
+		if not error and reporte == False:
 			estado = "Ok"
 			evento = Eventos.objects.get(idEvento=idEvento)
 			empty = ["", None]
@@ -954,7 +985,7 @@ def evento(request):
 				tab = "logistica"
 			elif "edit=checklist" in origen:
 				tab = "checklist"
-			elif "edit=checkout" in origen:
+			elif "edit=checkout" in origen or "evento" not in origen:
 				tab = "checkout"
 		except:
 			tab = "coordinacion"
@@ -1026,8 +1057,15 @@ def evento(request):
 		initial = {}
 		initial["satisfaccion"] = evento.satisfaccion
 		initial["comentarios_satisfaccion"] = evento.comentarios_satisfaccion
-		initial["errores_tecnicos"] = evento.errores_tecnicos
-		reporte_form = ReportesForm(initial=initial)
+		if reporte:
+			reporte_form = ReportesForm(nErrores, request.POST)
+		else:
+			errores_evento = evento.Errores.all()
+			nErrores = len(errores_evento)
+			for i in range(1, len(errores_evento) + 1):
+				initial["error_%d" % i] = errores_evento[i-1].error
+			reporte_form = ReportesForm(nErrores, initial=initial)
+		print(nErrores)
 	else:
 		lista_pendientes = []
 		for pendiente in pendientes:
@@ -1047,6 +1085,7 @@ def evento(request):
 		"lista_recurrentes": lista_recurrentes,
 		"lista_pendientes": lista_pendientes,
 		"reporte_form": reporte_form,
+		"nErrores": nErrores,
 	}
 	return render(request, 'evento.html', context)
 
@@ -1163,7 +1202,7 @@ def editar_cliente(request):
 			if cliente.direccion != direccion:
 				cliente.direccion = direccion
 			cliente.save()
-			return redirect('index')
+			return redirect('clientes')
 	else:
 		cliente = Clientes.objects.get(idCliente=request.GET['cliente'])
 		form = ClientesForm(initial={"nombre": cliente.nombre, "direccion": cliente.direccion})
@@ -1255,10 +1294,10 @@ def editar_evento(request):
 					break
 
 		if form.is_valid() and count == int(nPlanes) and mensaje_error == [] and nombre_unico:
-			#datetime.date(1943,3, 13)  #year, month, day
+			#date(1943,3, 13)  #year, month, day
 			if evento.Activacion.idActivacion != activacion.idActivacion:
 				evento.Activacion = activacion
-			evento.fecha = datetime.date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+			evento.fecha = date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
 			if evento.nombre != nombre:
 				evento.nombre = nombre
 			if evento.horas != request.POST['horas']:
@@ -1842,7 +1881,7 @@ def editar_pendiente(request):
 def eliminar_cliente(request):
 	cliente = Clientes.objects.get(idCliente=request.GET['cliente'])
 	cliente.delete()
-	return redirect('index')
+	return redirect('clientes')
 
 
 def eliminar_activacion(request):

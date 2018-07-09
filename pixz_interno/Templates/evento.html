@@ -752,14 +752,27 @@
 																					</div>-->
 																					{% for radio in reporte_form.satisfaccion %}
 																						<div class="radio">
-																						  <label for="radio1" class="form-check-label text-danger">
 																							{{radio.tag}}
 																							{% if forloop.counter == 1 %}
-																								<i class="fa fa-smile-o text-success border-success"></i>&nbsp; Contento
+																								<label for="radio1" class="form-check-label" style="color:green; font-size:1.2rem;">
+																									<img class="rounded-circle" src="{% static 'images/smiles/5.png' %}" style="height:1.5rem;">&nbsp; Muy contento
+																								</label>
 																							{% elif forloop.counter == 2 %}
-																								<i class="fa fa-meh-o text-warning border-warning"></i>&nbsp; Aceptable
+																								<label for="radio1" class="form-check-label" style="color:cyan; font-size:1.2rem;">
+																									<img class="rounded-circle" src="{% static 'images/smiles/4.png' %}" style="height:1.5rem;">&nbsp; Contento
+																								</label>
 																							{% elif forloop.counter == 3 %}
-																								<i class="fa fa-frown-o text-danger border-danger"></i>&nbsp; Enojado
+																								<label for="radio1" class="form-check-label" style="color:yellow; font-size:1.2rem;">
+																									<img class="rounded-circle" src="{% static 'images/smiles/3.png' %}" style="height:1.5rem;">&nbsp; Aceptable
+																								</label>
+																							{% elif forloop.counter == 4 %}
+																								<label for="radio1" class="form-check-label" style="color:orange; font-size:1.2rem;">
+																									<img class="rounded-circle" src="{% static 'images/smiles/2.png' %}" style="height:1.5rem;">&nbsp; Descontento
+																								</label>
+																							{% elif forloop.counter == 5 %}
+																								<label for="radio1" class="form-check-label" style="color:red; font-size:1.2rem;">
+																									<img class="rounded-circle" src="{% static 'images/smiles/1.png' %}" style="height:1.5rem;">&nbsp; Muy descontento
+																								</label>
 																							{% endif %}
 																						  </label>
 																						</div>
@@ -768,7 +781,7 @@
 																				</div>
 																			</div>
 																			<div class="row">
-																				<div class="col-lg-12 col-sm-12">
+																				<div class="col-lg-12 col-sm-12" style="padding-top:1rem">
 																					{{reporte_form.comentarios_satisfaccion}}
 																				</div>
 																			</div>
@@ -777,18 +790,32 @@
 																				<div class="col-lg-12 col-sm-12">
 																					{% if evento.satisfaccion == None %}
 																						<b>No evaluado</b>
+																					{% elif evento.satisfaccion == 5 %}
+																						<label for="radio1" class="form-check-label" style="color:green; font-size:1.2rem;">
+																							<img class="rounded-circle" src="{% static 'images/smiles/5.png' %}" style="height:1.5rem;">&nbsp; Muy contento
+																						</label>
+																					{% elif evento.satisfaccion == 4 %}
+																						<label style="color:cyan; font-size:1.2rem;">
+																							<img class="rounded-circle" src="{% static 'images/smiles/4.png' %}" style="height:1.5rem;">&nbsp; Contento
+																						</label>
+																					{% elif evento.satisfaccion == 3 %}
+																						<label style="color:yellow; font-size:1.2rem;">
+																							<img class="rounded-circle" src="{% static 'images/smiles/3.png' %}" style="height:1.5rem;">&nbsp; Aceptable
+																						</label>
+																					{% elif evento.satisfaccion == 2 %}
+																						<label style="color:orange; font-size:1.2rem;">
+																							<img class="rounded-circle" src="{% static 'images/smiles/2.png' %}" style="height:1.5rem;">&nbsp; Descontento
+																						</label>
 																					{% elif evento.satisfaccion == 1 %}
-																						<label class="text-success"><i class="fa fa-smile-o text-success border-success"></i>&nbsp; Contento</label>
-																					{% elif evento.satisfaccion == 0 %}
-																						<label class="text-warning"><i class="fa fa-meh-o text-warning border-warning"></i>&nbsp; Aceptable</label>
-																					{% elif evento.satisfaccion == -1 %}
-																						<label class="text-danger"><i class="fa fa-frown-o text-danger border-danger"></i>&nbsp; Enojado</label>
+																						<label style="color:red; font-size:1.2rem;">
+																							<img class="rounded-circle" src="{% static 'images/smiles/1.png' %}" style="height:1.5rem;">&nbsp; Muy descontento
+																						</label>
 																					{% endif %}
 																				</div>
 																			</div>
 
 																			<div class="row">
-																				<div class="col-lg-12 col-sm-12">
+																				<div class="col-lg-12 col-sm-12" style="padding-top:1rem;">
 																					{% if evento.comentarios_satisfaccion == "" %}
 																						 - 
 																					{% else %}
@@ -811,17 +838,38 @@
 															<div class="card-body">
 																<div class="row">
 																	<div class="col-lg-12 col-sm-12">
-																		{% if edit == "checkout" %}
-																			{{reporte_form.errores_tecnicos}}
-																		{% else %}
-																			{% if evento.comentarios_satisfaccion == "" %}
-																				 - 
+																		<table class="table table-striped">
+																		<tbody>
+																			{% if edit == "checkout" %}
+																				{% for field in reporte_form %}
+																					{% if "error" in field.name %}
+																						<tr><td>{{field}}</td></tr>
+																					{% endif %}
+																				{% endfor %}
 																			{% else %}
-																				{{evento.errores_tecnicos}}
+																				{% if evento.Errores.count == 0 %}
+																					 - 
+																				{% else %}
+																					{% for error in evento.Errores.all %}
+																						<tr><td>{{error.error}}</td></tr>
+																					{% endfor %}
+																				{% endif %}
 																			{% endif %}
-																		{% endif %}
+																		</tbody>
+																		</table>
 																	</div>
 																</div>
+																{% if edit == "checkout" %}
+																	<div class="row" >
+																		<input type="hidden" name="nErrores" id="nErrores" value="{{nErrores}}" />
+																		<div class="col col-sm-4">
+																			<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Reportar error</button></div>
+																		</div>
+																		<div class="col col-sm-2">
+																			<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-danger" onclick="agregar_o_quitar(-1)"><i class="fa fa-minus-circle"></i>&nbsp; Quitar error</button></div>
+																		</div>
+																	</div>
+																{% endif %}
 															</div>
 															</div>
 														</div>
@@ -864,7 +912,12 @@
 	<!-- Right Panel -->
 
 
-
+	<script >
+		function agregar_o_quitar(n) {
+			document.getElementById('nErrores').value=Number('{{nErrores}}') + n;
+			document.getElementById('form').submit();
+		}
+	</script>
 
 
 	{% if error == True %}

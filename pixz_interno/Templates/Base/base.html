@@ -33,9 +33,12 @@
 
 			<div id="main-menu" class="main-menu collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<h3 class="menu-title">Eventos</h3>
 					<li class="{% block index-li %}{% endblock %}" >
-						<a href="{% url 'index' %}"> <i class="menu-icon fa fa-users"></i>Clientes</a>
+						<a href="{% url 'index' %}"> <i class="menu-icon fa fa-home"></i>Inicio</a>
+					</li>
+					<h3 class="menu-title">Eventos</h3>
+					<li class="{% block clientes-li %}{% endblock %}" >
+						<a href="{% url 'clientes' %}"> <i class="menu-icon fa fa-users"></i>Clientes</a>
 					</li>
 					<!--<li class="{% block agregar-cliente-li %}{% endblock %}" >
 						<a href="{% url 'agregar_cliente' %}"> <i class="menu-icon fa fa-user"></i>Nuevo cliente</a>

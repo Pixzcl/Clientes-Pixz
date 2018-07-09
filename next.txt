@@ -5,3 +5,4 @@ heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 capacitacion trabajadores?
 ver collectstatic en release
 
+eventos totales, pendientes y proximas 2 semanas

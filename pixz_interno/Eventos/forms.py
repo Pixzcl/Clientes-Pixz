@@ -310,7 +310,12 @@ class PendientesEventoForm(forms.Form):
 			self.fields[pendiente.nombre.replace(" ", "")] = forms.BooleanField(required=False, label=pendiente.nombre, widget=forms.CheckboxInput(attrs={'class': "switch-input"}))
 
 class ReportesForm(forms.Form):
-	choices=[[1,""],[0,""],[-1,""]]
-	satisfaccion = forms.IntegerField(label="Satisfacción", widget=forms.RadioSelect(choices=choices, attrs={'class': "form-check-input"}))
+	choices=[[5,""],[4,""],[3,""],[2,""],[1,""]]
+	satisfaccion = forms.IntegerField(required = False, label="Satisfacción", widget=forms.RadioSelect(choices=choices, attrs={'class': "form-check-input"}))
 	comentarios_satisfaccion = forms.CharField(required=False, max_length=255, label="Comentarios Satisfacción", widget=forms.Textarea(attrs={'rows': 4, 'class': "form-control"}))
-	errores_tecnicos = forms.CharField(required=False, max_length=255, label="Errores técnicos", widget=forms.Textarea(attrs={'rows': 4, 'class': "form-control"}))
+	
+	def __init__(self, nErrores, *args, **kwargs):
+		super(ReportesForm, self).__init__(*args, **kwargs)
+
+		for i in range(1, nErrores+1):
+			self.fields['error_%d' % i] = forms.CharField(required=True, max_length=255, label="Error técnico %d" % i, widget=forms.Textarea(attrs={'rows': 2, 'class': "form-control"}))

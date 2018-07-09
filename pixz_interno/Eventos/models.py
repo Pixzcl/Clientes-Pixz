@@ -73,8 +73,6 @@ class Eventos(models.Model):
 
 	satisfaccion = models.SmallIntegerField(verbose_name="Satisfacción", blank=True, null=True)
 	comentarios_satisfaccion = models.TextField(verbose_name="Comentarios satisfacción", blank=True, null=True, default="")
-
-	errores_tecnicos = models.TextField(verbose_name="Errores técnicos", blank=True, null=True, default="")
 	
 	class Meta:
 		ordering = ['-idEvento', '-Activacion']
@@ -224,3 +222,9 @@ class PendientesEvento(models.Model):
 	Pendiente = models.ForeignKey("Pendientes", verbose_name="Pendientes", related_name="PendientesEvento", on_delete=models.CASCADE, blank=False, null=False)
 	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="PendientesEvento", on_delete=models.CASCADE, blank=False, null=False)
 	check = models.BooleanField(verbose_name="Check", default=False)
+
+
+class Errores(models.Model):
+	idError = models.AutoField(primary_key=True, verbose_name="#")
+	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="Errores", on_delete=models.SET(None), blank=True, null=True)
+	error = models.TextField(verbose_name="Errores técnicos", blank=True, null=True, default="")
