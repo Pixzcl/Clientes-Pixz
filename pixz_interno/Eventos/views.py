@@ -55,13 +55,20 @@ def index(request):
 		"s3": satisfaccion[2].count(),
 		"s2": satisfaccion[3].count(),
 		"s1": satisfaccion[4].count(),
+	}
+	if evaluados == 0:
+		"sp5": 0,
+		"sp4": 0,
+		"sp3": 0,
+		"sp2": 0,
+		"sp1": 0,
+	else:
 		"sp5": "%.2f" % (float(satisfaccion[0].count())/evaluados * 100),
 		"sp4": "%.2f" % (float(satisfaccion[1].count())/evaluados * 100),
 		"sp3": "%.2f" % (float(satisfaccion[2].count())/evaluados * 100),
 		"sp2": "%.2f" % (float(satisfaccion[3].count())/evaluados * 100),
 		"sp1": "%.2f" % (float(satisfaccion[4].count())/evaluados * 100),
 
-	}
 	return render(request, 'index.html', context)
 
 
