@@ -39,13 +39,28 @@ def custom_redirect(url_name, *args, **kwargs):
 def index(request):
 	eventos = Eventos.objects.all()
 	errores = Errores.objects.all()
-	print(errores)
+	satisfaccion = [eventos.filter(satisfaccion=5), eventos.filter(satisfaccion=4), eventos.filter(satisfaccion=3), eventos.filter(satisfaccion=2), eventos.filter(satisfaccion=1)]
+	evaluados = 0.0
+	for s in satisfaccion:
+		evaluados += s.count()
+
 	context = {
 		"errores": errores,
 		"semanas1": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).count(),
 		"semanas2": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=2)).count(),
 		"mes": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(days=30)).count(),
 		"totales": eventos.count(),
+		"s5": satisfaccion[0].count(),
+		"s4": satisfaccion[1].count(),
+		"s3": satisfaccion[2].count(),
+		"s2": satisfaccion[3].count(),
+		"s1": satisfaccion[4].count(),
+		"sp5": "%.2f" % (float(satisfaccion[0].count())/evaluados * 100),
+		"sp4": "%.2f" % (float(satisfaccion[1].count())/evaluados * 100),
+		"sp3": "%.2f" % (float(satisfaccion[2].count())/evaluados * 100),
+		"sp2": "%.2f" % (float(satisfaccion[3].count())/evaluados * 100),
+		"sp1": "%.2f" % (float(satisfaccion[4].count())/evaluados * 100),
+
 	}
 	return render(request, 'index.html', context)
 
@@ -53,9 +68,9 @@ def index(request):
 def clientes(request):
 	clientes = Clientes.objects.all()
 	
-	campos = Clientes._meta.get_fields()
 	titulos = ["#", "Cliente","Dirección"]
 	#titulos = []
+	#campos = Clientes._meta.get_fields()
 	#for campo in campos:
 	#	if not("ManyToOneRel" in str(campo.get_internal_type)):
 	#		titulos.append(campo.verbose_name.title())
@@ -87,14 +102,14 @@ def activaciones(request):
 		idCliente = request.GET['cliente']
 		cliente = Clientes.objects.get(idCliente=idCliente)
 		activaciones = Activaciones.objects.filter(Cliente=cliente)
-		titulos = ["#","Activación", "Monto", "Descripción"]
+		titulos = ["#","Activación", "Tipo", "Descripción"]
 		contactos = cliente.Contactos.all()
 		titulos_contactos = ["#", "Nombre", "Teléfono", "Mail"]
 	except MultiValueDictKeyError:
 		idCliente = ""
 		cliente = ""
 		activaciones = Activaciones.objects.all()
-		titulos = ["#", "Cliente","Activación", "Monto", "Descripción"]
+		titulos = ["#", "Cliente","Activación", "Tipo", "Descripción"]
 		contactos = None
 		titulos_contactos = None
 
@@ -103,7 +118,9 @@ def activaciones(request):
 	for activacion in activaciones:
 		if activacion.Eventos.filter(fecha__gte=date.today()).count() > 0:
 			pendientes.append(activacion)
-		venta += activacion.monto
+		#venta += activacion.monto
+		for factura in activacion.Facturas.all():
+			venta += factura.monto
 
 	context = {
 		"activaciones": activaciones,
@@ -590,7 +607,6 @@ def trabajadores(request):
 
 
 def agregar_trabajador(request):
-	print (request.META['HTTP_REFERER'])
 	if request.method == 'POST':
 		evento = request.POST['evento']
 		form = TrabajadoresForm(request.POST, request.FILES)
@@ -710,12 +726,14 @@ def evento(request):
 	cargos = Cargos.objects.all()
 	recurrentes = Recurrentes.objects.all()
 	pendientes = Pendientes.objects.all()
+	valid_trabajador = "n/a"
 	if request.method == 'POST':
 		idEvento = request.POST['evento']
 		evento = Eventos.objects.get(idEvento=idEvento)
 
 		coordinacion_form = None
 		logistica_form = None
+		trabajador_nuevo_form = None
 		edit = request.POST['edit']
 		tab = None
 		if edit == "coordinacion":
@@ -771,65 +789,78 @@ def evento(request):
 				error = True
 
 		elif edit == "logistica":
-			logistica_form = LogisticaTrabajadoresForm(request.POST, request.FILES)
-			logistica_planes_form = LogisticaPlanesForm(evento.PlanesEvento.all(), request.POST, request.FILES)
-			if logistica_form.is_valid() and logistica_planes_form.is_valid():
-			# Trabajadores
-				#tipos = ["Supervisor", "Montaje", "Desmontaje", "Operador", "Freelance", "Promotora"]
-				#for tipo in tipos:
-				for cargo in cargos:
-					try:
-						#idTrabajadores = request.POST.getlist(tipo)
-						idTrabajadores = request.POST.getlist(cargo.nombre)
-						trabajadores = Trabajadores.objects.filter(idTrabajador__in=idTrabajadores)
-					except MultiValueDictKeyError:
-						continue # trabajadores = []
+			try:
+				# Trabajador nuevo
+				request.POST["trabajador_nuevo"]
+				trabajador_nuevo_form = TrabajadoresForm(request.POST)
+				valid_trabajador = trabajador_nuevo_form.is_valid()
+				if valid_trabajador:
+					trabajador_nuevo_form.save()
+				logistica_form = LogisticaTrabajadoresForm(request.POST, request.FILES)
+				logistica_planes_form = LogisticaPlanesForm(evento.PlanesEvento.all(), request.POST, request.FILES)
+			except MultiValueDictKeyError:
+				valid_trabajador = "n/a"
+				logistica_form = LogisticaTrabajadoresForm(request.POST, request.FILES)
+				logistica_planes_form = LogisticaPlanesForm(evento.PlanesEvento.all(), request.POST, request.FILES)
 
-					#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
-					trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
-					for trabajadorEvento_actual in trabajadoresEvento_actuales:
-						if trabajadorEvento_actual.Trabajador not in trabajadores:
-							#print(supervisor_actual.Trabajador.nombre)
-							trabajadorEvento_actual.delete()
-					#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
-					trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
+				if logistica_form.is_valid() and logistica_planes_form.is_valid():
 
-					for trabajador in trabajadores:
-						if trabajador not in [trabajadorEvento_actual.Trabajador for trabajadorEvento_actual in trabajadoresEvento_actuales]:
-							#TrabajadoresEvento(Evento=evento, Trabajador=trabajador, tipo=tipo).save()
-							TrabajadoresEvento(Evento=evento, Trabajador=trabajador, Cargo=cargo).save()
-			
-			# Planes
-				for key, value in request.POST.items():
-					if "_" in key:
-						split = key.split("_")
-						planEvento = PlanesEvento.objects.get(idPlanesEvento=int(split[1]))
-						itemPlan = ItemsPlan.objects.get(idItemsPlan=int(split[3]))
-						nPlan = int(split[5])
-						nItem = int(split[7])
-						if value == "-1":
-							itemEstacion = None
-						else:
-							itemEstacion = ItemsEstacion.objects.get(idItemsEstacion=value)
+				# Cargos Trabajadores
+					#tipos = ["Supervisor", "Montaje", "Desmontaje", "Operador", "Freelance", "Promotora"]
+					#for tipo in tipos:
+					for cargo in cargos:
+						try:
+							#idTrabajadores = request.POST.getlist(tipo)
+							idTrabajadores = request.POST.getlist(cargo.nombre)
+							trabajadores = Trabajadores.objects.filter(idTrabajador__in=idTrabajadores)
+						except MultiValueDictKeyError:
+							continue # trabajadores = []
 
-						# if itemPlan.Item.multiple:
-						# 	for i in range(itemPlan.cantidad):
-						# 		itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, n=(i+1))
-						# 		itemPlanEvento.ItemsEstacion = itemEstacion
-						# 		itemPlanEvento.save()
-						# else:
-						# 	itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, n=n)
-						# 	itemPlanEvento.ItemsEstacion = itemEstacion
-						# 	itemPlanEvento.save()
+						#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
+						trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
+						for trabajadorEvento_actual in trabajadoresEvento_actuales:
+							if trabajadorEvento_actual.Trabajador not in trabajadores:
+								#print(supervisor_actual.Trabajador.nombre)
+								trabajadorEvento_actual.delete()
+						#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
+						trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
 
-						itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, nPlan=nPlan, nItem=nItem)
-						itemPlanEvento.ItemsEstacion = itemEstacion
-						itemPlanEvento.save()
+						for trabajador in trabajadores:
+							if trabajador not in [trabajadorEvento_actual.Trabajador for trabajadorEvento_actual in trabajadoresEvento_actuales]:
+								#TrabajadoresEvento(Evento=evento, Trabajador=trabajador, tipo=tipo).save()
+								TrabajadoresEvento(Evento=evento, Trabajador=trabajador, Cargo=cargo).save()
+				
+				# Planes
+					for key, value in request.POST.items():
+						if "_" in key:
+							split = key.split("_")
+							planEvento = PlanesEvento.objects.get(idPlanesEvento=int(split[1]))
+							itemPlan = ItemsPlan.objects.get(idItemsPlan=int(split[3]))
+							nPlan = int(split[5])
+							nItem = int(split[7])
+							if value == "-1":
+								itemEstacion = None
+							else:
+								itemEstacion = ItemsEstacion.objects.get(idItemsEstacion=value)
 
-				#evento.save()
-				#return custom_redirect('evento', evento=idEvento)
-			else:
-				error = True
+							# if itemPlan.Item.multiple:
+							# 	for i in range(itemPlan.cantidad):
+							# 		itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, n=(i+1))
+							# 		itemPlanEvento.ItemsEstacion = itemEstacion
+							# 		itemPlanEvento.save()
+							# else:
+							# 	itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, n=n)
+							# 	itemPlanEvento.ItemsEstacion = itemEstacion
+							# 	itemPlanEvento.save()
+
+							itemPlanEvento = ItemsPlanEvento.objects.get(PlanesEvento=planEvento, ItemsPlan=itemPlan, nPlan=nPlan, nItem=nItem)
+							itemPlanEvento.ItemsEstacion = itemEstacion
+							itemPlanEvento.save()
+
+					#evento.save()
+					#return custom_redirect('evento', evento=idEvento)
+				else:
+					error = True
 		elif edit == "checklist":
 			# Cargar al camion
 			for key, value in request.POST.items():
@@ -900,7 +931,7 @@ def evento(request):
 				evento.save()
 
 				#return custom_redirect('evento', evento=idEvento)
-		if not error and reporte == False:
+		if not error and reporte == False and valid_trabajador == "n/a":
 			estado = "Ok"
 			evento = Eventos.objects.get(idEvento=idEvento)
 			empty = ["", None]
@@ -931,6 +962,7 @@ def evento(request):
 		try:
 			coordinacion_form = None
 			logistica_form = None
+			trabajador_nuevo_form = None
 			edit = request.GET['edit']
 			if edit == "coordinacion":
 				coordinacion_form = CoordinacionForm(evento, initial={
@@ -967,6 +999,7 @@ def evento(request):
 								if itemPlan.Item.multiple:
 									break;
 				logistica_planes_form = LogisticaPlanesForm(planesEvento, initial=initial_planes)
+				trabajador_nuevo_form = TrabajadoresForm()
 
 			elif edit == "checklist":
 				pass
@@ -1086,6 +1119,8 @@ def evento(request):
 		"lista_pendientes": lista_pendientes,
 		"reporte_form": reporte_form,
 		"nErrores": nErrores,
+		"trabajador_nuevo_form": trabajador_nuevo_form,
+		"valid_trabajador": valid_trabajador,
 	}
 	return render(request, 'evento.html', context)
 
@@ -1181,6 +1216,64 @@ def agregar_pendiente(request):
 		"pendientes_form": form,
 	}
 	return render(request, 'agregar_pendiente.html', context)
+
+
+def facturas(request):
+	facturas = Facturas.objects.all()
+	
+	context = {
+		"facturas": facturas,
+		#"titulos": titulos,
+	}
+	return render(request, 'facturas.html', context)
+
+
+def agregar_factura(request):
+	mensaje_error = ""
+	if request.method == 'POST':
+		#activacion = Activaciones.objects.get(idActivacion=request.POST["Activacion"])
+		activacion = int(request.POST["Activacion"])
+		if activacion == -1:
+			mensaje_error = "Elija una activación."
+		form = FacturasForm(request.POST, request.FILES)
+		if form.is_valid() and activacion != -1:
+			#f = form.save(commit = False)
+			#f.fecha_pago = f.fecha_facturacion + timedelta(days=request.POST["plazo"])
+			#f.save()
+			nFactura = int(request.POST["nFactura"])
+			fecha_facturacion = date(int(request.POST['fecha_facturacion_year']), int(request.POST['fecha_facturacion_month']), int(request.POST['fecha_facturacion_day']))  #year, month, day
+			monto = int(request.POST["monto"])
+			adelanto = int(request.POST["adelanto"])
+			plazo = int(request.POST["plazo"])
+			fecha_pago = fecha_facturacion + timedelta(days=plazo)
+
+			factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, pago=adelanto, fecha_pago=fecha_pago)
+			factura.save()
+
+			return redirect('facturas')
+	else:
+		ultima = Facturas.objects.first()
+		if ultima == None:
+			nFactura = 1
+		else:
+			nFactura = ultima.nFactura + 1
+		initial = {
+			"nFactura": nFactura,
+			"fecha_facturacion": date.today(),
+			"plazo": 30,
+		}
+		try:
+			initial["Activacion"] = request.GET["activacion"]
+		except MultiValueDictKeyError:
+			pass
+		form = FacturasForm(initial=initial)
+
+	context = {
+		#"activacion": activacion,
+		"facturas_form": form,
+		"mensaje_error": mensaje_error,
+	}
+	return render(request, 'agregar_factura.html', context)
 
 
 
@@ -1872,6 +1965,37 @@ def editar_pendiente(request):
 	return render(request, 'editar_pendiente.html', context)
 
 
+def editar_factura(request):
+	if request.method == 'POST':
+		activacion = Activaciones.objects.get(idActivacion=request.POST["activacion"])
+		form = FacturasForm(request.POST, request.FILES)
+		if form.is_valid():
+			f = form.save(commit=false)
+			f.Activacion = activacion
+			f.save()
+
+			return redirect('facturas')
+	else:
+		nFactura = Facturas.objects.first().nFactura + 1
+		initial = {
+			"nFactura": nFactura,
+			"fecha_facturacion": date.today(),
+			"pago": 0,
+			"plazo": 30,
+		}
+		try:
+			initial["Activacion"] = Activaciones.objects.get(idActivacion=request.GET["activacion"])
+		except MultiValueDictKeyError:
+			pass
+		form = FacturasForm("Adelanto", initial=initial)
+
+	context = {
+		#"activacion": activacion,
+		"facturas_form": form,
+	}
+	return render(request, 'agregar_factura.html', context)
+
+
 
 
 
@@ -1950,6 +2074,12 @@ def eliminar_pendiente(request):
 	pendiente = Pendientes.objects.get(idPendiente=request.GET['pendiente'])
 	pendiente.delete()
 	return redirect('pendientes')
+
+
+def eliminar_factura(request):
+	factura = Facturas.objects.get(nFactura=request.GET['nFactura'])
+	factura.delete()
+	return redirect('facturas')
 
 
 

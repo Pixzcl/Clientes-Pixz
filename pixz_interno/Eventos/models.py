@@ -32,8 +32,8 @@ class Activaciones(models.Model):
 	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Activaciones", on_delete=models.CASCADE, blank=False, null=False) #to_field="idCliente"
 
 	nombre = models.CharField(max_length=255, verbose_name="Nombre", blank=False, null=False)
-	monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
-	#tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
+	#monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
+	tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
 	descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, default="")
 
 	class Meta:
@@ -68,9 +68,9 @@ class Eventos(models.Model):
 	Recurrentes = models.ManyToManyField("Recurrentes", through="RecurrentesEvento", related_name="Eventos")
 	# Tareas pendientes en checkout
 	Pendientes = models.ManyToManyField("Pendientes", through="PendientesEvento", related_name="Eventos")
-
+	# Cual es el proximo paso por ingresar en el evento
 	estado = models.CharField(max_length=255, verbose_name="Estado", blank=False, null=False, default="Coordinación")
-
+	# Satisfaccion del cliente
 	satisfaccion = models.SmallIntegerField(verbose_name="Satisfacción", blank=True, null=True)
 	comentarios_satisfaccion = models.TextField(verbose_name="Comentarios satisfacción", blank=True, null=True, default="")
 	
@@ -80,7 +80,7 @@ class Eventos(models.Model):
 
 class Contactos(models.Model):
 	idContacto = models.AutoField(primary_key=True, verbose_name="#")
-	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Contactos", on_delete=models.SET(None), blank=True, null=True)
+	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Contactos", on_delete=models.SET(None), blank=False, null=True)
 	
 	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un contacto con este nombre."})
 	#rut = models.CharField(max_length=255, verbose_name="RUT", blank=True, null=True, default="")
@@ -138,6 +138,7 @@ class ItemsPlanEvento(models.Model):
 	nItem = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
 	nPlan = models.PositiveSmallIntegerField(verbose_name="n", blank=False, null=False, default=1)
 	class Meta:
+		# IMPORTANTE no cambiar este orden, se usa para crear correctamente lista_planes en view eventos
 		ordering = ['PlanesEvento', 'nPlan', 'ItemsPlan', 'nItem']
 
 
@@ -228,3 +229,16 @@ class Errores(models.Model):
 	idError = models.AutoField(primary_key=True, verbose_name="#")
 	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="Errores", on_delete=models.SET(None), blank=True, null=True)
 	error = models.TextField(verbose_name="Errores técnicos", blank=True, null=True, default="")
+
+class Facturas(models.Model):
+	#idFacturacion = models.AutoField(primary_key=True, verbose_name="#")
+	nFactura = models.PositiveIntegerField(primary_key=True, unique=True, verbose_name="N° de factura", blank=False, null=False, error_messages={"unique":"Ya existe este número de factura."})
+	Activacion = models.ForeignKey("Activaciones", verbose_name="Activacion", related_name="Facturas", on_delete=models.SET(None), blank=False, null=True)
+	fecha_facturacion = models.DateField(verbose_name="Fecha de facturación", blank=False, null=False)
+	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
+	pago = models.PositiveIntegerField(verbose_name="Pago", blank=False, null=False)
+	#plazo = models.PositiveSmallIntegerField(verbose_name="Plazo", blank=False, null=False)
+	fecha_pago = models.DateField(verbose_name="Fecha de pago", blank=False, null=False)
+
+	class Meta:
+		ordering = ['-nFactura', '-Activacion']

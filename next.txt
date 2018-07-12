@@ -3,6 +3,9 @@ heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 *Portada
 
 capacitacion trabajadores?
-ver collectstatic en release
+datepicker
 
-eventos totales, pendientes y proximas 2 semanas
+---
+
+activaciones pasados si todos sus eventos pasaron
+clickeable contacto que muestre sus datos en popup

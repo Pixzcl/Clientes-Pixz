@@ -1,0 +1,115 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+<!-- Activo en el menu: -->
+{% block facturas-li %} active {% endblock %}
+{% block titulo %}Nueva factura{% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+	<div id="right-panel" class="right-panel">
+
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Nueva factura</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li><a href="{% url 'facturas' %}">Facturas</a></li>
+									<li class="active">Nueva factura</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</header>
+<!--
+		<div class="breadcrumbs">
+			<div class="col-sm-6">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Nueva activación</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							{% if cliente != "" %}
+								<li><a href="#">{{cliente.nombre}}</a></li>
+							{% else %}
+								<li><a href="#">Activaciones</a></li>
+							{% endif %}
+							<li class="active">Nueva activación</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+-->
+		<div class="content mt-3">
+			<div class="animated fadeIn">
+				<div class="row">
+
+				<div class="col-md-12">
+					<div class="card">
+						<!--<div class="card-header">
+							<strong class="card-title">Nueva activación</strong>
+						</div>-->
+						<div class="card-body">
+							
+							<form method="post" enctype="multipart/form-data">
+				                {% csrf_token %}
+				                <!--<input type="hidden" name="Activacion" id="Activacion" value="{{Activacion}}" />-->
+				                {% for field in facturas_form %}
+									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
+										<div class="col-lg-3 col-sm-6" >{{field}}</div>
+										{% if field.name == "Activacion" and mensaje_error != "" %}
+											<div class="col-lg-3 col-sm-6">{{mensaje_error}}</div>
+										{% else %}
+											<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
+										{% endif %}
+
+									</div>
+								{% endfor %}
+				                <button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+				                <button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "facturas" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+				            </form>
+
+						</div>
+					</div>
+				</div>
+
+
+				</div>
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+	
+
+
+{% endblock %}

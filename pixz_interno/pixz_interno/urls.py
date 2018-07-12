@@ -79,6 +79,11 @@ urlpatterns = [
 	url(r'^agregar_pendiente/', views.agregar_pendiente, name='agregar_pendiente'),
 	url(r'^editar_pendiente/', views.editar_pendiente, name='editar_pendiente'),
 	url(r'^eliminar_pendiente/', views.eliminar_pendiente, name='eliminar_pendiente'),
+
+	url(r'^facturas/', views.facturas, name='facturas'),
+	url(r'^agregar_factura/', views.agregar_factura, name='agregar_factura'),
+	url(r'^editar_factura/', views.editar_factura, name='editar_factura'),
+	url(r'^eliminar_factura/', views.eliminar_factura, name='eliminar_factura'),
 	
 	
 

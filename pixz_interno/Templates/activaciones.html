@@ -150,6 +150,7 @@
 							{% for titulo in titulos %}
 								<th>{{titulo}}</th>
 							{% endfor %}
+							<th>Facturas</th>
 						  </tr>
 						</thead>
 						<tbody>
@@ -164,8 +165,14 @@
 										<td><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{activacion.Cliente.nombre}}</a></td>
 									{% endif %}
 									<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{activacion.nombre}}</a></td>
-									<td>{{activacion.monto}}</td>
+									<td>{{activacion.tipo}}</td>
 									<td>{{activacion.descripcion}}</td>
+									<td>
+										{% if activacion.Facturas.count == 0 %}
+											<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
+										{% else %}
+											<button type="button" class="btn btn-outline-success" onclick=""><i class="fa fa-money"></i>&nbsp; Editar</button>
+										{% endif %}
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -271,6 +278,7 @@
 
 		var visible2 = false;
 		function mostrar2() {
+			visible2 =! visible2
 			var botones, i;
 			{% for contacto in contactos %}
 				try {

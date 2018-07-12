@@ -24,6 +24,7 @@ class ActivacionesForm(forms.ModelForm):
 		exclude = ["Cliente"]
 		widgets = {
 			"descripcion": forms.Textarea(attrs={'rows': 4}),
+			"tipo": forms.Select(choices = [["Pixz","Pixz"], ["Weddi", "Weddi"], ["Producción", "Producción"], ["Tech", "Tech"]], attrs={'class': "standardSelect"}),
 		}
 
 
@@ -35,6 +36,7 @@ class ActivacionesSelectForm(forms.ModelForm):
 		exclude = []
 		widgets = {
 			"descripcion": forms.Textarea(attrs={'rows': 4}),
+			"tipo": forms.Select(choices = [["Pixz","Pixz"], ["Weddi", "Weddi"], ["Producción", "Producción"], ["Tech", "Tech"]], attrs={'class': "standardSelect"}),
 		}
 
 	def __init__(self, *args, **kwargs):
@@ -319,3 +321,47 @@ class ReportesForm(forms.Form):
 
 		for i in range(1, nErrores+1):
 			self.fields['error_%d' % i] = forms.CharField(required=True, max_length=255, label="Error técnico %d" % i, widget=forms.Textarea(attrs={'rows': 2, 'class': "form-control"}))
+
+
+class FacturasForm(forms.Form):
+	nFactura = forms.IntegerField(min_value=1, label="N° de factura", widget=forms.NumberInput(attrs={'class': "form-control"}))
+	Activacion = forms.ChoiceField(label="Activación")
+	fecha_facturacion = forms.DateField(label="Fecha de facturación", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
+	monto = forms.IntegerField(min_value=0, label="Monto", widget=forms.NumberInput(attrs={'class': "form-control"}))
+	adelanto = forms.IntegerField(min_value=0, initial=0, label="Adelanto", widget=forms.NumberInput(attrs={'class': "form-control"}))
+	plazo = forms.IntegerField(min_value=0, label="Plazo", widget=forms.NumberInput(attrs={'class': "form-control"}))
+
+	def __init__(self, *args, **kwargs):
+		super(FacturasForm, self).__init__(*args, **kwargs)
+
+		choices = [['-1', '------']]
+		activaciones = Activaciones.objects.all()
+		for a in activaciones:
+			choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
+
+		self.fields['Activacion'] = forms.ChoiceField(label="Activación", choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
+
+
+class PagoFacturasForm(forms.ModelForm):
+	class Meta:
+		model = Facturas
+		exclude = []
+		widgets = {
+			'nFactura': forms.NumberInput(attrs={'class': "form-control"}),
+			'Activacion': forms.Select(attrs={'class': "standardSelect"}),
+			'fecha_facturacion': forms.SelectDateWidget(attrs={'class': "standardSelect"}),
+			'monto': forms.NumberInput(attrs={'class': "form-control"}),
+			'pago': forms.NumberInput(attrs={'class': "form-control"}),
+			'plazo': forms.NumberInput(attrs={'class': "form-control"}),
+			'fecha_pago': forms.SelectDateWidget(attrs={'class': "standardSelect"}),
+		}
+
+	def __init__(self, *args, **kwargs):
+		super(PagoFacturasForm, self).__init__(*args, **kwargs)
+
+		choices = [['-1', '------']]
+		activaciones = Activaciones.objects.all()
+		for a in activaciones:
+			choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
+
+		self.fields['Activacion'] = forms.ChoiceField(label="Activación", choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
