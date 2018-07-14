@@ -18,3 +18,5 @@ clickeable contacto que muestre sus datos en popup
 ****guardar para multiples eventos de la activacion en cada pestaña con un popup descripcion, todos o elejir
 *****progressbar click en proximos 7 dias
 
+star, fiscalizar evento, en home
+MAYUSCULAS buscador

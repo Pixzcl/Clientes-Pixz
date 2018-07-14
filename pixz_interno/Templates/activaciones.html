@@ -176,7 +176,7 @@
 										<td bgcolor="#28a745"><b>Facturado</b></td>
 									{% elif activacion|facturado == "No" %}
 									<td>
-										<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?Activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
+										<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
 									</td>
 									{% else %}
 										<td bgcolor="#dc3545"><b>Error, facturas suman más que monto.</b></td>
