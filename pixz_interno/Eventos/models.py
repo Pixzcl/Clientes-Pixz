@@ -32,7 +32,8 @@ class Activaciones(models.Model):
 	Cliente = models.ForeignKey("Clientes", verbose_name="Cliente", related_name="Activaciones", on_delete=models.CASCADE, blank=False, null=False) #to_field="idCliente"
 
 	nombre = models.CharField(max_length=255, verbose_name="Nombre", blank=False, null=False)
-	#monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
+	monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
+	adelanto = models.PositiveIntegerField(verbose_name="Adelanto", blank=False, null=False, default=0)
 	tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
 	descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, default="")
 
@@ -75,7 +76,7 @@ class Eventos(models.Model):
 	comentarios_satisfaccion = models.TextField(verbose_name="Comentarios satisfacción", blank=True, null=True, default="")
 	
 	class Meta:
-		ordering = ['-idEvento', '-Activacion']
+		ordering = ['-idEvento']
 
 
 class Contactos(models.Model):
@@ -236,7 +237,7 @@ class Facturas(models.Model):
 	Activacion = models.ForeignKey("Activaciones", verbose_name="Activacion", related_name="Facturas", on_delete=models.SET(None), blank=False, null=True)
 	fecha_facturacion = models.DateField(verbose_name="Fecha de facturación", blank=False, null=False)
 	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
-	pago = models.PositiveIntegerField(verbose_name="Pago", blank=False, null=False)
+	#pago = models.PositiveIntegerField(verbose_name="Pago", blank=False, null=False)
 	#plazo = models.PositiveSmallIntegerField(verbose_name="Plazo", blank=False, null=False)
 	fecha_pago = models.DateField(verbose_name="Fecha de pago", blank=False, null=False)
 

@@ -91,7 +91,6 @@
 							<th>Activación</th>
 							<th>Fecha de facturacion</th>
 							<th>Monto</th>
-							<th>Pagado</th>
 							<th>Fecha pago</th>
 						  </tr>
 						</thead>
@@ -100,7 +99,7 @@
 								<tr>
 									<th scope="row" id="td_{{factura.nFactura}}">
 										{{factura.nFactura}}
-										<a style="visibility:hidden" href='{% url "editar_factura" %}?factura={{factura.nFactura}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<!--<a style="visibility:hidden" href='{% url "editar_factura" %}?factura={{factura.nFactura}}' ><i class="ti-pencil-alt text-primary"></i></a>-->
 										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{factura.nFactura}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if factura.Activacion == None %}
@@ -113,7 +112,6 @@
 									
 									<td>{{factura.fecha_facturacion}}</td>
 									<td>${{factura.monto}}</td>
-									<td>${{factura.pago}}</td>
 									<td>{% if factura.fecha_pago == None %}
 											 - 
 										{% else %}

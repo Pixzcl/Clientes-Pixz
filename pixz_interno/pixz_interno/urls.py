@@ -33,7 +33,7 @@ urlpatterns = [
 	url(r'^editar_activacion/', views.editar_activacion, name='editar_activacion'),
 	url(r'^eliminar_activacion/', views.eliminar_activacion, name='eliminar_activacion'),
 	
-	url(r'^eventos/', views.eventos, name='eventos'),
+	url(r'^eventos/', views.eventos.as_view(), name='eventos'),
 	url(r'^evento/', views.evento, name='evento'),
 	url(r'^agregar_evento/', views.agregar_evento, name='agregar_evento'),
 	url(r'^editar_evento/', views.editar_evento, name='editar_evento'),

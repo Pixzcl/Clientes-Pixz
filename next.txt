@@ -1,6 +1,6 @@
 heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 
-*Portada
+
 
 capacitacion trabajadores?
 datepicker
@@ -9,3 +9,12 @@ datepicker
 
 activaciones pasados si todos sus eventos pasaron
 clickeable contacto que muestre sus datos en popup
+
+(estado numerico para el orden) *filtros - predeterminado: fecha asc, evento pendiente
+**tabs con botones grandes, cambian a verde si esta completado, sino con su color
+**itinerario
+***activacion queda facturada si facturas suman monto
+***estado facturar en evento para todos los de la activacion
+****guardar para multiples eventos de la activacion en cada pestaña con un popup descripcion, todos o elejir
+*****progressbar click en proximos 7 dias
+

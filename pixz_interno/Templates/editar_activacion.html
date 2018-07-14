@@ -78,7 +78,7 @@
 							
 							<form method="post" enctype="multipart/form-data">
 				                {% csrf_token %}
-				                <input type="hidden" name="activacion" id="activacion" value="{{activacion.idActivacion}}" />
+				                <input type="hidden" name="Activacion" id="Activacion" value="{{activacion.idActivacion}}" />
 				                {% if menuCliente != "" %}<input type="hidden" name="menuCliente" id="menuCliente" value="{{menuCliente}}" />{% endif %}
 				                {% for field in activaciones_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">

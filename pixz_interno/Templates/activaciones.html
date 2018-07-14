@@ -1,5 +1,6 @@
 {% extends "Base/base.html" %}
 {% load staticfiles %}
+{% load filtros %}
 
 <!-- Activo en el menu: -->
 {% block activaciones-li %} active {% endblock %}
@@ -158,21 +159,28 @@
 								<tr>
 									<th scope="row" id="td_{{activacion.idActivacion}}">
 										{{activacion.idActivacion}}
-										<a style="visibility:hidden" href='{% url "editar_activacion" %}?activacion={{activacion.idActivacion}}{% if cliente != "" %}&cliente={{cliente.idCliente}}{% endif %}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href='{% url "editar_activacion" %}?Activacion={{activacion.idActivacion}}{% if cliente != "" %}&cliente={{cliente.idCliente}}{% endif %}' ><i class="ti-pencil-alt text-primary"></i></a>
 										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{activacion.nombre}}', '{{activacion.idActivacion}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if cliente == "" %}
 										<td><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{activacion.Cliente.nombre}}</a></td>
 									{% endif %}
-									<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{activacion.nombre}}</a></td>
+									<td><a href="{% url 'eventos' %}?Activacion={{activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{activacion.nombre}}</a></td>
 									<td>{{activacion.tipo}}</td>
+									<td>{{activacion.monto}}</td>
 									<td>{{activacion.descripcion}}</td>
+									
+									{% if activacion.monto == 0 %}
+										<td bgcolor="#868e96"><b>Falta ingresar monto</b></td>
+									{% elif activacion|facturado == "Si" %}
+										<td bgcolor="#28a745"><b>Facturado</b></td>
+									{% elif activacion|facturado == "No" %}
 									<td>
-										{% if activacion.Facturas.count == 0 %}
-											<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
-										{% else %}
-											<button type="button" class="btn btn-outline-success" onclick=""><i class="fa fa-money"></i>&nbsp; Editar</button>
-										{% endif %}
+										<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?Activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
+									</td>
+									{% else %}
+										<td bgcolor="#dc3545"><b>Error, facturas suman más que monto.</b></td>
+									{% endif %}
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -227,7 +235,7 @@
 									<tr>
 										<th scope="row" id="td_contacto_{{contacto.idContacto}}">
 										{{contacto.idContacto}}
-										<a style="visibility:hidden" href='{% url "editar_activacion" %}?activacion={{activacion.idActivacion}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href='{% url "editar_activacion" %}?Activacion={{activacion.idActivacion}}' ><i class="ti-pencil-alt text-primary"></i></a>
 										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{activacion.nombre}}', '{{activacion.idActivacion}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 										<td>{{contacto.nombre}}</td>
@@ -328,7 +336,7 @@
 		function eliminar(nombre, id) {
 			document.getElementById("p_eliminar").innerHTML = "¿Estas seguro? Se eliminarán todos los eventos asociados.";
 			document.getElementById("h5_eliminar").innerHTML = "Eliminar activación " + nombre;
-			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_activacion" %}?activacion=' + id 
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_activacion" %}?Activacion=' + id 
 				{%if cliente != "" %} + "&cliente={{cliente.idCliente}}"{% endif %}
 				};
 			document.getElementById("eliminar").click();

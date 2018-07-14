@@ -15,4 +15,16 @@ def cargo(TrabajadoresEvento, cargo):
 def tipo(TrabajadoresEvento, tipo):
 	return TrabajadoresEvento.filter(tipo=tipo)
 
+@register.filter()
+def facturado(activacion):
+	suma = 0
+	for factura in activacion.Facturas.all():
+		suma += factura.monto
+	if suma == activacion.monto:
+		return "Si"
+	elif suma < activacion.monto:
+		return "No"
+	elif suma > activacion.monto:
+		return "Error"
+
 

@@ -328,7 +328,7 @@ class FacturasForm(forms.Form):
 	Activacion = forms.ChoiceField(label="Activación")
 	fecha_facturacion = forms.DateField(label="Fecha de facturación", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
 	monto = forms.IntegerField(min_value=0, label="Monto", widget=forms.NumberInput(attrs={'class': "form-control"}))
-	adelanto = forms.IntegerField(min_value=0, initial=0, label="Adelanto", widget=forms.NumberInput(attrs={'class': "form-control"}))
+	#adelanto = forms.IntegerField(min_value=0, initial=0, label="Adelanto", widget=forms.NumberInput(attrs={'class': "form-control"}))
 	plazo = forms.IntegerField(min_value=0, label="Plazo", widget=forms.NumberInput(attrs={'class': "form-control"}))
 
 	def __init__(self, *args, **kwargs):
@@ -365,3 +365,13 @@ class PagoFacturasForm(forms.ModelForm):
 			choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
 
 		self.fields['Activacion'] = forms.ChoiceField(label="Activación", choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
+
+
+class filtroEventosForm(forms.Form):
+	choices_pendientes = [["", "---"], ["Pendientes", "Pendientes"], ["Pasados", "Pasados"]]
+	pendientes = forms.ChoiceField(required=False, label="Eventos", choices=choices_pendientes, widget=forms.Select(attrs={'class': "standardSelect"}))
+	cliente = forms.CharField(required=False, max_length=255, label="Cliente", widget=forms.TextInput(attrs={'class': "form-control"}))
+	activacion = forms.CharField(required=False, max_length=255, label="Activación", widget=forms.TextInput(attrs={'class': "form-control"}))
+	evento = forms.CharField(required=False, max_length=255, label="Evento", widget=forms.TextInput(attrs={'class': "form-control"}))
+	choices_estado = [["", "---"], ["Ok", "Ok"], ["Coordinación", "Coordinación"], ["Logística", "Logística"], ["Check-list", "Check-list"], ["Check-out", "Check-out"], ["Facturación", "Facturación"]]
+	estado = forms.ChoiceField(required=False, label="Estado", choices=choices_estado, widget=forms.Select(attrs={'class': "standardSelect"}))

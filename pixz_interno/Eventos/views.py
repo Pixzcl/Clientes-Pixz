@@ -8,6 +8,8 @@ from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 
+from django.views.generic.list import ListView
+
 from .models import *
 import sys
 if 'makemigrations' not in sys.argv and 'migrate' not in sys.argv:
@@ -109,14 +111,14 @@ def activaciones(request):
 		idCliente = request.GET['cliente']
 		cliente = Clientes.objects.get(idCliente=idCliente)
 		activaciones = Activaciones.objects.filter(Cliente=cliente)
-		titulos = ["#","Activación", "Tipo", "Descripción"]
+		titulos = ["#","Activación", "Tipo", "Monto", "Descripción"]
 		contactos = cliente.Contactos.all()
 		titulos_contactos = ["#", "Nombre", "Teléfono", "Mail"]
 	except MultiValueDictKeyError:
 		idCliente = ""
 		cliente = ""
 		activaciones = Activaciones.objects.all()
-		titulos = ["#", "Cliente","Activación", "Tipo", "Descripción"]
+		titulos = ["#", "Cliente","Activación", "Tipo", "Monto", "Descripción"]
 		contactos = None
 		titulos_contactos = None
 
@@ -187,7 +189,85 @@ def agregar_activacion(request):
 	return render(request, 'agregar_activacion.html', context)
 
 
-def eventos(request):
+class eventos(ListView):
+
+	model = Eventos
+	context_object_name = "eventos"
+	template_name = "eventos.html"
+	#paginate_by = 100  # if pagination is desired
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		eventos = Eventos.objects.all()
+
+		hoy = date.today()
+		
+		orden = self.request.GET.get("orden", "fecha")
+		pendientes = self.request.GET.get("pendientes", "Pendientes")
+		cliente = self.request.GET.get("cliente", "")
+		activacion = self.request.GET.get("activacion", "")
+		evento = self.request.GET.get("evento", "")
+		estado = self.request.GET.get("estado", "")
+
+		Activacion = self.request.GET.get("Activacion", "")
+		if Activacion != "":
+			act = Activaciones.objects.get(idActivacion=Activacion)
+			activacion = act.nombre
+			cliente = act.Cliente.nombre
+
+		#f = self.request.GET.get("f", "")
+		#if filtro == "":
+		#	return Eventos.objects.all()
+		if pendientes != "":
+			if pendientes == "Pendientes":
+				eventos = eventos.filter(fecha__gte=hoy)
+			if pendientes == "Pasados":
+				eventos = eventos.filter(fecha__lt=hoy)
+		if cliente != "":
+			eventos = eventos.filter(Activacion__Cliente__nombre__contains=cliente)
+		if activacion != "":
+			eventos = eventos.filter(Activacion__nombre__contains=activacion)
+		if evento != "":
+			eventos = eventos.filter(nombre__contains=evento)
+		if estado != "":
+			eventos = eventos.filter(estado=estado)
+		
+		eventos = eventos.order_by(orden)
+		context['eventos'] = eventos
+
+
+		context['hoy'] = hoy
+		context['pendientes'] = eventos.filter(fecha__gte=hoy)
+		context['orden'] = orden
+		initial = {
+			"pendientes": pendientes,
+			"cliente": cliente,
+			"activacion": activacion,
+			"evento": evento,
+			"estado": estado,
+		}
+		context['filtros'] = filtroEventosForm(initial=initial)
+		return context
+
+	# def get_ordering(self):
+	# 	ordering = self.request.GET.get('orden', '-idEvento')
+	# 	#ordering = "fecha"
+	# 	return ordering
+
+	# def get_queryset(self):
+	# 	filtro = self.request.GET.get("filtro", "")
+	# 	f = self.request.GET.get("f", "")
+	# 	if filtro == "":
+	# 		return Eventos.objects.all()
+	# 	elif filtro == "fecha":
+	# 		return Eventos.objects.filter(fecha=f)
+	# 	elif filtro == "estado":
+	# 		return Eventos.objects.filter(estado=f)
+	# 	elif filtro == "plan":
+	# 		return Eventos.objects.filter(Planes__nombre__contains=f)
+
+
+def eventos2(request):
 	try:
 		idActivacion = request.GET['activacion']
 		activacion = Activaciones.objects.get(idActivacion=idActivacion)
@@ -201,39 +281,12 @@ def eventos(request):
 		cliente = ""
 		titulos = ["#", "Cliente","Activación", "Evento", "Fecha", "Horas", "Plan(es)", "Comentarios", "Estado"]
 
-### No esta funcionando bien
-		# lista_planes = []
-		# plan = ""
-		# n = 0
-		# for i in range(eventos.count()):
-		# 	lista_planes.append([])
-		# 	for j in range(eventos[i].PlanesEvento.all().count()):
-		# 		if plan != eventos[i].PlanesEvento.all()[j].Plan.nombre:
-		# 			if plan != "":
-		# 				lista_planes[i].append([plan, n])
-		# 			n = 1
-		# 			plan = eventos[i].PlanesEvento.all()[j].Plan.nombre
-		# 		else:
-		# 			n += 1
-
-	lista_planes = []
-	for evento in eventos:
-		plan = ""
-		lista_planes.append([])
-		for planEvento in evento.PlanesEvento.all().order_by("n"):
-			if plan == planEvento.Plan.nombre:
-				lista_planes[-1][-1][1] += 1
-			else:
-				plan = planEvento.Plan.nombre
-				lista_planes[-1].append([plan, 1])
-
 	context = {
 		"cliente": cliente,
 		"activacion": activacion,
 		"titulos": titulos,
 		"pendientes": eventos.filter(fecha__gte=date.today()),
 		"eventos": eventos,
-		"lista_planes": lista_planes,
 		"hoy": date.today()
 	}
 	return render(request, 'eventos.html', context)
@@ -1250,11 +1303,12 @@ def agregar_factura(request):
 			nFactura = int(request.POST["nFactura"])
 			fecha_facturacion = date(int(request.POST['fecha_facturacion_year']), int(request.POST['fecha_facturacion_month']), int(request.POST['fecha_facturacion_day']))  #year, month, day
 			monto = int(request.POST["monto"])
-			adelanto = int(request.POST["adelanto"])
+			#adelanto = int(request.POST["adelanto"])
 			plazo = int(request.POST["plazo"])
 			fecha_pago = fecha_facturacion + timedelta(days=plazo)
 
-			factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, pago=adelanto, fecha_pago=fecha_pago)
+			#factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, pago=adelanto, fecha_pago=fecha_pago)
+			factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, fecha_pago=fecha_pago)
 			factura.save()
 
 			return redirect('facturas')
@@ -1315,7 +1369,7 @@ def editar_cliente(request):
 
 def editar_activacion(request):
 	if request.method == 'POST':
-		activacion = Activaciones.objects.get(idActivacion=request.POST['activacion'])
+		activacion = Activaciones.objects.get(idActivacion=request.POST['Activacion'])
 		form = ActivacionesSelectForm(request.POST, request.FILES)
 		try:
 			menuCliente = request.POST['menuCliente']
@@ -1342,7 +1396,7 @@ def editar_activacion(request):
 			else:
 				return redirect('activaciones')
 	else:
-		activacion = Activaciones.objects.get(idActivacion=request.GET['activacion'])
+		activacion = Activaciones.objects.get(idActivacion=request.GET['Activacion'])
 		form = ActivacionesSelectForm(initial={"Cliente":activacion.Cliente, "nombre": activacion.nombre, "monto":activacion.monto,"descripcion": activacion.descripcion})
 		try:
 			menuCliente = request.GET['cliente']
