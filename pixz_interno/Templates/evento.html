@@ -155,11 +155,13 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
-									<div class="row" >
-										<div class="card-body">
-											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+									{% if edit == False %}
+										<div class="row" >
+											<div class="card-body">
+												<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+											</div>
 										</div>
-									</div>
+									{% endif %}
 									<div class="row">
 										<div class="card-body">
 											{% if edit == 'coordinacion' %}
@@ -298,11 +300,13 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
-									<div class="row" >
-										<div class="card-body">
-											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+									{% if edit == False %}
+										<div class="row" >
+											<div class="card-body">
+												<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+											</div>
 										</div>
-									</div>
+									{% endif %}
 									<div class="row">
 										<div class="card-body">
 											{% if edit == 'logistica' %}
@@ -480,11 +484,13 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
-									<div class="row" >
-										<div class="card-body">
-											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+									{% if edit == False %}
+										<div class="row" >
+											<div class="card-body">
+												<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+											</div>
 										</div>
-									</div>
+									{% endif %}
 									<div class="row">
 										<div class="card-body">
 											{% if edit == 'checklist' %}
@@ -629,11 +635,13 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
-									<div class="row" >
-										<div class="card-body">
-											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+									{% if edit == False %}
+										<div class="row" >
+											<div class="card-body">
+												<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+											</div>
 										</div>
-									</div>
+									{% endif %}
 									<div class="row">
 										<div class="card-body">
 											{% if edit == 'checkout' %}
