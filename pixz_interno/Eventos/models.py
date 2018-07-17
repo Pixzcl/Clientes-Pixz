@@ -70,7 +70,7 @@ class Eventos(models.Model):
 	# Tareas pendientes en checkout
 	Pendientes = models.ManyToManyField("Pendientes", through="PendientesEvento", related_name="Eventos")
 	# Cual es el proximo paso por ingresar en el evento
-	estado = models.CharField(max_length=255, verbose_name="Estado", blank=False, null=False, default="Coordinación")
+	estado = models.IntegerField(verbose_name="Estado", blank=False, null=False, default=0)
 	# Satisfaccion del cliente
 	satisfaccion = models.SmallIntegerField(verbose_name="Satisfacción", blank=True, null=True)
 	comentarios_satisfaccion = models.TextField(verbose_name="Comentarios satisfacción", blank=True, null=True, default="")

@@ -91,6 +91,8 @@
 					</div>
 				</div>
 
+				
+
 
 				
 				
@@ -100,8 +102,9 @@
 				<div class="row">
 					<div class="col-md-12">
 						<div class="default-tab">
-							<nav>
+							<!--<nav>
 								<div class="nav nav-tabs" id="nav-tab" role="tablist">
+									<a class="nav-item nav-link" id="nav-menu-tab" data-toggle="tab" href="#nav-menu" role="tab" aria-controls="nav-menu" aria-selected="true">Menú</a>
 									{% if edit == False or edit == "coordinacion" %}
 										<a class="nav-item nav-link {% if edit == 'coordinacion' or tab == 'coordinacion' %}active{% endif %}" id="nav-coordinacion-tab" data-toggle="tab" href="#nav-coordinacion" role="tab" aria-controls="nav-coordinacion" aria-selected="true">Coordinación</a>
 									{% endif %}
@@ -115,8 +118,34 @@
 										<a class="nav-item nav-link {% if edit == 'checkout' or tab == 'checkout' %}active{% endif %}" id="nav-checkout-tab" data-toggle="tab" href="#nav-checkout" role="tab" aria-controls="nav-checkout" aria-selected="false">Check-out</a>
 									{% endif %}
 								</div>
-							</nav>
+							</nav>-->
+
 							<div class="tab-content pl-3 pt-2" id="nav-tabContent">
+
+								{% if edit == False %}
+									<div class="tab-pane fade show {% if tab == 'menu' %}active{% endif %}" id="nav-menu" role="tabpanel" aria-labelledby="nav-menu-tab">
+										
+										<div class="row">
+											<div class="col-md-6" style="padding-bottom:1rem;">
+												<button type="button" class="btn btn-lg btn-block" style="background-color:{% if evento.estado > 0 %}#28a745{% else %}#ffc107{% endif %}; color:white; height:10rem;" onclick="tabs('nav-coordinacion')" >Coordinación</button>
+											</div>
+											<div class="col-md-6" style="padding-bottom:1rem;">
+												<button type="button" class="btn btn-lg btn-block" style="background-color:{% if evento.estado > 1 %}#28a745{% else %}#fd7e14{% endif %}; color:white; height:10rem;" onclick="tabs('nav-logistica')" >Logística</button>
+											</div>
+											<div class="col-md-6" style="padding-bottom:1rem;">
+												<button type="button" class="btn btn-lg btn-block" style="background-color:{% if evento.estado > 2 %}#28a745{% else %}red{% endif %}; color:white; height:10rem;" onclick="tabs('nav-checklist')" >Check-list</button>
+											</div>
+											<div class="col-md-6" style="padding-bottom:1rem;">
+												<button type="button" class="btn btn-lg btn-block" style="background-color:{% if evento.estado > 3 %}#28a745{% else %}#868e96{% endif %}; color:white; height:10rem;" onclick="tabs('nav-checkout')" >Check-out</button>
+											</div>
+										</div>
+
+									</div>
+								{% endif %}
+
+							
+
+
 <!-- Pestaña Coordinación -->
 							{% if edit == False or edit == "coordinacion" %}
 								<div class="tab-pane fade show {% if edit == 'coordinacion' or tab == 'coordinacion' %}active{% endif %}" id="nav-coordinacion" role="tabpanel" aria-labelledby="nav-coordinacion-tab">
@@ -126,6 +155,11 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
+									<div class="row" >
+										<div class="card-body">
+											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+										</div>
+									</div>
 									<div class="row">
 										<div class="card-body">
 											{% if edit == 'coordinacion' %}
@@ -264,6 +298,11 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
+									<div class="row" >
+										<div class="card-body">
+											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+										</div>
+									</div>
 									<div class="row">
 										<div class="card-body">
 											{% if edit == 'logistica' %}
@@ -441,9 +480,13 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
+									<div class="row" >
+										<div class="card-body">
+											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+										</div>
+									</div>
 									<div class="row">
 										<div class="card-body">
-											
 											{% if edit == 'checklist' %}
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
@@ -586,6 +629,11 @@
 											<input type="hidden" name="evento" id="evento" value="{{evento.idEvento}}" />
 											<input type="hidden" name="edit" id="edit" value={{edit}} />
 									{% endif %}
+									<div class="row" >
+										<div class="card-body">
+											<button type="button" class="btn btn-primary" onclick="tabs('nav-menu')"><i class="fa fa-bars"></i>&nbsp; Menú</button>
+										</div>
+									</div>
 									<div class="row">
 										<div class="card-body">
 											{% if edit == 'checkout' %}
@@ -833,7 +881,7 @@
 																	<div class="row" >
 																		<input type="hidden" name="nErrores" id="nErrores" value="{{nErrores}}" />
 																		<div class="col col-sm-4">
-																			<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Reportar error</button></div>
+																			<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-primary" onclick="agregar_o_quitar(1)"><i class="fa fa-plus-circle"></i>&nbsp; Agregar error</button></div>
 																		</div>
 																		<div class="col col-sm-2">
 																			<div style="padding-bottom:1em" ><button type="button" class="btn btn-outline-danger" onclick="agregar_o_quitar(-1)"><i class="fa fa-minus-circle"></i>&nbsp; Quitar error</button></div>
@@ -973,5 +1021,16 @@
 		}
 	</script>
 
+	<script>
+		function tabs(tab) {
+			document.getElementById("nav-menu").classList.remove("active");
+			document.getElementById("nav-coordinacion").classList.remove("active");
+			document.getElementById("nav-logistica").classList.remove("active");
+			document.getElementById("nav-checklist").classList.remove("active");
+			document.getElementById("nav-checkout").classList.remove("active");
+
+			document.getElementById(tab).classList.add("active");
+		}
+	</script>
 
 {% endblock %}

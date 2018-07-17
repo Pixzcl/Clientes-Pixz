@@ -224,11 +224,11 @@ class eventos(ListView):
 			if pendientes == "Pasados":
 				eventos = eventos.filter(fecha__lt=hoy)
 		if cliente != "":
-			eventos = eventos.filter(Activacion__Cliente__nombre__contains=cliente)
+			eventos = eventos.filter(Activacion__Cliente__nombre__icontains=cliente)
 		if activacion != "":
-			eventos = eventos.filter(Activacion__nombre__contains=activacion)
+			eventos = eventos.filter(Activacion__nombre__icontains=activacion)
 		if evento != "":
-			eventos = eventos.filter(nombre__contains=evento)
+			eventos = eventos.filter(nombre__icontains=evento)
 		if estado != "":
 			eventos = eventos.filter(estado=estado)
 		
@@ -992,19 +992,24 @@ def evento(request):
 
 				#return custom_redirect('evento', evento=idEvento)
 		if not error and reporte == False and valid_trabajador == "n/a":
-			estado = "Ok"
+			estado = 5
 			evento = Eventos.objects.get(idEvento=idEvento)
 			empty = ["", None]
-			
+		# Coordinación
 			if evento.fecha_instalacion in empty or evento.fecha_desinstalacion in empty or evento.hora_instalacion in empty or evento.hora_desinstalacion in empty or evento.inicio_servicio in empty or evento.fin_servicio in empty or evento.direccion in empty or evento.Contacto in empty:
-				estado = "Coordinación"
+				estado = 0
+		# Logística
 			elif evento.Trabajadores.all().count() == 0 or None in [it.ItemsEstacion for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=evento.PlanesEvento.all())]:
-				estado = "Logística"
+				estado = 1
+		# Check-list
 			elif False in [tarea.check for tarea in evento.RecurrentesEvento.all()] or False in [it.check for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=evento.PlanesEvento.all())]:
-				estado = "Check-list"
- # Falta pagos
+				estado = 2
+ 		# Check-out
 			elif False in [tarea.check for tarea in evento.PendientesEvento.all()]: # Falta pagos
-				estado = "Check-out"
+				estado = 3
+		# Facturación
+			#elif 
+			#	estado = 4
  # Falta pagos
 			#print(estado)
 			evento.estado = estado
@@ -1072,16 +1077,18 @@ def evento(request):
 
 		try:
 			#tab = request.GET['tab']
-			tab = "coordinacion"
+			tab = "menu"
 			origen = request.META['HTTP_REFERER']
-			if "edit=logistica" in origen:
+			if "edit=coordinacion" in origen:
+				tab = "coordinacion"
+			elif "edit=logistica" in origen:
 				tab = "logistica"
 			elif "edit=checklist" in origen:
 				tab = "checklist"
 			elif "edit=checkout" in origen or "evento" not in origen:
 				tab = "checkout"
 		except:
-			tab = "coordinacion"
+			tab = "menu"
 
 	lista_planes = []
 	for planEvento in evento.PlanesEvento.all():

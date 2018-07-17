@@ -327,15 +327,13 @@
 									</td>
 									<td >{{evento.comentarios}}</td>
 
-									<td {% if evento.estado == "Ok" %}bgcolor="#28a745"
-										{% elif evento.estado == "Coordinación" %}bgcolor="#ffc107"
-										{% elif evento.estado == "Logística" %}bgcolor="#fd7e14"
-										{% elif evento.estado == "Check-list" %}bgcolor="red"
-										{% elif evento.estado == "Check-out" %}bgcolor="#868e96"
-										{% elif evento.estado == "Facturación" %}bgcolor="#007bff"
-										{% endif %} >
-										<b>{{evento.estado}}</b>
-									</td>
+									<td {% if evento.estado == 5 %}bgcolor="#28a745" ><b>Ok</b></td>
+										{% elif evento.estado == 0 %}bgcolor="#ffc107" ><b>Coordinación</b></td>
+										{% elif evento.estado == 1 %}bgcolor="#fd7e14" ><b>Logística</b></td>
+										{% elif evento.estado == 2 %}bgcolor="red" ><b>Check-list</b></td>
+										{% elif evento.estado == 3 %}bgcolor="#868e96" ><b>Check-out</b></td>
+										{% elif evento.estado == 4 %}bgcolor="#007bff" ><b>Facturación</b></td>
+										{% endif %}
 								</tr>
 							{% endfor %}
 						</tbody>

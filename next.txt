@@ -10,7 +10,7 @@ datepicker
 activaciones pasados si todos sus eventos pasaron
 clickeable contacto que muestre sus datos en popup
 
-(estado numerico para el orden) *filtros - predeterminado: fecha asc, evento pendiente
+DONE (MAYUSCULAS buscador)(estado numerico para el orden) *filtros - predeterminado: fecha asc, evento pendiente
 **tabs con botones grandes, cambian a verde si esta completado, sino con su color - boton volver(al menu)
 **itinerario
 ***activacion queda facturada si facturas suman monto
@@ -19,6 +19,5 @@ clickeable contacto que muestre sus datos en popup
 *****progressbar click en proximos 7 dias
 
 star, fiscalizar evento, en home
-MAYUSCULAS buscador
 
-clase pagos asociada a la activacion, aparte de CxC(factura)
+clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC e Ingresos

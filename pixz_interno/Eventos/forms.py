@@ -373,5 +373,5 @@ class filtroEventosForm(forms.Form):
 	cliente = forms.CharField(required=False, max_length=255, label="Cliente", widget=forms.TextInput(attrs={'class': "form-control"}))
 	activacion = forms.CharField(required=False, max_length=255, label="Activación", widget=forms.TextInput(attrs={'class': "form-control"}))
 	evento = forms.CharField(required=False, max_length=255, label="Evento", widget=forms.TextInput(attrs={'class': "form-control"}))
-	choices_estado = [["", "---"], ["Ok", "Ok"], ["Coordinación", "Coordinación"], ["Logística", "Logística"], ["Check-list", "Check-list"], ["Check-out", "Check-out"], ["Facturación", "Facturación"]]
+	choices_estado = [["", "---"], [5, "Ok"], [0, "Coordinación"], [1, "Logística"], [2, "Check-list"], [3, "Check-out"], [4, "Facturación"]]
 	estado = forms.ChoiceField(required=False, label="Estado", choices=choices_estado, widget=forms.Select(attrs={'class': "standardSelect"}))
