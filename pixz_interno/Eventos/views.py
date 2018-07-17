@@ -2070,7 +2070,7 @@ def eliminar_cliente(request):
 
 
 def eliminar_activacion(request):
-	activacion = Activaciones.objects.get(idActivacion=request.GET['activacion'])
+	activacion = Activaciones.objects.get(idActivacion=request.GET['Activacion'])
 	activacion.delete()
 	try:
 		return custom_redirect('activaciones', cliente=request.GET['cliente'])
