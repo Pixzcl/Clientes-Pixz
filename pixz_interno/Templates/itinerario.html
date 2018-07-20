@@ -1,0 +1,197 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+{% load filtros %}
+
+<!-- Activo en el menu: -->
+{% block itinerario-li %} active {% endblock %}
+{% block titulo %}Itinerario{% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Itinerario</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li class="active">Itinerario</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</header>
+<!--
+		<div class="breadcrumbs">
+			<div class="col-sm-6">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Clientes</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							<li class="active">Clientes</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+-->
+
+		<div class="content mt-3">
+            <div class="animated fadeIn">
+            
+				<div class="row">
+
+					<div class="col-lg-12 col-sm-12">
+
+					{% for evento, error in errores_info %}
+						<div class="row">
+							<div class="col-lg-12 col-sm-12">
+								Al <a target="_blank" href="{% url 'evento' %}?evento={{evento}}" style="color:#007bff; text-decoration: underline;" >evento {{evento}}</a> le falta <b>{{error}}</b>.
+							</div>
+						</div>
+					{% empty %}
+						
+					  <table class="table table-striped table-bordered">
+					  	<thead>
+					  		<th>Hora</th>
+					  		<th>Evento</th>
+					  		<th>Encargado</th>
+					  	</thead>
+						<tbody>
+							{% for dia, d in itinerario|zip:dias %}
+								<tr>
+									<th colspan="3" scope="row" bgcolor="#868e96">{{d|date:"l j"}} de {{d|date:"F"}}</th>
+								</tr>
+								{% for hora, tipo, evento, planes in dia %}
+									<tr>
+										<td>{{hora}}</td>
+										{% if tipo == "INSTALACIÓN" %}
+											<!--<td>{{evento.hora_instalacion}}</td>-->
+											<td bgcolor="#0576E8" onclick="popup('#0576E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td>
+												{% for trabajador in evento.TrabajadoresEvento|cargo:"Montaje" %}
+													- {{trabajador.Trabajador.nombre}}<br>
+												{% endfor %}
+											</td>
+										{% elif tipo == "DESINSTALACIÓN" %}
+											<!--<td>{{evento.hora_desinstalacion}}</td>-->
+											<td bgcolor="#16A9E8" onclick="popup('#16A9E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td>
+												{% for trabajador in evento.TrabajadoresEvento|cargo:"Desmontaje" %}
+													- {{trabajador.Trabajador.nombre}}<br>
+												{% endfor %}
+											</td>
+										{% elif tipo == "INICIO SERVICIO" %}
+											<!--<td>{{evento.inicio_servicio}}</td>-->
+											<td bgcolor="#E8D600" onclick="popup('#E8D600', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td>
+												{% for trabajador in evento.TrabajadoresEvento|cargo:"Operador" %}
+													- {{trabajador.Trabajador.nombre}}<br>
+												{% endfor %}
+											</td>
+										{% elif tipo == "FIN SERVICIO" %}
+											<!--<td>{{evento.fin_servicio}}</td>-->
+											<td bgcolor="#E8E738" onclick="popup('#E8E738', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td>
+												{% for trabajador in evento.TrabajadoresEvento|cargo:"Operador" %}
+													- {{trabajador.Trabajador.nombre}}<br>
+												{% endfor %}
+											</td>
+										{% endif %}
+									</tr>
+								{% endfor %}
+							{% endfor %}
+						</tbody>
+					  </table>
+					{% endfor %}
+							</div>
+						</div>
+					</div>
+
+				</div>
+				
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+
+	<script>
+		function popup(color, contacto, telefono, direccion, planes) {
+			//h5 = document.getElementById("h5_infoModal");
+			//h5.innerHTML = "Info"
+
+			header = document.getElementById("info_header");
+			header.style.backgroundColor = color;
+
+			div = document.getElementById("div_infoModal");
+			div.background = color;
+			div.innerHTML = '<div class="row">' +
+								'<div class="col-lg-3 col-sm-3">Contacto:</div>' +
+								'<div class="col-lg-9 col-sm-9">' + contacto + '</div>' +
+								'<div class="col-lg-3 col-sm-3">Teléfono:</div>' +
+								'<div class="col-lg-9 col-sm-9">' + telefono + '</div>' +
+								'<div class="col-lg-3 col-sm-3">Dirección:</div>' +
+								'<div class="col-lg-9 col-sm-9">' + '<a target="_blank" href="https://www.google.com/maps/search/?api=1&query=' + direccion + '" style="color:#007bff; text-decoration: underline;" >' + direccion + '</a>' + '</div>';
+							
+			planes = planes.split("*&*&*");
+			div.innerHTML += '<div class="col-lg-3 col-sm-3">Planes:</div>' + '<div class="col-lg-9 col-sm-9">' + planes[0] + '</div>';
+			for (var i=1; i<planes.length; i++) {
+				div.innerHTML += '<div class="col-lg-3 col-sm-3"></div>' + '<div class="col-lg-9 col-sm-9">' + planes[i] + '<br></div>';
+			}
+			div.innerHTML += '</div>'; // row
+
+			document.getElementById("boton_info").click();
+		}
+	</script>
+
+	<button id="boton_info" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#infoModal">Small</button>
+
+	<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div id="info_header" class="modal-header">
+					<h5 id="h5_infoModal" class="modal-title" id="infoModalLabel">Info</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div id="div_infoModal">
+						
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

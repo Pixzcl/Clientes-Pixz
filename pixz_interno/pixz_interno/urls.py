@@ -84,6 +84,9 @@ urlpatterns = [
 	url(r'^agregar_factura/', views.agregar_factura, name='agregar_factura'),
 	url(r'^editar_factura/', views.editar_factura, name='editar_factura'),
 	url(r'^eliminar_factura/', views.eliminar_factura, name='eliminar_factura'),
+
+	url(r'^itinerario_crear/', views.itinerario_crear, name='itinerario_crear'),
+	url(r'^itinerario/', views.itinerario, name='itinerario'),
 	
 	
 

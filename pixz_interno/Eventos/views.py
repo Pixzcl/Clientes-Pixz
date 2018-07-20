@@ -214,6 +214,7 @@ class eventos(ListView):
 			act = Activaciones.objects.get(idActivacion=Activacion)
 			activacion = act.nombre
 			cliente = act.Cliente.nombre
+			pendientes = ""
 
 		#f = self.request.GET.get("f", "")
 		#if filtro == "":
@@ -1079,7 +1080,7 @@ def evento(request):
 			#tab = request.GET['tab']
 			tab = "menu"
 			origen = request.META['HTTP_REFERER']
-			if "edit=coordinacion" in origen:
+			if "edit=coordinacion" in origen or "itinerario" in origen:
 				tab = "coordinacion"
 			elif "edit=logistica" in origen:
 				tab = "logistica"
@@ -1342,6 +1343,101 @@ def agregar_factura(request):
 		"mensaje_error": mensaje_error,
 	}
 	return render(request, 'agregar_factura.html', context)
+
+
+def itinerario_crear(request):
+	error = ""
+	if request.method == 'POST':
+		form_fecha = itinerarioFechaForm(request.POST)
+		if form_fecha.is_valid():
+			desde = date(int(request.POST['desde_year']), int(request.POST['desde_month']), int(request.POST['desde_day']))  #year, month, day
+			hasta = date(int(request.POST['hasta_year']), int(request.POST['hasta_month']), int(request.POST['hasta_day']))  #year, month, day
+			if desde > hasta:
+				error = "Fechas incorrectas"
+			else:
+				return custom_redirect('itinerario', desde=desde, hasta=hasta)
+
+		form_eventos = itinerarioEventosForm()
+		if form_eventos.is_valid():
+			"asd"
+	else:
+		form_fecha = itinerarioFechaForm()
+		form_eventos = itinerarioEventosForm()
+
+
+	context = {
+		"itinerario_fecha": form_fecha,
+		"itinerario_eventos": form_eventos,
+		"error": error,
+	}
+	return render(request, 'itinerario_crear.html', context)
+
+
+def itinerario(request):
+	eventos = ""
+	errores_info = []
+	if request.method == 'POST':
+
+			return redirect('itinerario')
+	else:
+		try:
+			desde = request.GET["desde"].split("-")
+			desde = date(int(desde[0]), int(desde[1]), int(desde[2]))
+			hasta = request.GET["hasta"].split("-")
+			hasta = date(int(hasta[0]), int(hasta[1]), int(hasta[2]))
+		except MultiValueDictKeyError:
+			return redirect("crear_itinerario")
+		
+		eventos = Eventos.objects.filter(fecha__gte=desde, fecha__lte=hasta)
+		for evento in eventos:
+			if evento.hora_instalacion == None:
+				errores_info.append([evento.idEvento, "hora de instalación"])
+			if evento.hora_desinstalacion == None:
+				errores_info.append([evento.idEvento, "hora de desinstalación"])
+			if evento.inicio_servicio == None:
+				errores_info.append([evento.idEvento, "hora de inicio del servicio"])
+			if evento.fin_servicio == None:
+				errores_info.append([evento.idEvento, "hora de fin del servicio"])
+			if evento.fecha_instalacion == None:
+				errores_info.append([evento.idEvento, "fecha de instalación"])
+			if evento.fecha_desinstalacion == None:
+				errores_info.append([evento.idEvento, "fecha de desinstalación"])
+
+		itinerario = []
+		dias = []
+		if errores_info == []:
+			fecha = desde
+			while fecha <= hasta:
+				itinerario.append([])
+				dias.append(fecha)
+
+				for evento in eventos.filter(fecha=fecha):
+					itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					itinerario[-1].append([evento.hora_desinstalacion, "DESINSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+
+				itinerario[-1].sort(key=lambda x: x[0])
+
+				#for evento in eventos.filter(fecha=fecha).order_by("hora_instalacion"):
+				#	itinerario[-1].append(["INSTALACIÓN", evento])
+				#for evento in eventos.filter(fecha=fecha).order_by("hora_desinstalacion"):
+				#	itinerario[-1].append(["DESINSTALACIÓN", evento])
+				#for evento in eventos.filter(fecha=fecha).order_by("inicio_servicio"):
+				#	itinerario[-1].append(["INICIO SERVICIO", evento])
+				#for evento in eventos.filter(fecha=fecha).order_by("fin_servicio"):
+				#	itinerario[-1].append(["FIN SERVICIO", evento])
+
+				fecha += timedelta(days=1)
+	context = {
+		"eventos": eventos,
+		"itinerario": itinerario,
+		"dias": dias,
+		"desde": desde,
+		"hasta": hasta,
+		"errores_info": errores_info,
+	}
+	return render(request, 'itinerario.html', context)
 
 
 

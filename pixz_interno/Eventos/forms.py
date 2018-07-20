@@ -169,7 +169,7 @@ class ContactosFormSelect(forms.ModelForm):
 		widgets = {
 			'Cliente': forms.Select(attrs={'class': "form-control"}),
 			'nombre': forms.TextInput(attrs={'class': "form-control"}),
-			'telefono': forms.TextInput(attrs={'class': "form-control"}),
+			'telefono': forms.TextInput(attrs={'placeholder': "+569 9123 45 67", 'class': "form-control"}),
 			'mail': forms.TextInput(attrs={'class': "form-control"}),
 		}
 	def __init__(self, *args, **kwargs):
@@ -375,3 +375,20 @@ class filtroEventosForm(forms.Form):
 	evento = forms.CharField(required=False, max_length=255, label="Evento", widget=forms.TextInput(attrs={'class': "form-control"}))
 	choices_estado = [["", "---"], [5, "Ok"], [0, "Coordinación"], [1, "Logística"], [2, "Check-list"], [3, "Check-out"], [4, "Facturación"]]
 	estado = forms.ChoiceField(required=False, label="Estado", choices=choices_estado, widget=forms.Select(attrs={'class': "standardSelect"}))
+
+
+class itinerarioFechaForm(forms.Form):
+	desde = forms.DateField(label="Desde", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
+	hasta = forms.DateField(label="Hasta", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
+
+class itinerarioEventosForm(forms.Form):
+	
+	def __init__(self, *args, **kwargs):
+		super(itinerarioEventosForm, self).__init__(*args, **kwargs)
+		choices = []
+		eventos = Eventos.objects.all()
+		for e in eventos:
+			choices.append([e.idEvento, e.Activacion.Cliente.nombre + " - " + e.Activacion.nombre + " - " + e.nombre])
+
+		self.fields["eventos"] = forms.MultipleChoiceField(label="Eventos", choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+		

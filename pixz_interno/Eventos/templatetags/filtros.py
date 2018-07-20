@@ -9,7 +9,7 @@ def zip_listas(a,b):
 
 @register.filter()
 def cargo(TrabajadoresEvento, cargo):
-	return TrabajadoresEvento.filter(Cargo=cargo)
+	return TrabajadoresEvento.filter(Cargo=Cargos.objects.get(nombre=cargo))
 
 @register.filter()
 def tipo(TrabajadoresEvento, tipo):

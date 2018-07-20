@@ -33,7 +33,7 @@
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
 									<li><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}">{{evento.Activacion.Cliente.nombre}}</a></li>
-									<li><a href="{% url 'eventos' %}?activacion={{evento.Activacion.idActivacion}}">{{evento.Activacion.nombre}}</a></li>
+									<li><a href="{% url 'eventos' %}?Activacion={{evento.Activacion.idActivacion}}">{{evento.Activacion.nombre}}</a></li>
 									<li class="active">{{evento.nombre}}</li>
 								</ol>
 							</div>
@@ -215,7 +215,11 @@
 														<tr>
 															<th scope="row">Dirección</th>
 															{% if edit != 'coordinacion' %}
-																<td><a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{evento.direccion}}" >{% if evento.direccion != None %}{{evento.direccion}}{% else %} - {% endif %}</a></td>
+																<td>
+																	{% if evento.direccion != None and evento.direccion != "" %}
+																		<a target="_blank" href="https://www.google.com/maps/search/?api=1&query={{evento.direccion}}" style="color:#007bff; text-decoration: underline;" >{{evento.direccion}}</a>
+																	{% else %} - {% endif %}
+																</td>
 															{% else %}
 																<td>{{coordinacion_form.direccion}}</td>
 																<td>{{coordinacion_form.direccion.errors}}</td>
@@ -336,8 +340,8 @@
 																	<tr>
 																		<th scope="row">{{cargo.nombre}}</th>
 																		<td>
-																			{% if evento.TrabajadoresEvento|cargo:cargo %}
-																				{% for trabajador in evento.TrabajadoresEvento|cargo:cargo %}
+																			{% if evento.TrabajadoresEvento|cargo:cargo.nombre %}
+																				{% for trabajador in evento.TrabajadoresEvento|cargo:cargo.nombre %}
 																					{{trabajador.Trabajador.nombre}}<br>
 																				{% endfor %}
 																			{% else %} - {% endif %}

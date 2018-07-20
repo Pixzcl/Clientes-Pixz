@@ -60,7 +60,9 @@
 						<a href="{% url 'agregar_trabajador' %}"> <i class="menu-icon fa fa-male"></i>Nuevo trabajador</a>
 					</li>-->
 					
-					
+					<li class="{% block itinerario-li %}{% endblock %}" >
+						<a href="{% url 'itinerario_crear' %}"> <i class="menu-icon fa fa-calendar"></i>Itinerario</a>
+					</li>
 
 
 					<li class="menu-item-has-children dropdown {% block menuPersonas-li %}{% endblock %}">

@@ -1,0 +1,111 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+
+<!-- Activo en el menu: -->
+{% block itinerario-li %} active {% endblock %}
+{% block titulo %}Itinerario{% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+
+	<div id="right-panel" class="right-panel">
+
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-sm-4">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Itinerario</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li class="active">Itinerario</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</header>
+<!--
+		<div class="breadcrumbs">
+			<div class="col-sm-6">
+				<div class="page-header float-left">
+					<div class="page-title">
+						<h1>Clientes</h1>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="page-header float-right">
+					<div class="page-title">
+						<ol class="breadcrumb text-right">
+							<li class="active">Clientes</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+-->
+
+		<div class="content mt-3">
+            <div class="animated fadeIn">
+
+            	<div class="row" >
+            		
+            		<div class="col-lg-6 col-sm-6">
+		            	<form id="form" method="post" enctype="multipart/form-data">
+							{% csrf_token %}
+			            	{% for field in itinerario_fecha %}
+			            		<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+			            			<div class="col-lg-3 col-sm-3"><label for="text-input" class=" form-control-label">{{field.label}}</label></div>
+			            			<div class="col-lg-9 col-sm-9">{{field}}</div>
+			            		</div>
+			            	{% endfor %}
+			            	<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+			            		{% if error != "" %}<div class="col-lg-12 col-sm-12">{{error}}</div>{% endif %}
+			            	</div>
+			            	<button type="submit" class="btn btn-primary" ><i class="fa fa-search"></i>&nbsp; Buscar por fecha</button>
+			            </form>
+			        </div>
+
+			        <div class="col-lg-6 col-sm-6">
+			            <form id="form" method="post" enctype="multipart/form-data">
+							{% csrf_token %}
+			            	{% for field in itinerario_eventos %}
+			            		<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+			            			<div class="col-lg-3 col-sm-3"><label for="text-input" class=" form-control-label">{{field.label}}</label></div>
+			            			<div class="col-lg-9 col-sm-9">{{field}}</div>
+			            		</div>
+			            	{% endfor %}
+			            	<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+			            		{% if error != "" %}<div class="col-lg-12 col-sm-12">{{error}}</div>{% endif %}
+			            	</div>
+			            	<button type="submit" class="btn btn-primary" ><i class="fa fa-search"></i>&nbsp; Buscar por eventos</button>
+			            </form>
+	        		</div>
+
+	    		</div>
+				
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+
+{% endblock %}
