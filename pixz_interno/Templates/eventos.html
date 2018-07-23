@@ -163,17 +163,28 @@
 											<strong class="card-title">Filtros</strong>
 										</div>
 										<div class="card-body">
-											<div class="row form-group">
+											 <table class="table">
+											 	<tbody>
+											<!--<div class="row form-group">-->
+											<tr>
 												{% for field in filtros %}
-													<div class="col-lg-2 col-sm-2"><label class=" form-control-label">{{field.label}}</label></div>
+													<!--<div class="col-lg-2 col-sm-2"><label class=" form-control-label">{{field.label}}</label></div>-->
+													<td>{{field.label}}</td>
 												{% endfor %}
-											</div>
-											<div class="row form-group">
+											<!--</div>-->
+											</tr>
+											<tr>
+											<!--<div class="row form-group">-->
 												{% for field in filtros %}
-													<div class="col-lg-2 col-sm-2" >{{field}}</div>
+													<!--<div class="col-lg-2 col-sm-2" >{{field}}</div>-->
+													<td width="17%">{{field}}</td>
 												{% endfor %}
-												<div class="col-lg-2 col-sm-2"><button type="submit" class="btn btn-primary" ><i class="fa fa-search"></i>&nbsp; Buscar</button></div>
-											</div>
+												<!--<div class="col-lg-2 col-sm-2"><button type="submit" class="btn btn-primary" ><i class="fa fa-search"></i>&nbsp; Buscar</button></div>-->
+												<td><button type="submit" class="btn btn-primary" ><i class="fa fa-search"></i>&nbsp; Buscar</button></td>
+											</tr>
+											<!--</div>-->
+												</tbody>
+											</table>
 										</div>
 									</div>
 								</form>
