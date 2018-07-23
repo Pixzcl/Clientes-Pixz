@@ -1,4 +1,4 @@
-import os
+import os, ast
 from datetime import date, timedelta
 import ast
 from urllib.parse import urlencode
@@ -1081,12 +1081,16 @@ def evento(request):
 			tab = "menu"
 			origen = request.META['HTTP_REFERER']
 			if "edit=coordinacion" in origen or "itinerario" in origen:
-				tab = "coordinacion"
+			#	tab = "coordinacion"
+				pass
 			elif "edit=logistica" in origen:
-				tab = "logistica"
+			#	tab = "logistica"
+				pass
 			elif "edit=checklist" in origen:
-				tab = "checklist"
-			elif "edit=checkout" in origen or "evento" not in origen:
+			#	tab = "checklist"
+				pass
+			#elif "edit=checkout" in origen or "evento" not in origen: # (desde la portada)
+			elif "evento" not in origen: # (desde la portada)
 				tab = "checkout"
 		except:
 			tab = "menu"
@@ -1357,9 +1361,10 @@ def itinerario_crear(request):
 			else:
 				return custom_redirect('itinerario', desde=desde, hasta=hasta)
 
-		form_eventos = itinerarioEventosForm()
+		form_eventos = itinerarioEventosForm(request.POST)
 		if form_eventos.is_valid():
-			"asd"
+			eventos = request.POST.getlist("eventos")
+			return custom_redirect('itinerario', eventos=eventos)
 	else:
 		form_fecha = itinerarioFechaForm()
 		form_eventos = itinerarioEventosForm()
@@ -1376,19 +1381,25 @@ def itinerario_crear(request):
 def itinerario(request):
 	eventos = ""
 	errores_info = []
+	itinerario = []
+	dias = []
 	if request.method == 'POST':
-
-			return redirect('itinerario')
+		#checks
+		return redirect('itinerario')
 	else:
 		try:
 			desde = request.GET["desde"].split("-")
 			desde = date(int(desde[0]), int(desde[1]), int(desde[2]))
 			hasta = request.GET["hasta"].split("-")
 			hasta = date(int(hasta[0]), int(hasta[1]), int(hasta[2]))
+			eventos = Eventos.objects.filter(fecha__gte=desde, fecha__lte=hasta).order_by("fecha")
 		except MultiValueDictKeyError:
-			return redirect("crear_itinerario")
+			try:
+				eventos = ast.literal_eval(request.GET["eventos"])
+				eventos = Eventos.objects.filter(idEvento__in=eventos).order_by("fecha")
+			except MultiValueDictKeyError:
+				return redirect("itinerario_crear")
 		
-		eventos = Eventos.objects.filter(fecha__gte=desde, fecha__lte=hasta)
 		for evento in eventos:
 			if evento.hora_instalacion == None:
 				errores_info.append([evento.idEvento, "hora de instalación"])
@@ -1403,38 +1414,29 @@ def itinerario(request):
 			if evento.fecha_desinstalacion == None:
 				errores_info.append([evento.idEvento, "fecha de desinstalación"])
 
-		itinerario = []
-		dias = []
 		if errores_info == []:
-			fecha = desde
-			while fecha <= hasta:
-				itinerario.append([])
-				dias.append(fecha)
+			#fecha = desde
+			#while fecha <= hasta:
+			#	fecha += timedelta(days=1)
+			fecha = -1
+			for ev in eventos:
+				if ev.fecha != fecha:
+					fecha = ev.fecha
+					itinerario.append([])
+					dias.append(fecha)
 
-				for evento in eventos.filter(fecha=fecha):
-					itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
-					itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
-					itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
-					itinerario[-1].append([evento.hora_desinstalacion, "DESINSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					for evento in eventos.filter(fecha=fecha):
+						itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+						itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+						itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+						itinerario[-1].append([evento.hora_desinstalacion, "DESINSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
 
-				itinerario[-1].sort(key=lambda x: x[0])
+					itinerario[-1].sort(key=lambda x: x[0])
 
-				#for evento in eventos.filter(fecha=fecha).order_by("hora_instalacion"):
-				#	itinerario[-1].append(["INSTALACIÓN", evento])
-				#for evento in eventos.filter(fecha=fecha).order_by("hora_desinstalacion"):
-				#	itinerario[-1].append(["DESINSTALACIÓN", evento])
-				#for evento in eventos.filter(fecha=fecha).order_by("inicio_servicio"):
-				#	itinerario[-1].append(["INICIO SERVICIO", evento])
-				#for evento in eventos.filter(fecha=fecha).order_by("fin_servicio"):
-				#	itinerario[-1].append(["FIN SERVICIO", evento])
-
-				fecha += timedelta(days=1)
 	context = {
 		"eventos": eventos,
 		"itinerario": itinerario,
 		"dias": dias,
-		"desde": desde,
-		"hasta": hasta,
 		"errores_info": errores_info,
 	}
 	return render(request, 'itinerario.html', context)
