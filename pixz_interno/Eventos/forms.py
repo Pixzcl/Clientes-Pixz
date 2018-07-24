@@ -42,6 +42,7 @@ class ActivacionesSelectForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		super(ActivacionesSelectForm, self).__init__(*args, **kwargs)
 		#self.fields['user'].queryset = User.objects.all()
+		self.fields['Cliente'].queryset = Clientes.objects.order_by('nombre')
 		self.fields['Cliente'].label_from_instance = lambda obj: obj.nombre # lambda obj: "%s %s" % (obj.last_name, obj.first_name)
 
 
@@ -87,7 +88,7 @@ class EventosSelectForm(forms.Form):
 			choices_activaciones = [['-1', '------']]
 		clientes = Clientes.objects.all().order_by("nombre")
 		for c in clientes:
-			for a in c.Activaciones.all():
+			for a in c.Activaciones.all().order_by("nombre"):
 				choices_activaciones.append([a.idActivacion, c.nombre + " - " + a.nombre])
 		#activaciones = Activaciones.objects.all()
 		#for a in activaciones:
