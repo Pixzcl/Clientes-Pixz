@@ -74,6 +74,12 @@ class Eventos(models.Model):
 	# Satisfaccion del cliente
 	satisfaccion = models.SmallIntegerField(verbose_name="Satisfacción", blank=True, null=True)
 	comentarios_satisfaccion = models.TextField(verbose_name="Comentarios satisfacción", blank=True, null=True, default="")
+
+	# Itinerario - Seguimiento
+	seguimiento_instalacion = models.TextField(verbose_name="Estado instalación", blank=False, null=False, default="")
+	seguimiento_desinstalacion = models.TextField(verbose_name="Estado desinstalación", blank=False, null=False, default="")
+	seguimiento_inicio_servicio = models.TextField(verbose_name="Estado inicio de servicio", blank=False, null=False, default="")
+	seguimiento_fin_servicio = models.TextField(verbose_name="Estado fin de servicio", blank=False, null=False, default="")
 	
 	class Meta:
 		ordering = ['-idEvento']

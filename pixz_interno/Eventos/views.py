@@ -1,5 +1,5 @@
 import os, ast
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import ast
 from urllib.parse import urlencode
 
@@ -51,7 +51,7 @@ def index(request):
 		"semanas1": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).count(),
 		"semanas2": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=2)).count(),
 		"mes": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(days=30)).count(),
-		"totales": eventos.count(),
+		"totales": eventos.filter(fecha__gte=date.today()).count(),
 		"s5": satisfaccion[0].count(),
 		"s4": satisfaccion[1].count(),
 		"s3": satisfaccion[2].count(),
@@ -1359,12 +1359,12 @@ def itinerario_crear(request):
 			if desde > hasta:
 				error = "Fechas incorrectas"
 			else:
-				return custom_redirect('itinerario', desde=desde, hasta=hasta)
+				return custom_redirect('itinerario', trabajador=request.POST['trabajador'], desde=desde, hasta=hasta)
 
 		form_eventos = itinerarioEventosForm(request.POST)
 		if form_eventos.is_valid():
 			eventos = request.POST.getlist("eventos")
-			return custom_redirect('itinerario', eventos=eventos)
+			return custom_redirect('itinerario', trabajador=request.POST['trabajador'], eventos=eventos)
 	else:
 		form_fecha = itinerarioFechaForm()
 		form_eventos = itinerarioEventosForm()
@@ -1385,53 +1385,69 @@ def itinerario(request):
 	dias = []
 	if request.method == 'POST':
 		#checks
-		return redirect('itinerario')
-	else:
-		try:
-			desde = request.GET["desde"].split("-")
-			desde = date(int(desde[0]), int(desde[1]), int(desde[2]))
-			hasta = request.GET["hasta"].split("-")
-			hasta = date(int(hasta[0]), int(hasta[1]), int(hasta[2]))
-			eventos = Eventos.objects.filter(fecha__gte=desde, fecha__lte=hasta).order_by("fecha")
-		except MultiValueDictKeyError:
-			try:
-				eventos = ast.literal_eval(request.GET["eventos"])
-				eventos = Eventos.objects.filter(idEvento__in=eventos).order_by("fecha")
-			except MultiValueDictKeyError:
-				return redirect("itinerario_crear")
+		evento = Eventos.objects.get(idEvento=request.POST["evento"])
+		tipo = request.POST["tipo"]
+		seguimiento = request.POST["seguimiento"]
+		if tipo == 'INSTALACIÓN':
+			evento.seguimiento_instalacion = seguimiento
+		elif tipo == 'DESINSTALACIÓN':
+			evento.seguimiento_desinstalacion = seguimiento
+		elif tipo == 'INICIO SERVICIO':
+			evento.seguimiento_inicio_servicio = seguimiento
+		elif tipo == 'FIN SERVICIO':
+			evento.seguimiento_fin_servicio = seguimiento
+		evento.save()
 		
-		for evento in eventos:
-			if evento.hora_instalacion == None:
-				errores_info.append([evento.idEvento, "hora de instalación"])
-			if evento.hora_desinstalacion == None:
-				errores_info.append([evento.idEvento, "hora de desinstalación"])
-			if evento.inicio_servicio == None:
-				errores_info.append([evento.idEvento, "hora de inicio del servicio"])
-			if evento.fin_servicio == None:
-				errores_info.append([evento.idEvento, "hora de fin del servicio"])
-			if evento.fecha_instalacion == None:
-				errores_info.append([evento.idEvento, "fecha de instalación"])
-			if evento.fecha_desinstalacion == None:
-				errores_info.append([evento.idEvento, "fecha de desinstalación"])
+	#else:
+	try:
+		desde = request.GET["desde"].split("-")
+		desde = date(int(desde[0]), int(desde[1]), int(desde[2]))
+		hasta = request.GET["hasta"].split("-")
+		hasta = date(int(hasta[0]), int(hasta[1]), int(hasta[2]))
+		eventos = Eventos.objects.filter(fecha__gte=desde, fecha__lte=hasta)
+	except MultiValueDictKeyError:
+		try:
+			eventos = ast.literal_eval(request.GET["eventos"])
+			eventos = Eventos.objects.filter(idEvento__in=eventos)
+		except MultiValueDictKeyError:
+			return redirect("itinerario_crear")
+	trabajador = request.GET["trabajador"]
+	if trabajador != "-1":
+		eventos = eventos.filter(Trabajadores__idTrabajador=trabajador).distinct()
+	eventos = eventos.order_by("fecha")
+	
+	for evento in eventos:
+		if evento.hora_instalacion == None:
+			errores_info.append([evento.idEvento, "hora de instalación"])
+		if evento.hora_desinstalacion == None:
+			errores_info.append([evento.idEvento, "hora de desinstalación"])
+		if evento.inicio_servicio == None:
+			errores_info.append([evento.idEvento, "hora de inicio del servicio"])
+		if evento.fin_servicio == None:
+			errores_info.append([evento.idEvento, "hora de fin del servicio"])
+		if evento.fecha_instalacion == None:
+			errores_info.append([evento.idEvento, "fecha de instalación"])
+		if evento.fecha_desinstalacion == None:
+			errores_info.append([evento.idEvento, "fecha de desinstalación"])
 
-		if errores_info == []:
-			#fecha = desde
-			#while fecha <= hasta:
-			#	fecha += timedelta(days=1)
-			fecha = -1
-			for ev in eventos:
-				if ev.fecha != fecha:
-					fecha = ev.fecha
-					itinerario.append([])
-					dias.append(fecha)
+	if errores_info == []:
+		#fecha = desde
+		#while fecha <= hasta:
+		#	fecha += timedelta(days=1)
+		fecha = -1
+		for ev in eventos:
+			if ev.fecha != fecha:
+				fecha = ev.fecha
+				itinerario.append([])
+				dias.append(fecha)
 
-					for evento in eventos.filter(fecha=fecha):
-						itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
-						itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
-						itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
-						itinerario[-1].append([evento.hora_desinstalacion, "DESINSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+				for evento in eventos.filter(fecha=fecha):
+					itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					itinerario[-1].append([evento.hora_desinstalacion, "DESINSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
 
-					itinerario[-1].sort(key=lambda x: x[0])
+				itinerario[-1].sort(key=lambda x: x[0])
 
 	context = {
 		"eventos": eventos,

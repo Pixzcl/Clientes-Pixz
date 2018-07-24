@@ -378,17 +378,37 @@ class filtroEventosForm(forms.Form):
 
 
 class itinerarioFechaForm(forms.Form):
+	trabajador = forms.ChoiceField(required=False, label="Encargado (opcional)", choices=[], widget=forms.Select(attrs={'class': "standardSelect"}))
 	desde = forms.DateField(label="Desde", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
 	hasta = forms.DateField(label="Hasta", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
 
+	def __init__(self, *args, **kwargs):
+		super(itinerarioFechaForm, self).__init__(*args, **kwargs)
+
+		choices = [['-1', '------']]
+		trabajadores = Trabajadores.objects.all()
+		for t in trabajadores:
+			choices.append([t.idTrabajador, t.nombre])
+
+		self.fields['trabajador'].choices = choices
+
 class itinerarioEventosForm(forms.Form):
-	
+	trabajador = forms.ChoiceField(required=False, label="Encargado (opcional)", choices=[], widget=forms.Select(attrs={'class': "standardSelect"}))
+
 	def __init__(self, *args, **kwargs):
 		super(itinerarioEventosForm, self).__init__(*args, **kwargs)
+		
 		choices = []
 		eventos = Eventos.objects.all()
 		for e in eventos:
 			choices.append([e.idEvento, e.Activacion.Cliente.nombre + " - " + e.Activacion.nombre + " - " + e.nombre])
 
 		self.fields["eventos"] = forms.MultipleChoiceField(label="Eventos", choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
+
+		choices = [['-1', '------']]
+		trabajadores = Trabajadores.objects.all()
+		for t in trabajadores:
+			choices.append([t.idTrabajador, t.nombre])
+
+		self.fields['trabajador'].choices = choices
 		

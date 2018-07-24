@@ -9,9 +9,9 @@ datepicker
 
 clickeable contacto que muestre sus datos en popup
 
+filtro - desde/hasta fecha - ¿predeterminado mes +- 1?
 
-
-**itinerario
+**itinerario (filtro por trabajador) check con boton verde o rojo para reportar errores
 ***activacion queda facturada si facturas suman monto
 ***estado facturar en evento para todos los de la activacion
 ****guardar para multiples eventos de la activacion en cada pestaña con un popup descripcion, todos o elejir
@@ -19,7 +19,7 @@ clickeable contacto que muestre sus datos en popup
 
 star, fiscalizar evento, en home
 
-clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC e Ingresos
+clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC e Ingresos - (autofield primary, no n° factura)
 
 ----------
 
@@ -27,8 +27,3 @@ clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC 
 y si nombre evento es opcional? y si queda en blanco se usa el de activacion
 
 
-itinerario: check con boton verde o rojo para reportar errores
-
-+ impresiones diego
-	- tambien me comentó lo de volver directamente al menu despues de editar coordinacion o logistica y eso, en vez de mostrarte la pestaña denuevo
-	- no encontraba como entrar a menu del evento desde "eventos", apretaba editar evento

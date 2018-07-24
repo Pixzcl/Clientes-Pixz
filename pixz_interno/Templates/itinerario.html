@@ -82,6 +82,7 @@
 					  		<th>Hora</th>
 					  		<th>Evento</th>
 					  		<th>Encargado</th>
+					  		<th>Estado</th>
 					  	</thead>
 						<tbody>
 							{% for dia, d in itinerario|zip:dias %}
@@ -91,41 +92,54 @@
 								{% for hora, tipo, evento, planes in dia %}
 									<tr>
 										<td>{{hora}}</td>
-										{% if tipo == "INSTALACIÓN" %}
+										{% if tipo == 'INSTALACIÓN' %}
 											<!--<td>{{evento.hora_instalacion}}</td>-->
-											<td bgcolor="#0576E8" onclick="popup('#0576E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_instalacion == "" %}bgcolor="#0576E8"{% elif evento.seguimiento_instalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#0576E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Montaje" %}
 													- {{trabajador.Trabajador.nombre}}<br>
 												{% endfor %}
 											</td>
-										{% elif tipo == "DESINSTALACIÓN" %}
+										{% elif tipo == 'DESINSTALACIÓN' %}
 											<!--<td>{{evento.hora_desinstalacion}}</td>-->
-											<td bgcolor="#16A9E8" onclick="popup('#16A9E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_desinstalacion == "" %}bgcolor="#16A9E8"{% elif evento.seguimiento_desinstalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#16A9E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Desmontaje" %}
 													- {{trabajador.Trabajador.nombre}}<br>
 												{% endfor %}
 											</td>
-										{% elif tipo == "INICIO SERVICIO" %}
+										{% elif tipo == 'INICIO SERVICIO' %}
 											<!--<td>{{evento.inicio_servicio}}</td>-->
-											<td bgcolor="#E8D600" onclick="popup('#E8D600', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_inicio_servicio == "" %}bgcolor="#E8D600"{% elif evento.seguimiento_inicio_servicio|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#E8D600', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Operador" %}
 													- {{trabajador.Trabajador.nombre}}<br>
 												{% endfor %}
 											</td>
-										{% elif tipo == "FIN SERVICIO" %}
+										{% elif tipo == 'FIN SERVICIO' %}
 											<!--<td>{{evento.fin_servicio}}</td>-->
-											<td bgcolor="#E8E738" onclick="popup('#E8E738', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_fin_servicio == "" %}bgcolor="#E8E738"{% elif evento.seguimiento_fin_servicio|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#E8E738', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Operador" %}
 													- {{trabajador.Trabajador.nombre}}<br>
 												{% endfor %}
 											</td>
 										{% endif %}
+										<td>
+											<button type="button" class="btn btn-success" onclick="submit_seguimiento(1, '{{evento.idEvento}}', '{{tipo}}', 'Ok');" ><i class="ti-check"></i>&nbsp; Ok</button>
+											<button type="button" class="btn btn-danger" onclick="submit_seguimiento(2, '{{evento.idEvento}}', '{{tipo}}', 
+												{% if tipo == 'INSTALACIÓN' %}'{{evento.seguimiento_instalacion}}');" >
+												{% elif tipo == 'DESINSTALACIÓN' %}'{{evento.seguimiento_desinstalacion}}');" >
+												{% elif tipo == 'INICIO SERVICIO' %}'{{evento.seguimiento_inicio_servicio}}');" >
+												{% elif tipo == 'FIN SERVICIO' %}'{{evento.seguimiento_fin_servicio}}');" >
+												{% endif %} <i class="ti-close"></i>&nbsp; Error</button>
+										</td>
 									</tr>
 								{% endfor %}
+							{% empty %}
+								<tr>
+									<th colspan="3" scope="row" bgcolor="#868e96">No se encontraron eventos.</th>
+								</tr>
 							{% endfor %}
 						</tbody>
 					  </table>
@@ -153,7 +167,7 @@
 			header.style.backgroundColor = color;
 
 			div = document.getElementById("div_infoModal");
-			div.background = color;
+			//div.background = color;
 			planes = planes.split("*&*&*");
 			div.innerHTML = '<div class="row">' +
 								'<div class="col-lg-3 col-sm-3"><b>Contacto:</b></div>' +
@@ -176,8 +190,8 @@
 		}
 	</script>
 
-	<button id="boton_info" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#infoModal">Small</button>
 
+	<button id="boton_info" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#infoModal">Small</button>
 	<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
@@ -191,6 +205,59 @@
 					<div id="div_infoModal">
 						
 					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+
+	<script>
+		function submit_seguimiento(estado, evento, tipo, seguimiento) {
+			if (estado == 1) {
+				document.getElementById("evento").value = evento;
+				document.getElementById("tipo").value = tipo;
+				document.getElementById("seguimiento").value = seguimiento;
+				document.getElementById("form_estado").submit();
+			}
+			else if (estado == 2) {
+				document.getElementById("evento").value = evento;
+				document.getElementById("tipo").value = tipo;
+				document.getElementById("reporte").value = seguimiento;
+				document.getElementById("boton_error").click();
+			}
+			else if (estado == 3) {
+				document.getElementById("seguimiento").value = seguimiento;
+				document.getElementById("form_estado").submit();
+			}
+		}
+	</script>
+
+	<form id="form_estado" method="post" enctype="multipart/form-data">
+		{% csrf_token %}
+		<input type="hidden" name="evento" id="evento" value="" />
+		<input type="hidden" name="tipo" id="tipo" value="" />
+		<input type="hidden" name="seguimiento" id="seguimiento" value="" />
+	</form>
+
+	<button id="boton_error" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#errorModal">Small</button>
+	<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div id="error_header" class="modal-header" style="background-color:red;" >
+					<h5 id="h5_errorModal" class="modal-title" id="errorModalLabel">Reportar error</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div id="div_errorModal">
+						<textarea id="reporte" rows="4" class="form-control" value=""></textarea>
+					</div>
+				</div>
+				<div class="modal-footer" >
+					<button type="button" class="btn btn-success" onclick="submit_seguimiento(3, '', '', document.getElementById('reporte').value);" ><i class="ti-save"></i>&nbsp; Reportar</button>
 				</div>
 
 			</div>
