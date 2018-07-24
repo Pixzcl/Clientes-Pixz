@@ -55,7 +55,7 @@ class EventosForm(forms.Form):
 		super(EventosForm, self).__init__(*args, **kwargs)
 		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = [['-1', '------']]
-		planes = Planes.objects.all()
+		planes = Planes.objects.all().order_by("nombre")
 		for p in planes:
 			if p.mostrar == True:
 				choices.append([p.idPlan, p.nombre])
@@ -76,7 +76,7 @@ class EventosSelectForm(forms.Form):
 		super(EventosSelectForm, self).__init__(*args, **kwargs)
 		#choices = [['1', 'First',], ['2', 'Second',]]
 		choices = [['-1', '------']]
-		planes = Planes.objects.all()
+		planes = Planes.objects.all().order_by("nombre")
 		for p in planes:
 			if p.mostrar == True:
 				choices.append([p.idPlan, p.nombre])
@@ -85,7 +85,7 @@ class EventosSelectForm(forms.Form):
 			choices_activaciones = []
 		else:
 			choices_activaciones = [['-1', '------']]
-		clientes = Clientes.objects.all()
+		clientes = Clientes.objects.all().order_by("nombre")
 		for c in clientes:
 			for a in c.Activaciones.all():
 				choices_activaciones.append([a.idActivacion, c.nombre + " - " + a.nombre])
@@ -105,7 +105,7 @@ class PlanesForm(forms.Form):
 	def __init__(self, nItems, *args, **kwargs):
 		super(PlanesForm, self).__init__(*args, **kwargs)
 		choices = [['-1', '------']]
-		items = Items.objects.all()
+		items = Items.objects.all().order_by("nombre")
 		for it in items:
 			#if it.activo:
 			choices.append([it.idItem, it.nombre])
@@ -125,7 +125,7 @@ class EstacionesForm(forms.Form):
 	def __init__(self, nItems, *args, **kwargs):
 		super(EstacionesForm, self).__init__(*args, **kwargs)
 		choices = [['-1', '------']]
-		items = Items.objects.all()
+		items = Items.objects.all().order_by("nombre")
 		for it in items:
 			choices.append([it.idItem, it.nombre])
 
@@ -201,7 +201,7 @@ class CoordinacionForm(forms.ModelForm):
 		super(CoordinacionForm, self).__init__(*args, **kwargs)
 		#self.fields['user'].queryset = User.objects.all()
 		#self.fields['Contacto'].label_from_instance = lambda obj: obj.nombre # lambda obj: "%s %s" % (obj.last_name, obj.first_name)
-		contactos = evento.Activacion.Cliente.Contactos.all()
+		contactos = evento.Activacion.Cliente.Contactos.all().order_by("nombre")
 		choices = [["", '------']]
 		for contacto in contactos:
 			choices.append([contacto.idContacto, contacto.nombre])
@@ -218,7 +218,7 @@ class LogisticaTrabajadoresForm(forms.Form):
 	def __init__(self, *args, **kwargs):
 		super(LogisticaTrabajadoresForm, self).__init__(*args, **kwargs)
 		choices = []
-		trabajadores = Trabajadores.objects.all()
+		trabajadores = Trabajadores.objects.all().order_by("nombre")
 		for t in trabajadores:
 			choices.append([t.idTrabajador, t.nombre])
 
@@ -240,7 +240,7 @@ class LogisticaPlanesForm(forms.Form):
 	def __init__(self, planesEvento, *args, **kwargs):
 		super(LogisticaPlanesForm, self).__init__(*args, **kwargs)
 
-		estaciones = Estaciones.objects.all()
+		estaciones = Estaciones.objects.all().order_by("nombre")
 		for planEvento in planesEvento:
 			for nPlan in range(1, planEvento.cantidad + 1):
 				#activo problema :/
@@ -335,7 +335,7 @@ class FacturasForm(forms.Form):
 		super(FacturasForm, self).__init__(*args, **kwargs)
 
 		choices = [['-1', '------']]
-		activaciones = Activaciones.objects.all()
+		activaciones = Activaciones.objects.all().order_by("nombre")
 		for a in activaciones:
 			choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
 
@@ -360,7 +360,7 @@ class PagoFacturasForm(forms.ModelForm):
 		super(PagoFacturasForm, self).__init__(*args, **kwargs)
 
 		choices = [['-1', '------']]
-		activaciones = Activaciones.objects.all()
+		activaciones = Activaciones.objects.all().order_by("nombre")
 		for a in activaciones:
 			choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
 
@@ -386,7 +386,7 @@ class itinerarioFechaForm(forms.Form):
 		super(itinerarioFechaForm, self).__init__(*args, **kwargs)
 
 		choices = [['-1', '------']]
-		trabajadores = Trabajadores.objects.all()
+		trabajadores = Trabajadores.objects.all().order_by("nombre")
 		for t in trabajadores:
 			choices.append([t.idTrabajador, t.nombre])
 
@@ -399,14 +399,14 @@ class itinerarioEventosForm(forms.Form):
 		super(itinerarioEventosForm, self).__init__(*args, **kwargs)
 		
 		choices = []
-		eventos = Eventos.objects.all()
+		eventos = Eventos.objects.all().order_by("nombre")
 		for e in eventos:
 			choices.append([e.idEvento, e.Activacion.Cliente.nombre + " - " + e.Activacion.nombre + " - " + e.nombre])
 
 		self.fields["eventos"] = forms.MultipleChoiceField(label="Eventos", choices=choices, widget=forms.SelectMultiple(attrs={'class': "standardSelect"}))
 
 		choices = [['-1', '------']]
-		trabajadores = Trabajadores.objects.all()
+		trabajadores = Trabajadores.objects.all().order_by("nombre")
 		for t in trabajadores:
 			choices.append([t.idTrabajador, t.nombre])
 
