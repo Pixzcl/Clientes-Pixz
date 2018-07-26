@@ -11,7 +11,10 @@ clickeable contacto que muestre sus datos en popup
 
 filtro - desde/hasta fecha - ¿predeterminado mes +- 1?
 
-**itinerario (filtro por trabajador) check con boton verde o rojo para reportar errores
+* nuevo contacto popup coordinacion
+
+
+DONE**itinerario (filtro por trabajador) check con boton verde o rojo para reportar errores
 ***activacion queda facturada si facturas suman monto
 ***estado facturar en evento para todos los de la activacion
 ****guardar para multiples eventos de la activacion en cada pestaña con un popup descripcion, todos o elejir

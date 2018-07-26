@@ -400,7 +400,7 @@ class itinerarioEventosForm(forms.Form):
 		super(itinerarioEventosForm, self).__init__(*args, **kwargs)
 		
 		choices = []
-		eventos = Eventos.objects.all().order_by("nombre")
+		eventos = Eventos.objects.all().order_by("Activacion__Cliente__nombre", "Activacion__nombre", "nombre")
 		for e in eventos:
 			choices.append([e.idEvento, e.Activacion.Cliente.nombre + " - " + e.Activacion.nombre + " - " + e.nombre])
 

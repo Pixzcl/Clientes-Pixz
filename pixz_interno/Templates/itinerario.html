@@ -87,7 +87,7 @@
 						<tbody>
 							{% for dia, d in itinerario|zip:dias %}
 								<tr>
-									<th colspan="3" scope="row" bgcolor="#868e96">{{d|date:"l j"}} de {{d|date:"F"}}</th>
+									<th colspan="4" scope="row" bgcolor="#868e96">{{d|date:"l j"}} de {{d|date:"F"}}</th>
 								</tr>
 								{% for hora, tipo, evento, planes in dia %}
 									<tr>
@@ -138,7 +138,7 @@
 								{% endfor %}
 							{% empty %}
 								<tr>
-									<th colspan="3" scope="row" bgcolor="#868e96">No se encontraron eventos.</th>
+									<th colspan="4" scope="row" bgcolor="#868e96">No se encontraron eventos.</th>
 								</tr>
 							{% endfor %}
 						</tbody>
