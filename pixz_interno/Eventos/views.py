@@ -65,11 +65,11 @@ def index(request):
 		context["sp2"] = 0
 		context["sp1"] = 0
 	else:
-		context["sp5"] = "%.2f" % (float(satisfaccion[0].count())/evaluados * 100)
-		context["sp4"] = "%.2f" % (float(satisfaccion[1].count())/evaluados * 100)
-		context["sp3"] = "%.2f" % (float(satisfaccion[2].count())/evaluados * 100)
-		context["sp2"] = "%.2f" % (float(satisfaccion[3].count())/evaluados * 100)
-		context["sp1"] = "%.2f" % (float(satisfaccion[4].count())/evaluados * 100)
+		context["sp5"] = "%.1f" % (float(satisfaccion[0].count())/evaluados * 100)
+		context["sp4"] = "%.1f" % (float(satisfaccion[1].count())/evaluados * 100)
+		context["sp3"] = "%.1f" % (float(satisfaccion[2].count())/evaluados * 100)
+		context["sp2"] = "%.1f" % (float(satisfaccion[3].count())/evaluados * 100)
+		context["sp1"] = "%.1f" % (float(satisfaccion[4].count())/evaluados * 100)
 
 	return render(request, 'index.html', context)
 
