@@ -94,7 +94,8 @@
 										<td>{{hora}}</td>
 										{% if tipo == 'INSTALACIÓN' %}
 											<!--<td>{{evento.hora_instalacion}}</td>-->
-											<td {% if evento.seguimiento_instalacion == "" %}bgcolor="#0576E8"{% elif evento.seguimiento_instalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#0576E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_instalacion == "" %}bgcolor="#0576E8"{% elif evento.seguimiento_instalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#0576E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" >
+												<!--<i class="ti-truck" ></i>&nbsp; --><img class="rounded-circle" src="{% static 'images/truck_right.png' %}" style="height:2rem;">&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Montaje" %}
 													- {{trabajador.Trabajador.nombre}}<br>
@@ -102,7 +103,8 @@
 											</td>
 										{% elif tipo == 'DESINSTALACIÓN' %}
 											<!--<td>{{evento.hora_desinstalacion}}</td>-->
-											<td {% if evento.seguimiento_desinstalacion == "" %}bgcolor="#16A9E8"{% elif evento.seguimiento_desinstalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#16A9E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_desinstalacion == "" %}bgcolor="#16A9E8"{% elif evento.seguimiento_desinstalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#16A9E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" >
+												<!--<i class="ti-truck" ></i>&nbsp; --><img class="rounded-circle" src="{% static 'images/truck_left.png' %}" style="height:2rem;">&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Desmontaje" %}
 													- {{trabajador.Trabajador.nombre}}<br>
@@ -170,19 +172,19 @@
 			//div.background = color;
 			planes = planes.split("*&*&*");
 			div.innerHTML = '<div class="row">' +
-								'<div class="col-3 col-lg-3 col-sm-3"><b>Contacto:</b></div>' +
-								'<div class="col-9 col-lg-9 col-sm-9">' + contacto + '</div>' +
-								'<div class="col-3 col-lg-3 col-sm-3"><b>Teléfono:</b></div>' +
-								'<div class="col-9 col-lg-9 col-sm-9">' + telefono + '</div>' +
-								'<div class="col-3 col-lg-3 col-sm-3"><b>Dirección:</b></div>' +
-								'<div class="col-9 col-lg-9 col-sm-9">' + '<a target="_blank" href="https://www.google.com/maps/search/?api=1&query=' + direccion + '" style="color:#007bff; text-decoration: underline;" >' + direccion + '</a>' + '</div>' +
-								'<div class="col-3 col-lg-3 col-sm-3"><b>Planes:</b></div>' + 
-								'<div class="col-9 col-lg-9 col-sm-9">' + planes[0] + '</div>';
+								'<div class="col-lg-3 col-sm-3"><b>Contacto:</b></div>' +
+								'<div class="col-lg-9 col-sm-9">' + contacto + '</div>' +
+								'<div class="col-lg-3 col-sm-3"><b>Teléfono:</b></div>' +
+								'<div class="col-lg-9 col-sm-9">' + telefono + '</div>' +
+								'<div class="col-lg-3 col-sm-3"><b>Dirección:</b></div>' +
+								'<div class="col-lg-9 col-sm-9">' + '<a target="_blank" href="https://www.google.com/maps/search/?api=1&query=' + direccion + '" style="color:#007bff; text-decoration: underline;" >' + direccion + '</a>' + '</div>' +
+								'<div class="col-lg-3 col-sm-3"><b>Planes:</b></div>' + 
+								'<div class="col-lg-9 col-sm-9">' + planes[0] + '</div>';
 							
 			
 			//div.innerHTML += '<div class="col-lg-3 col-sm-3"><b>Planes:</b></div>' + '<div class="col-lg-9 col-sm-9">' + planes[0] + '</div>';
 			for (var i=1; i<planes.length; i++) {
-				div.innerHTML += '<div class="col-3 col-lg-3 col-sm-3"></div>' + '<div class="col-9 col-lg-9 col-sm-9">' + planes[i] + '<br></div>';
+				div.innerHTML += '<div class="col-lg-3 col-sm-3"></div>' + '<div class="col-lg-9 col-sm-9">' + planes[i] + '<br></div>';
 			}
 			div.innerHTML += '</div>'; // row
 

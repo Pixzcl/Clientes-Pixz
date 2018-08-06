@@ -42,6 +42,8 @@ Página CxC con filtro, muestra historial de facturas y predeterminado en sólo Cx
 
 
 
-
-Gastos
+DONE
+"evento": guardar mutiples eventos - para secciones específicas
+"eventos": columna estados al lado de evento
+(si quieres en itinerario camioncito ida y vuelta es cosa de bajar una foto y tener las dos versiones)
 

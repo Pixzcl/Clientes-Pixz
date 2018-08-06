@@ -246,6 +246,19 @@
 								<br>Evento
 							</th>
 							<th>
+								{% if orden == "estado" %}
+									<i class="fa fa-long-arrow-up" style="color:black" ></i>
+								{% else %}
+									<a href="#" onclick="orden('estado');" ><i class="fa fa-long-arrow-up" ></i></a>
+								{% endif %}
+								{% if orden == "-estado" %}
+									<i class="fa fa-long-arrow-down" style="color:black" ></i>
+								{% else %}
+									<a href="#" onclick="orden('-estado');" ><i class="fa fa-long-arrow-down" ></i></a>
+								{% endif %}
+								<br>Estado
+							</th>
+							<th>
 								{% if orden == "fecha" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
@@ -297,19 +310,6 @@
 								{% endif %}
 								<br>Comentarios
 							</th>
-							<th>
-								{% if orden == "estado" %}
-									<i class="fa fa-long-arrow-up" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('estado');" ><i class="fa fa-long-arrow-up" ></i></a>
-								{% endif %}
-								{% if orden == "-estado" %}
-									<i class="fa fa-long-arrow-down" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('-estado');" ><i class="fa fa-long-arrow-down" ></i></a>
-								{% endif %}
-								<br>Estado
-							</th>
 						  </tr>
 						</thead>
 						<tbody>
@@ -328,6 +328,15 @@
 									<!--{% comment %}{% endif %}{% endcomment %}-->
 									<!--<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" >{{evento.fecha}}</a></td>-->
 									<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >{{evento.nombre}}</a></td>
+
+									{% if evento.estado == 5 %}<td bgcolor="#28a745" ><b>Ok</b></td>
+									{% elif evento.estado == 0 %}<td bgcolor="#ffc107" ><b>Coordinación</b></td>
+									{% elif evento.estado == 1 %}<td bgcolor="#fd7e14" ><b>Logística</b></td>
+									{% elif evento.estado == 2 %}<td bgcolor="red" ><b>Check-list</b></td>
+									{% elif evento.estado == 3 %}<td bgcolor="#868e96" ><b>Check-out</b></td>
+									{% elif evento.estado == 4 %}<td bgcolor="#007bff" ><b>Facturación</b></td>
+									{% endif %}
+									
 									<td>{{evento.fecha}}</td>
 									<td>{{evento.horas}}</td>
 									<td>
@@ -338,13 +347,6 @@
 									</td>
 									<td >{{evento.comentarios}}</td>
 
-									<td {% if evento.estado == 5 %}bgcolor="#28a745" ><b>Ok</b></td>
-										{% elif evento.estado == 0 %}bgcolor="#ffc107" ><b>Coordinación</b></td>
-										{% elif evento.estado == 1 %}bgcolor="#fd7e14" ><b>Logística</b></td>
-										{% elif evento.estado == 2 %}bgcolor="red" ><b>Check-list</b></td>
-										{% elif evento.estado == 3 %}bgcolor="#868e96" ><b>Check-out</b></td>
-										{% elif evento.estado == 4 %}bgcolor="#007bff" ><b>Facturación</b></td>
-										{% endif %}
 								</tr>
 							{% endfor %}
 						</tbody>
