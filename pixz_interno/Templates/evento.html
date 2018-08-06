@@ -166,6 +166,7 @@
 										<div class="card-body">
 											{% if edit == 'coordinacion' %}
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=coordinacion'"><i class="ti-pencil-alt"></i>&nbsp; Editar coordinación</button>
@@ -287,6 +288,7 @@
 										<div class="row">
 											<div class="card-body">
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											</div>
 										</div>
@@ -315,6 +317,7 @@
 										<div class="card-body">
 											{% if edit == 'logistica' %}
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=logistica'"><i class="ti-pencil-alt"></i>&nbsp; Editar logística</button>
@@ -323,7 +326,7 @@
 									</div>
 									<div class="row">
 
-										<div class="col-lg-6 col-sm-12">
+										<div class="col-12 col-lg-6 col-sm-12">
 											<div class="card">
 												<div class="card-header">
 													<strong class="card-title">Trabajadores</strong>
@@ -470,6 +473,7 @@
 										<div class="row">
 											<div class="card-body">
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											</div>
 										</div>
@@ -499,6 +503,7 @@
 										<div class="card-body">
 											{% if edit == 'checklist' %}
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checklist'"><i class="ti-pencil-alt"></i>&nbsp; Editar check-list</button>
@@ -620,6 +625,7 @@
 										<div class="row">
 											<div class="card-body">
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											</div>
 										</div>
@@ -650,6 +656,7 @@
 										<div class="card-body">
 											{% if edit == 'checkout' %}
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											{% else %}
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}&edit=checkout'"><i class="ti-pencil-alt"></i>&nbsp; Editar check-out</button>
@@ -914,6 +921,7 @@
 										<div class="row">
 											<div class="card-body">
 												<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+												<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal_multiples" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
 												<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "evento" %}?evento={{evento.idEvento}}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 											</div>
 										</div>
@@ -1015,7 +1023,7 @@
 
 		{% if valid_trabajador == False %}
 			<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
-			<script>
+			<script >
 				$( document ).ready(function() {
 				document.getElementById("btn_trabajador").click();
 				});
@@ -1024,7 +1032,7 @@
 	{% endif %}
 	
 
-	<script>
+	<script >
 		function submit_modal(modal) {
 			modal = document.getElementById(modal);
 			form = document.getElementById('form');
@@ -1033,7 +1041,7 @@
 		}
 	</script>
 
-	<script>
+	<script >
 		function tabs(tab) {
 			document.getElementById("nav-menu").classList.remove("active");
 			document.getElementById("nav-coordinacion").classList.remove("active");
@@ -1044,5 +1052,45 @@
 			document.getElementById(tab).classList.add("active");
 		}
 	</script>
+
+
+
+	{% if edit != False %}
+		<div class="modal fade" id="modal_multiples" tabindex="-1" role="dialog" aria-labelledby="modal_multiplesLabel" aria-hidden="true">
+			<div class="modal-dialog modal-md" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="modal_multiplesLabel">Guardar multiples eventos</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="row" >
+							<div class="col-12 col-sm-12"> Puedes guardar la información de 
+								{% if edit == "coordinacion" %}<b>Servicio</b> y <b> Montaje</b>
+								{% elif edit == "logistica" %}<b>Trabajadores</b>
+								{% elif edit == "checklist" %}<b>Tareas recurrentes</b>
+								{% elif edit == "checkout" %}<b>Tareas pendientes</b>
+								{% endif %}
+							 para otros eventos de la misma activación.</div>
+								
+							{% for field in multiples_form %}
+								<!--<input type='hidden' value='Off' name={{field.name}}>-->
+								<div class="col-2 col-sm-2">
+									<label class="switch switch-3d switch-success switch-lg mr-3">{{field}}<span class="switch-label"></span> <span data-on="On" data-off="Off" class="switch-handle"></span></label>
+								</div>
+								<div class="col-10 col-sm-10"> {{field.label}}</div>
+						{% endfor %}
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" onclick="submit_modal('modal_multiples')" ><i class="ti-save"></i>&nbsp; Guardar multiples</button>
+						<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="ti-back-left"></i>&nbsp; Cancelar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
 
 {% endblock %}

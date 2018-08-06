@@ -15,10 +15,10 @@ filtro - desde/hasta fecha - ¿predeterminado mes +- 1?
 
 
 DONE**itinerario (filtro por trabajador) check con boton verde o rojo para reportar errores
-***activacion queda facturada si facturas suman monto
-***estado facturar en evento para todos los de la activacion
+
 ****guardar para multiples eventos de la activacion en cada pestaña con un popup descripcion, todos o elejir
 *****progressbar de los estados de eventos al hacer click en proximos 7 dias
+	 + calendario clickeando proximo 7 dias, 2 botones (progressbar o calendario)
 
 star, fiscalizar evento, en home
 
@@ -29,4 +29,19 @@ clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC 
 ¿juntar activacion y evento para menos espacio?
 y si nombre evento es opcional? y si queda en blanco se usa el de activacion
 
+
+
+
+CxC e Ingresos
+activacion queda facturada si facturas suman monto
+estado facturar en evento hasta que todos los de la activacion esten listos
+
+ingresos: una vez exista al emnos una factura, agregar boton pagar en activaciones que lleva a popup elegir la factura a pagar, y eso a un formulario fecha de pago y monto. Además se puede pagar por partes una factura, asique debe haber un campo monto total y uno restante en facturas.
+En facturar, activacion no es editable y boton volver lleve a activaciones.
+Página CxC con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
+
+
+
+
+Gastos
 

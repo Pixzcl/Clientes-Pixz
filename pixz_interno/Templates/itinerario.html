@@ -94,7 +94,7 @@
 										<td>{{hora}}</td>
 										{% if tipo == 'INSTALACIÓN' %}
 											<!--<td>{{evento.hora_instalacion}}</td>-->
-											<td {% if evento.seguimiento_instalacion == "" %}bgcolor="#0576E8"{% elif evento.seguimiento_instalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#0576E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_instalacion == "" %}bgcolor="#0576E8"{% elif evento.seguimiento_instalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#0576E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Montaje" %}
 													- {{trabajador.Trabajador.nombre}}<br>
@@ -102,7 +102,7 @@
 											</td>
 										{% elif tipo == 'DESINSTALACIÓN' %}
 											<!--<td>{{evento.hora_desinstalacion}}</td>-->
-											<td {% if evento.seguimiento_desinstalacion == "" %}bgcolor="#16A9E8"{% elif evento.seguimiento_desinstalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#16A9E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_desinstalacion == "" %}bgcolor="#16A9E8"{% elif evento.seguimiento_desinstalacion|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#16A9E8', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-truck" ></i>&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Desmontaje" %}
 													- {{trabajador.Trabajador.nombre}}<br>
@@ -110,7 +110,7 @@
 											</td>
 										{% elif tipo == 'INICIO SERVICIO' %}
 											<!--<td>{{evento.inicio_servicio}}</td>-->
-											<td {% if evento.seguimiento_inicio_servicio == "" %}bgcolor="#E8D600"{% elif evento.seguimiento_inicio_servicio|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#E8D600', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_inicio_servicio == "" %}bgcolor="#E8D600"{% elif evento.seguimiento_inicio_servicio|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#E8D600', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" ></i>&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Operador" %}
 													- {{trabajador.Trabajador.nombre}}<br>
@@ -118,14 +118,14 @@
 											</td>
 										{% elif tipo == 'FIN SERVICIO' %}
 											<!--<td>{{evento.fin_servicio}}</td>-->
-											<td {% if evento.seguimiento_fin_servicio == "" %}bgcolor="#E8E738"{% elif evento.seguimiento_fin_servicio|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#E8E738', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" >&nbsp; {{tipo}} {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
+											<td {% if evento.seguimiento_fin_servicio == "" %}bgcolor="#E8E738"{% elif evento.seguimiento_fin_servicio|lower == "ok" %}bgcolor="#28a745"{% else %}bgcolor="red"{% endif %} onclick="popup('#E8E738', '{{evento.Contacto.nombre}}', '{{evento.Contacto.telefono}}', '{{evento.direccion}}', '{{planes}}')" ><i class="ti-camera" ></i>&nbsp; <b>{{tipo}}</b> {{evento.Activacion.Cliente.nombre}} - {{evento.Activacion.nombre}} - {{evento.nombre}}</td>
 											<td>
 												{% for trabajador in evento.TrabajadoresEvento|cargo:"Operador" %}
 													- {{trabajador.Trabajador.nombre}}<br>
 												{% endfor %}
 											</td>
 										{% endif %}
-										<td>
+										<td width="18%">
 											<button type="button" class="btn btn-success" onclick="submit_seguimiento(1, '{{evento.idEvento}}', '{{tipo}}', 'Ok');" ><i class="ti-check"></i>&nbsp; Ok</button>
 											<button type="button" class="btn btn-danger" onclick="submit_seguimiento(2, '{{evento.idEvento}}', '{{tipo}}', 
 												{% if tipo == 'INSTALACIÓN' %}'{{evento.seguimiento_instalacion}}');" >

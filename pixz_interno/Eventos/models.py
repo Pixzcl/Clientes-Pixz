@@ -237,6 +237,9 @@ class Errores(models.Model):
 	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="Errores", on_delete=models.SET(None), blank=True, null=True)
 	error = models.TextField(verbose_name="Errores técnicos", blank=True, null=True, default="")
 
+	class Meta:
+		ordering = ['-idError']
+
 class Facturas(models.Model):
 	#idFacturacion = models.AutoField(primary_key=True, verbose_name="#")
 	nFactura = models.PositiveIntegerField(primary_key=True, unique=True, verbose_name="N° de factura", blank=False, null=False, error_messages={"unique":"Ya existe este número de factura."})
@@ -248,4 +251,4 @@ class Facturas(models.Model):
 	fecha_pago = models.DateField(verbose_name="Fecha de pago", blank=False, null=False)
 
 	class Meta:
-		ordering = ['-nFactura', '-Activacion']
+		ordering = ['-nFactura']

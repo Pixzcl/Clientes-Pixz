@@ -67,35 +67,108 @@
 				<div class="row">
 
 					<div class="col-lg-6 col-sm-12">
-						<div class="card">
-							<div class="card-header">
-								<strong class="card-title">Eventos</strong>
+
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="card">
+									<div class="card-header">
+										<strong class="card-title">Eventos</strong>
+									</div>
+									<div class="card-body">
+							  <table id="bootstrap-data-table" class="table table-striped table-bordered">
+								<tbody>
+									<tr>
+										<th scope="row" >Próximos 7 días</th>
+										<td>{{semanas1}}</td>
+									</tr>
+									<tr>
+										<th scope="row" >Próximos 14 días</th>
+										<td>{{semanas2}}</td>
+									</tr>
+									<tr>
+										<th scope="row" >Próximos 30 días</th>
+										<td>{{mes}}</td>
+									</tr>
+									<tr>
+										<th scope="row" >Totales</th>
+										<td>{{totales}}</td>
+									</tr>
+								</tbody>
+							  </table>
+									</div>
+								</div>
 							</div>
-							<div class="card-body">
-					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
-						<tbody>
-							<tr>
-								<th scope="row" >Próximos 7 días</th>
-								<td>{{semanas1}}</td>
-							</tr>
-							<tr>
-								<th scope="row" >Próximos 14 días</th>
-								<td>{{semanas2}}</td>
-							</tr>
-							<tr>
-								<th scope="row" >Próximos 30 días</th>
-								<td>{{mes}}</td>
-							</tr>
-							<tr>
-								<th scope="row" >Totales</th>
-								<td>{{totales}}</td>
-							</tr>
-						</tbody>
-					  </table>
+
+
+							<div class="col-sm-12">
+								<div class="card">
+									<div class="card-header">
+										<strong class="card-title">Satisfacción del cliente</strong>
+									</div>
+									<div class="card-body">
+							  <table id="bootstrap-data-table" class="table table-striped table-bordered">
+							  	<thead>
+							  		<tr>
+							  			<th>Satisfacción</th>
+							  			<th>Eventos</th>
+							  			<!--<th>Porcentaje</th>-->
+							  		</tr>
+							  	</thead>
+								<tbody>
+									<tr>
+										<td>
+											<label style="color:green; font-size:1.2rem;">
+											<img class="rounded-circle" src="{% static 'images/smiles/5.png' %}" style="height:1.5rem;">&nbsp; Muy contento
+											</label>
+										</td>
+										<td>{{s5}} ({{sp5}}%)</td>
+										<!--<td>{{sp5}}%</td>-->
+									</tr>
+									<tr>
+										<td>
+											<label style="color:cyan; font-size:1.2rem;">
+											<img class="rounded-circle" src="{% static 'images/smiles/4.png' %}" style="height:1.5rem;">&nbsp; Contento
+											</label>
+										</td>
+										<td>{{s4}} ({{sp4}}%)</td>
+										<!--<td>{{sp4}}%</td>-->
+									</tr>
+									<tr>
+										<td>
+											<label style="color:yellow; font-size:1.2rem;">
+											<img class="rounded-circle" src="{% static 'images/smiles/3.png' %}" style="height:1.5rem;">&nbsp; Aceptable
+											</label>
+										</td>
+										<td>{{s3}} ({{sp3}}%)</td>
+										<!--<td>{{sp3}}%</td>-->
+									</tr>
+									<tr>
+										<td>
+											<label style="color:orange; font-size:1.2rem;">
+											<img class="rounded-circle" src="{% static 'images/smiles/2.png' %}" style="height:1.5rem;">&nbsp; Descontento
+											</label>
+										</td>
+										<td>{{s2}} ({{sp2}}%)</td>
+										<!--<td>{{sp2}}%</td>-->
+									</tr>
+									<tr>
+										<td>
+											<label style="color:red; font-size:1.2rem;">
+											<img class="rounded-circle" src="{% static 'images/smiles/1.png' %}" style="height:1.5rem;">&nbsp; Muy descontento
+											</label>
+										</td>
+										<td>{{s1}} ({{sp1}}%)</td>
+										<!--<td>{{sp1}}%</td>-->
+									</tr>
+								</tbody>
+							  </table>
+									</div>
+								</div>
 							</div>
+
 						</div>
 					</div>
-				
+
 
 
 					<div class="col-lg-6 col-sm-12">
@@ -130,71 +203,7 @@
 
 
 
-					<div class="col-lg-6 col-sm-12">
-						<div class="card">
-							<div class="card-header">
-								<strong class="card-title">Satisfacción del cliente</strong>
-							</div>
-							<div class="card-body">
-					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
-					  	<thead>
-					  		<tr>
-					  			<th>Satisfacción</th>
-					  			<th>Eventos</th>
-					  			<!--<th>Porcentaje</th>-->
-					  		</tr>
-					  	</thead>
-						<tbody>
-							<tr>
-								<td>
-									<label style="color:green; font-size:1.2rem;">
-									<img class="rounded-circle" src="{% static 'images/smiles/5.png' %}" style="height:1.5rem;">&nbsp; Muy contento
-									</label>
-								</td>
-								<td>{{s5}} ({{sp5}}%)</td>
-								<!--<td>{{sp5}}%</td>-->
-							</tr>
-							<tr>
-								<td>
-									<label style="color:cyan; font-size:1.2rem;">
-									<img class="rounded-circle" src="{% static 'images/smiles/4.png' %}" style="height:1.5rem;">&nbsp; Contento
-									</label>
-								</td>
-								<td>{{s4}} ({{sp4}}%)</td>
-								<!--<td>{{sp4}}%</td>-->
-							</tr>
-							<tr>
-								<td>
-									<label style="color:yellow; font-size:1.2rem;">
-									<img class="rounded-circle" src="{% static 'images/smiles/3.png' %}" style="height:1.5rem;">&nbsp; Aceptable
-									</label>
-								</td>
-								<td>{{s3}} ({{sp3}}%)</td>
-								<!--<td>{{sp3}}%</td>-->
-							</tr>
-							<tr>
-								<td>
-									<label style="color:orange; font-size:1.2rem;">
-									<img class="rounded-circle" src="{% static 'images/smiles/2.png' %}" style="height:1.5rem;">&nbsp; Descontento
-									</label>
-								</td>
-								<td>{{s2}} ({{sp2}}%)</td>
-								<!--<td>{{sp2}}%</td>-->
-							</tr>
-							<tr>
-								<td>
-									<label style="color:red; font-size:1.2rem;">
-									<img class="rounded-circle" src="{% static 'images/smiles/1.png' %}" style="height:1.5rem;">&nbsp; Muy descontento
-									</label>
-								</td>
-								<td>{{s1}} ({{sp1}}%)</td>
-								<!--<td>{{sp1}}%</td>-->
-							</tr>
-						</tbody>
-					  </table>
-							</div>
-						</div>
-					</div>
+					
 
 				</div>
 				

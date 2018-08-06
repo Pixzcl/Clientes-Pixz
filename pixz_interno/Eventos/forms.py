@@ -412,4 +412,14 @@ class itinerarioEventosForm(forms.Form):
 			choices.append([t.idTrabajador, t.nombre])
 
 		self.fields['trabajador'].choices = choices
+
+
+class multiplesEventoForm(forms.Form):
+
+	def __init__(self, evento, *args, **kwargs):
+		super(multiplesEventoForm, self).__init__(*args, **kwargs)
+
+		for ev in evento.Activacion.Eventos.all():
+			if evento != ev:
+				self.fields["multiples_" + str(ev.idEvento)] = forms.BooleanField(required=False, label=ev.nombre, widget=forms.CheckboxInput(attrs={'class': "switch-input"}))
 		

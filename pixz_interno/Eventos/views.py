@@ -801,51 +801,59 @@ def evento(request):
 			coordinacion_form = CoordinacionForm(evento, request.POST, request.FILES)
 			if coordinacion_form.is_valid():
 				
-				contacto = request.POST['Contacto']
-				if contacto == "":
-					evento.Contacto = None
-				else:
-					Contacto = evento.Activacion.Cliente.Contactos.get(idContacto=contacto)
-					if Contacto != evento.Contacto:
-						evento.Contacto = Contacto
+				multiples_eventos = [evento]
+				eventos_activacion = evento.Activacion.Eventos.all()
+				for key, value in request.POST.items():
+					if "multiples_" in key:
+						multiples_eventos.append(eventos_activacion.get(idEvento=key.split("_")[1]))
 
-				#date(1943,3, 13)  #year, month, day
-				if (request.POST['fecha_instalacion_year'] == "0" and request.POST['fecha_instalacion_month'] == "0" and request.POST['fecha_instalacion_day'] == "0"):
-					evento.fecha_instalacion = None
-				if (request.POST['fecha_instalacion_year'] != "0" and request.POST['fecha_instalacion_month'] != "0" and request.POST['fecha_instalacion_day'] != "0"):
-					evento.fecha_instalacion = date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
-				if (request.POST['fecha_desinstalacion_year'] == "0" and request.POST['fecha_desinstalacion_month'] == "0" and request.POST['fecha_desinstalacion_day'] == "0"):
-					evento.fecha_desinstalacion = None
-				if (request.POST['fecha_desinstalacion_year'] != "0" and request.POST['fecha_desinstalacion_month'] != "0" and request.POST['fecha_desinstalacion_day'] != "0"):
-					evento.fecha_desinstalacion = date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
-				
-				hora_instalacion = request.POST['hora_instalacion']
-				if hora_instalacion == "":
-					hora_instalacion = None
-				if hora_instalacion != evento.hora_instalacion:
-					evento.hora_instalacion = hora_instalacion
+				for ev in multiples_eventos:
 
-				hora_desinstalacion = request.POST['hora_desinstalacion']
-				if hora_desinstalacion == "":
-					hora_desinstalacion = None
-				if hora_desinstalacion != evento.hora_desinstalacion:
-					evento.hora_desinstalacion = hora_desinstalacion
+					contacto = request.POST['Contacto']
+					if contacto == "":
+						ev.Contacto = None
+					else:
+						Contacto = ev.Activacion.Cliente.Contactos.get(idContacto=contacto)
+						if Contacto != ev.Contacto:
+							ev.Contacto = Contacto
 
-				inicio_servicio = request.POST['inicio_servicio']
-				if inicio_servicio == "":
-					inicio_servicio = None
-				if inicio_servicio != evento.inicio_servicio:
-					evento.inicio_servicio = inicio_servicio
-				
-				fin_servicio = request.POST['fin_servicio']
-				if fin_servicio == "":
-					fin_servicio = None
-				if fin_servicio != evento.fin_servicio:
-					evento.fin_servicio = fin_servicio
+					#date(1943,3, 13)  #year, month, day
+					if (request.POST['fecha_instalacion_year'] == "0" and request.POST['fecha_instalacion_month'] == "0" and request.POST['fecha_instalacion_day'] == "0"):
+						ev.fecha_instalacion = None
+					if (request.POST['fecha_instalacion_year'] != "0" and request.POST['fecha_instalacion_month'] != "0" and request.POST['fecha_instalacion_day'] != "0"):
+						ev.fecha_instalacion = date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
+					if (request.POST['fecha_desinstalacion_year'] == "0" and request.POST['fecha_desinstalacion_month'] == "0" and request.POST['fecha_desinstalacion_day'] == "0"):
+						ev.fecha_desinstalacion = None
+					if (request.POST['fecha_desinstalacion_year'] != "0" and request.POST['fecha_desinstalacion_month'] != "0" and request.POST['fecha_desinstalacion_day'] != "0"):
+						ev.fecha_desinstalacion = date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
+					
+					hora_instalacion = request.POST['hora_instalacion']
+					if hora_instalacion == "":
+						hora_instalacion = None
+					if hora_instalacion != ev.hora_instalacion:
+						ev.hora_instalacion = hora_instalacion
 
-				evento.direccion = request.POST['direccion']
-				evento.save()
-				#return custom_redirect('evento', evento=idEvento)
+					hora_desinstalacion = request.POST['hora_desinstalacion']
+					if hora_desinstalacion == "":
+						hora_desinstalacion = None
+					if hora_desinstalacion != ev.hora_desinstalacion:
+						ev.hora_desinstalacion = hora_desinstalacion
+
+					inicio_servicio = request.POST['inicio_servicio']
+					if inicio_servicio == "":
+						inicio_servicio = None
+					if inicio_servicio != ev.inicio_servicio:
+						ev.inicio_servicio = inicio_servicio
+					
+					fin_servicio = request.POST['fin_servicio']
+					if fin_servicio == "":
+						fin_servicio = None
+					if fin_servicio != ev.fin_servicio:
+						ev.fin_servicio = fin_servicio
+
+					ev.direccion = request.POST['direccion']
+					ev.save()
+					#return custom_redirect('evento', evento=idEvento)
 			else:
 				error = True
 
@@ -867,33 +875,34 @@ def evento(request):
 				if logistica_form.is_valid() and logistica_planes_form.is_valid():
 
 				# Cargos Trabajadores
-					#tipos = ["Supervisor", "Montaje", "Desmontaje", "Operador", "Freelance", "Promotora"]
-					#for tipo in tipos:
-					for cargo in cargos:
-						try:
-							#idTrabajadores = request.POST.getlist(tipo)
-							idTrabajadores = request.POST.getlist(cargo.nombre)
-							trabajadores = Trabajadores.objects.filter(idTrabajador__in=idTrabajadores)
-						except MultiValueDictKeyError:
-							continue # trabajadores = []
+					multiples_eventos = [evento]
+					eventos_activacion = evento.Activacion.Eventos.all()
+					for key, value in request.POST.items():
+						if "multiples_" in key:
+							multiples_eventos.append(eventos_activacion.get(idEvento=key.split("_")[1]))
 
-						#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
-						trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
-						for trabajadorEvento_actual in trabajadoresEvento_actuales:
-							if trabajadorEvento_actual.Trabajador not in trabajadores:
-								#print(supervisor_actual.Trabajador.nombre)
-								trabajadorEvento_actual.delete()
-						#trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(tipo=tipo)
-						trabajadoresEvento_actuales = evento.TrabajadoresEvento.filter(Cargo=cargo)
+					for ev in multiples_eventos:
 
-						for trabajador in trabajadores:
-							if trabajador not in [trabajadorEvento_actual.Trabajador for trabajadorEvento_actual in trabajadoresEvento_actuales]:
-								#TrabajadoresEvento(Evento=evento, Trabajador=trabajador, tipo=tipo).save()
-								TrabajadoresEvento(Evento=evento, Trabajador=trabajador, Cargo=cargo).save()
+						for cargo in cargos:
+							try:
+								idTrabajadores = request.POST.getlist(cargo.nombre)
+								trabajadores = Trabajadores.objects.filter(idTrabajador__in=idTrabajadores)
+							except MultiValueDictKeyError:
+								continue # trabajadores = []
+
+							trabajadoresEvento_actuales = ev.TrabajadoresEvento.filter(Cargo=cargo)
+							for trabajadorEvento_actual in trabajadoresEvento_actuales:
+								if trabajadorEvento_actual.Trabajador not in trabajadores:
+									trabajadorEvento_actual.delete()
+							trabajadoresEvento_actuales = ev.TrabajadoresEvento.filter(Cargo=cargo)
+
+							for trabajador in trabajadores:
+								if trabajador not in [trabajadorEvento_actual.Trabajador for trabajadorEvento_actual in trabajadoresEvento_actuales]:
+									TrabajadoresEvento(Evento=ev, Trabajador=trabajador, Cargo=cargo).save()
 				
 				# Planes
 					for key, value in request.POST.items():
-						if "_" in key:
+						if "planEvento_" in key:
 							split = key.split("_")
 							planEvento = PlanesEvento.objects.get(idPlanesEvento=int(split[1]))
 							itemPlan = ItemsPlan.objects.get(idItemsPlan=int(split[3]))
@@ -933,15 +942,24 @@ def evento(request):
 						item.check = False
 					item.save()
 
+
 			# Tareas recurrentes
-			for recurrente in recurrentes:
-				value = request.POST[recurrente.nombre.replace(" ", "")]
-				recurrentesEvento = recurrente.RecurrentesEvento.get(Evento=evento)
-				if value == "on":
-					recurrentesEvento.check = True
-				else:
-					recurrentesEvento.check = False
-				recurrentesEvento.save()
+			multiples_eventos = [evento]
+			eventos_activacion = evento.Activacion.Eventos.all()
+			for key, value in request.POST.items():
+				if "multiples_" in key:
+					multiples_eventos.append(eventos_activacion.get(idEvento=key.split("_")[1]))
+
+				for ev in multiples_eventos:
+
+					for recurrente in recurrentes:
+						value = request.POST[recurrente.nombre.replace(" ", "")]
+						recurrentesEvento = recurrente.RecurrentesEvento.get(Evento=ev)
+						if value == "on":
+							recurrentesEvento.check = True
+						else:
+							recurrentesEvento.check = False
+						recurrentesEvento.save()
 
 			#return custom_redirect('evento', evento=idEvento)
 
@@ -949,15 +967,24 @@ def evento(request):
 			#Pago trabajadores
 			###
 
+
 			# Tareas pendientes
-			for pendiente in pendientes:
-				value = request.POST[pendiente.nombre.replace(" ", "")]
-				pendientesEvento = pendiente.PendientesEvento.get(Evento=evento)
-				if value == "on":
-					pendientesEvento.check = True
-				else:
-					pendientesEvento.check = False
-				pendientesEvento.save()
+			multiples_eventos = [evento]
+			eventos_activacion = evento.Activacion.Eventos.all()
+			for key, value in request.POST.items():
+				if "multiples_" in key:
+					multiples_eventos.append(eventos_activacion.get(idEvento=key.split("_")[1]))
+
+				for ev in multiples_eventos:
+
+					for pendiente in pendientes:
+						value = request.POST[pendiente.nombre.replace(" ", "")]
+						pendientesEvento = pendiente.PendientesEvento.get(Evento=ev)
+						if value == "on":
+							pendientesEvento.check = True
+						else:
+							pendientesEvento.check = False
+						pendientesEvento.save()
 # Falta pagos
 # Falta pagos
 
@@ -993,28 +1020,38 @@ def evento(request):
 
 				#return custom_redirect('evento', evento=idEvento)
 		if not error and reporte == False and valid_trabajador == "n/a":
-			estado = 5
+
 			evento = Eventos.objects.get(idEvento=idEvento)
-			empty = ["", None]
-		# Coordinación
-			if evento.fecha_instalacion in empty or evento.fecha_desinstalacion in empty or evento.hora_instalacion in empty or evento.hora_desinstalacion in empty or evento.inicio_servicio in empty or evento.fin_servicio in empty or evento.direccion in empty or evento.Contacto in empty:
-				estado = 0
-		# Logística
-			elif evento.Trabajadores.all().count() == 0 or None in [it.ItemsEstacion for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=evento.PlanesEvento.all())]:
-				estado = 1
-		# Check-list
-			elif False in [tarea.check for tarea in evento.RecurrentesEvento.all()] or False in [it.check for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=evento.PlanesEvento.all())]:
-				estado = 2
- 		# Check-out
-			elif False in [tarea.check for tarea in evento.PendientesEvento.all()]: # Falta pagos
-				estado = 3
-		# Facturación
-			#elif 
-			#	estado = 4
- # Falta pagos
-			#print(estado)
-			evento.estado = estado
-			evento.save()
+
+			multiples_eventos = [evento]
+			eventos_activacion = evento.Activacion.Eventos.all()
+			for key, value in request.POST.items():
+				if "multiples_" in key:
+					multiples_eventos.append(eventos_activacion.get(idEvento=key.split("_")[1]))
+
+				for ev in multiples_eventos:
+
+					estado = 5
+					empty = ["", None]
+				# Coordinación
+					if ev.fecha_instalacion in empty or ev.fecha_desinstalacion in empty or ev.hora_instalacion in empty or ev.hora_desinstalacion in empty or ev.inicio_servicio in empty or ev.fin_servicio in empty or ev.direccion in empty or ev.Contacto in empty:
+						estado = 0
+				# Logística
+					elif ev.Trabajadores.all().count() == 0 or None in [it.ItemsEstacion for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=ev.PlanesEvento.all())]:
+						estado = 1
+				# Check-list
+					elif False in [tarea.check for tarea in ev.RecurrentesEvento.all()] or False in [it.check for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=ev.PlanesEvento.all())]:
+						estado = 2
+		 		# Check-out
+					elif False in [tarea.check for tarea in ev.PendientesEvento.all()]: # Falta pagos
+						estado = 3
+				# Facturación
+					#elif 
+					#	estado = 4
+		 # Falta pagos
+					#print(estado)
+					ev.estado = estado
+					ev.save()
 
 			return custom_redirect('evento', evento=idEvento)
 
@@ -1177,6 +1214,9 @@ def evento(request):
 			lista_pendientes.append([pendiente.nombre, pendiente.PendientesEvento.get(Evento=evento).check])
 		reporte_form = ""
 
+	multiples_form = None
+	if edit != False:
+		multiples_form = multiplesEventoForm(evento)
 
 	context = {
 		"evento": evento,
@@ -1193,6 +1233,7 @@ def evento(request):
 		"nErrores": nErrores,
 		"trabajador_nuevo_form": trabajador_nuevo_form,
 		"valid_trabajador": valid_trabajador,
+		"multiples_form": multiples_form,
 	}
 	return render(request, 'evento.html', context)
 
