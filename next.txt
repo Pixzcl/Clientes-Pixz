@@ -6,7 +6,7 @@ capacitacion trabajadores?
 datepicker
 
 ---
-
+**columna estado entre id y cliente
 *clickeable contacto que muestre sus datos en popup
 * nuevo contacto popup coordinacion
 *star, boton fiscalizar evento, con aviso en home

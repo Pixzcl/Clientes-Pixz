@@ -85,7 +85,7 @@
 									{% for evento, cliente, activacion in fila %}
 										<!--style="width:12.5%"-->
 
-										{% if evento.estado == 5 %} 
+										{% if evento.estado == 5 or evento.estado == 4 or evento.estado == 3 %} 
 											<td bgcolor="#28a745" >
 												<b>{{cliente}}</b><br>
 												<a href="{% url 'evento' %}?evento={{evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >

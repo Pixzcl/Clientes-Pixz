@@ -139,9 +139,6 @@ def calendario(request):
 				calendario2[-1][-1] = [calendario[j][1][i], calendario[j][2][i], calendario[j][3][i]]
 			except:
 				calendario2[-1][-1] = ["", "", ""]
-	for fila in calendario2:
-		for col in fila:
-			print(col)
 
 	context = {
 		"dias": dias,

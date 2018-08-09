@@ -207,6 +207,19 @@
 								<br>#
 							</th>
 							<th>
+								{% if orden == "estado" %}
+									<i class="fa fa-long-arrow-up" style="color:black" ></i>
+								{% else %}
+									<a href="#" onclick="orden('estado');" ><i class="fa fa-long-arrow-up" ></i></a>
+								{% endif %}
+								{% if orden == "-estado" %}
+									<i class="fa fa-long-arrow-down" style="color:black" ></i>
+								{% else %}
+									<a href="#" onclick="orden('-estado');" ><i class="fa fa-long-arrow-down" ></i></a>
+								{% endif %}
+								<br>Estado
+							</th>
+							<th>
 								{% if orden == "Activacion__Cliente__nombre" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
@@ -244,19 +257,6 @@
 									<a href="#" onclick="orden('-nombre');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
 								<br>Evento
-							</th>
-							<th>
-								{% if orden == "estado" %}
-									<i class="fa fa-long-arrow-up" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('estado');" ><i class="fa fa-long-arrow-up" ></i></a>
-								{% endif %}
-								{% if orden == "-estado" %}
-									<i class="fa fa-long-arrow-down" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('-estado');" ><i class="fa fa-long-arrow-down" ></i></a>
-								{% endif %}
-								<br>Estado
 							</th>
 							<th>
 								{% if orden == "fecha" %}
@@ -322,12 +322,6 @@
 										<a style="visibility:hidden;" href='{% url "editar_evento" %}?evento={{evento.idEvento}}' ><i class="ti-pencil-alt text-primary"></i></a>
 										<a style="visibility:hidden;" href="javascript:void(0)" onclick="eliminar('{{evento.nombre}}', '{{evento.idEvento}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
-									<!--{% comment %}{% if not activacion %}{% endcomment %}-->
-										<td><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.Cliente.nombre}}</a></td>
-										<td><a href="{% url 'eventos' %}?Activacion={{evento.Activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.nombre}}</a></td>
-									<!--{% comment %}{% endif %}{% endcomment %}-->
-									<!--<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" >{{evento.fecha}}</a></td>-->
-									<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >{{evento.nombre}}</a></td>
 
 									{% if evento.estado == 5 %}<td bgcolor="#28a745" ><b>Ok</b></td>
 									{% elif evento.estado == 0 %}<td bgcolor="#ffc107" ><b>Coordinación</b></td>
@@ -336,7 +330,15 @@
 									{% elif evento.estado == 3 %}<td bgcolor="#868e96" ><b>Check-out</b></td>
 									{% elif evento.estado == 4 %}<td bgcolor="#007bff" ><b>Facturación</b></td>
 									{% endif %}
+
+									<!--{% comment %}{% if not activacion %}{% endcomment %}-->
+										<td><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.Cliente.nombre}}</a></td>
+										<td><a href="{% url 'eventos' %}?Activacion={{evento.Activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.nombre}}</a></td>
+									<!--{% comment %}{% endif %}{% endcomment %}-->
+									<!--<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" >{{evento.fecha}}</a></td>-->
+									<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >{{evento.nombre}}</a></td>
 									
+
 									<td>{{evento.fecha}}</td>
 									<td>{{evento.horas}}</td>
 									<td>

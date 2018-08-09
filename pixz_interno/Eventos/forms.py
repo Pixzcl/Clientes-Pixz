@@ -371,11 +371,11 @@ class PagoFacturasForm(forms.ModelForm):
 class filtroEventosForm(forms.Form):
 	choices_pendientes = [["", "- Todos -"], ["Pendientes", "Pendientes"], ["Pasados", "Pasados"]]
 	pendientes = forms.ChoiceField(required=False, label="Eventos", choices=choices_pendientes, widget=forms.Select(attrs={'class': "standardSelect"}))
+	choices_estado = [["", "- Todos -"], [5, "Ok"], [0, "Coordinación"], [1, "Logística"], [2, "Check-list"], [3, "Check-out"], [4, "Facturación"]]
+	estado = forms.ChoiceField(required=False, label="Estado", choices=choices_estado, widget=forms.Select(attrs={'class': "standardSelect"}))
 	cliente = forms.CharField(required=False, max_length=255, label="Cliente", widget=forms.TextInput(attrs={'class': "form-control"}))
 	activacion = forms.CharField(required=False, max_length=255, label="Activación", widget=forms.TextInput(attrs={'class': "form-control"}))
 	evento = forms.CharField(required=False, max_length=255, label="Evento", widget=forms.TextInput(attrs={'class': "form-control"}))
-	choices_estado = [["", "- Todos -"], [5, "Ok"], [0, "Coordinación"], [1, "Logística"], [2, "Check-list"], [3, "Check-out"], [4, "Facturación"]]
-	estado = forms.ChoiceField(required=False, label="Estado", choices=choices_estado, widget=forms.Select(attrs={'class': "standardSelect"}))
 
 
 class itinerarioFechaForm(forms.Form):
