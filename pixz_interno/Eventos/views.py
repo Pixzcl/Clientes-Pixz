@@ -46,12 +46,49 @@ def index(request):
 	for s in satisfaccion:
 		evaluados += s.count()
 
+	semanas1 = eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).order_by("fecha")
+	semanas2 = eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=2))
+	mes = eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(days=30))
+	todos = eventos.filter(fecha__gte=date.today())
+
+	resumen7 = []
+	for ev in semanas1:
+		nombre = ev.Activacion.Cliente.nombre + " - " + ev.Activacion.nombre + " - " + ev.nombre
+
+		falta = []
+		falta_str = ""
+		empty = ["", None]
+		# Coordinación
+		if ev.fecha_instalacion in empty or ev.fecha_desinstalacion in empty or ev.hora_instalacion in empty or ev.hora_desinstalacion in empty or ev.inicio_servicio in empty or ev.fin_servicio in empty or ev.direccion in empty or ev.Contacto in empty:
+			falta.append("Coordinación")
+		# Logística
+		if ev.Trabajadores.all().count() == 0 or None in [it.ItemsEstacion for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=ev.PlanesEvento.all())]:
+			falta.append("Logística")
+		# Check-list
+		if False in [tarea.check for tarea in ev.RecurrentesEvento.all()] or False in [it.check for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=ev.PlanesEvento.all())]:
+			falta.append("Checklist")
+		for i in range(len(falta)):
+			falta_str += falta[i]
+			if i+1 == len(falta):
+				falta_str += "."
+			elif i+2 == len(falta):
+				falta_str += " y "
+			else:
+				falta_str += ", "
+		if falta_str == "":
+			falta_str = "Listo!"
+		else:
+			falta_str = "Falta completar " + falta_str
+
+		resumen7.append([ev.fecha, nombre, int(round((3 - len(falta))/3.0*100, 0)), falta_str])
+
+
 	context = {
 		"errores": errores,
-		"semanas1": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).count(),
-		"semanas2": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=2)).count(),
-		"mes": eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(days=30)).count(),
-		"totales": eventos.filter(fecha__gte=date.today()).count(),
+		"resumen7": resumen7,
+		"semanas2": semanas2.count(),
+		"mes": mes.count(),
+		"todos": todos.count(),
 		"s5": satisfaccion[0].count(),
 		"s4": satisfaccion[1].count(),
 		"s3": satisfaccion[2].count(),
@@ -72,6 +109,45 @@ def index(request):
 		context["sp1"] = "%.1f" % (float(satisfaccion[4].count())/evaluados * 100)
 
 	return render(request, 'index.html', context)
+
+
+def calendario(request):
+	eventos = Eventos.objects.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).order_by("fecha")
+	hoy = date.today()
+	calendario = []
+	cantidad = 0
+	for i in range(8):
+		dia = hoy+timedelta(days=i)
+
+		evs = eventos.filter(fecha=dia)
+		if evs.count() > cantidad:
+			cantidad = evs.count()
+		clientes = [ev.Activacion.Cliente.nombre for ev in evs]
+		activaciones = [ev.Activacion.nombre for ev in evs]
+
+		calendario.append([dia, evs, clientes, activaciones])
+	
+	dias = []
+	for i in range(8):
+		dias.append(hoy+timedelta(days=i))
+	calendario2 = []
+	for i in range(cantidad):
+		calendario2.append([])
+		for j in range(8):
+			calendario2[-1].append([])
+			try:
+				calendario2[-1][-1] = [calendario[j][1][i], calendario[j][2][i], calendario[j][3][i]]
+			except:
+				calendario2[-1][-1] = ["", "", ""]
+	for fila in calendario2:
+		for col in fila:
+			print(col)
+
+	context = {
+		"dias": dias,
+		"calendario": calendario2,
+	}
+	return render(request, 'calendario.html', context)
 
 
 def clientes(request):
@@ -97,7 +173,8 @@ def agregar_cliente(request):
 		form = ClientesForm(request.POST, request.FILES)
 		if form.is_valid():
 			cliente = form.save()
-			return custom_redirect('activaciones', cliente=cliente.idCliente)
+			#return custom_redirect('activaciones', cliente=cliente.idCliente)
+			return custom_redirect('agregar_activacion', cliente=cliente.idCliente)
 	else:
 		form = ClientesForm()
 	context = {
@@ -145,15 +222,18 @@ def activaciones(request):
 
 def agregar_activacion(request):
 	if request.method == 'POST':
-		try:
-			int(request.POST['Cliente']) # (probar si viene de SelectForm o no)
-			idCliente = request.POST['Cliente']
-			cliente = Clientes.objects.get(idCliente=idCliente)
-			form = ActivacionesForm(request.POST, request.FILES)
-		except:
-			cliente = request.POST['Cliente']
-			idCliente = cliente.idCliente
-			form = ActivacionesSelectForm(request.POST, request.FILES)
+		# try:
+		# 	int(request.POST['Cliente']) # (probar si viene de SelectForm o no)
+		# 	idCliente = request.POST['Cliente']
+		# 	cliente = Clientes.objects.get(idCliente=idCliente)
+		# 	form = ActivacionesForm(request.POST, request.FILES)
+		# except:
+		# 	cliente = request.POST['Cliente']
+		# 	idCliente = cliente.idCliente
+		# 	form = ActivacionesSelectForm(request.POST, request.FILES)
+		idCliente = request.POST['Cliente']
+		cliente = Clientes.objects.get(idCliente=idCliente)
+		form = ActivacionesSelectForm(request.POST, request.FILES)
 
 		nombre_unico = True
 
@@ -169,13 +249,15 @@ def agregar_activacion(request):
 				activacion = form.save(commit=False)
 				activacion.Cliente = Clientes.objects.get(idCliente=idCliente)
 				activacion.save()
-				return custom_redirect('eventos', activacion=activacion.idActivacion)
+				#return custom_redirect('eventos', activacion=activacion.idActivacion)
+				return custom_redirect('agregar_evento', activacion=activacion.idActivacion)
 	
 	else:
 		try:
 			idCliente = request.GET['cliente']
 			cliente = Clientes.objects.get(idCliente=idCliente)
-			form = ActivacionesForm()
+			#form = ActivacionesForm()
+			form = ActivacionesSelectForm(initial={"Cliente":cliente})
 		except MultiValueDictKeyError:
 			cliente = ""
 			form = ActivacionesSelectForm()
@@ -268,7 +350,8 @@ class eventos(ListView):
 	# 		return Eventos.objects.filter(Planes__nombre__contains=f)
 
 
-def eventos2(request):
+# ahora se usa la de arriba
+def eventos_VIEJO(request):
 	try:
 		idActivacion = request.GET['activacion']
 		activacion = Activaciones.objects.get(idActivacion=idActivacion)
@@ -380,12 +463,14 @@ def agregar_evento(request):
 		try:
 			idActivacion = request.GET['activacion']
 			activacion = Activaciones.objects.get(idActivacion=idActivacion)
-			form = EventosForm(nPlanes)
+			#form = EventosForm(nPlanes)
+			form = EventosSelectForm(nPlanes, False, initial={"ActivacionSelect": idActivacion})
 			select = False
 		except MultiValueDictKeyError:
 			activacion = ""
 			form = EventosSelectForm(nPlanes, False)
 			select = True
+
 		mensaje_error = []
 		nombre_unico = True
 
@@ -1113,24 +1198,16 @@ def evento(request):
 		except MultiValueDictKeyError:
 			edit = False
 
-		try:
-			#tab = request.GET['tab']
-			tab = "menu"
-			origen = request.META['HTTP_REFERER']
-			if "edit=coordinacion" in origen or "itinerario" in origen:
-			#	tab = "coordinacion"
-				pass
-			elif "edit=logistica" in origen:
-			#	tab = "logistica"
-				pass
-			elif "edit=checklist" in origen:
-			#	tab = "checklist"
-				pass
-			#elif "edit=checkout" in origen or "evento" not in origen: # (desde la portada)
-			elif "evento" not in origen: # (desde la portada)
-				tab = "checkout"
-		except:
-			tab = "menu"
+		
+		tab = request.GET.get("tab", "menu")
+		#origen = request.META['HTTP_REFERER']
+		#if "edit=coordinacion" in origen or "itinerario" in origen:
+		#	tab = "coordinacion"
+		#elif "edit=logistica" in origen:
+		#	tab = "logistica"
+		#elif "edit=checklist" in origen:
+		#	tab = "checklist"
+		
 
 	lista_planes = []
 	for planEvento in evento.PlanesEvento.all():

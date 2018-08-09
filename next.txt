@@ -7,43 +7,35 @@ datepicker
 
 ---
 
-clickeable contacto que muestre sus datos en popup
-
-filtro - desde/hasta fecha - ¿predeterminado mes +- 1?
-
+*clickeable contacto que muestre sus datos en popup
 * nuevo contacto popup coordinacion
-
-
-DONE**itinerario (filtro por trabajador) check con boton verde o rojo para reportar errores
-
-****guardar para multiples eventos de la activacion en cada pestaña con un popup descripcion, todos o elejir
-*****progressbar de los estados de eventos al hacer click en proximos 7 dias
-	 + calendario clickeando proximo 7 dias, 2 botones (progressbar o calendario)
-
-star, fiscalizar evento, en home
-
-clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC e Ingresos - (autofield primary, no n° factura)
+*star, boton fiscalizar evento, con aviso en home
 
 ----------
-
-¿juntar activacion y evento para menos espacio?
-y si nombre evento es opcional? y si queda en blanco se usa el de activacion
-
-
-
 
 CxC e Ingresos
 activacion queda facturada si facturas suman monto
 estado facturar en evento hasta que todos los de la activacion esten listos
 
-ingresos: una vez exista al emnos una factura, agregar boton pagar en activaciones que lleva a popup elegir la factura a pagar, y eso a un formulario fecha de pago y monto. Además se puede pagar por partes una factura, asique debe haber un campo monto total y uno restante en facturas.
+ingresos:
+clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC e Ingresos
+Una vez exista al menos una factura, agregar boton pagar en activaciones que lleva a popup elegir la factura a pagar, y eso a un formulario fecha de pago y monto. Además se puede pagar por partes una factura, asique debe haber un campo monto total y uno restante en facturas.
 En facturar, activacion no es editable y boton volver lleve a activaciones.
 Página CxC con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
 
 
 
 DONE
-"evento": guardar mutiples eventos - para secciones específicas
+3 hrs		"evento": guardar mutiples eventos - para secciones específicas
+"inicio": 
+1 hr		progressbar
+2 hrs		calendario
+
 "eventos": columna estados al lado de evento
-(si quieres en itinerario camioncito ida y vuelta es cosa de bajar una foto y tener las dos versiones)
+"itinerario": camioncito de ida y vuelta
+"evento": descripcion de activacion y comentarios del evento solo aparecen si hay alguno
+unificar titulos izq y derecha / flujo agregar cliente -> activacion -> evento
+logo pixz más pequeño para que calze con celular
+
+
 

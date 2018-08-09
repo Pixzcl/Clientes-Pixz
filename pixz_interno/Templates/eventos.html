@@ -15,7 +15,7 @@
 		<header id="header" class="header">
 			<div class="header-menu">
 
-				<div class="col-sm-4">
+				<div class="col-12">
 					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
 					<div class="header-left">
 
@@ -23,7 +23,7 @@
 							<div class="page-title">
 								<!--
 								{% if not activacion %}-->
-									<h1>Todos los eventos</h1>
+									<h1>Eventos</h1>
 								<!--{% else %}
 									<h1>Activación {{activacion.nombre}}</h1>
 								{% endif %}-->
@@ -32,24 +32,24 @@
 
 					</div>
 				</div>
-				
+<!--
 				<div class="col-sm-8">
 					<div class="breadcrumbs">
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<!--{% if activacion %}
+									{% if activacion %}
 										<li><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}">{{activacion.Cliente.nombre}}</a></li>
 										<li class="active">{{activacion.nombre}}</li>
-									{% else %}-->
+									{% else %}
 										<li class="active">Eventos</li>
-									<!--{% endif %}-->
+									{% endif %}
 								</ol>
 							</div>
 						</div>
 					</div>
 				</div>
-
+-->
 			</div>
 		</header>
 <!--

@@ -13,7 +13,7 @@
 		<header id="header" class="header">
 			<div class="header-menu">
 
-				<div class="col-sm-4">
+				<div class="col-12">
 					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
 					<div class="header-left">
 
@@ -25,7 +25,7 @@
 
 					</div>
 				</div>
-				
+<!--
 				<div class="col-sm-8">
 					<div class="breadcrumbs">
 						<div class="page-header float-right">
@@ -37,7 +37,7 @@
 						</div>
 					</div>
 				</div>
-				
+-->
 			</div>
 		</header>
 <!--
@@ -79,7 +79,7 @@
 								<tbody>
 									<tr>
 										<th scope="row" ><a data-toggle="modal" data-target="#modal_proximos7" style="color:#007bff; text-decoration: underline;">Próximos 7 días</a></th>
-										<td>{{semanas1}}</td>
+										<td>{{resumen7|length}}</td>
 									</tr>
 									<tr>
 										<th scope="row" >Próximos 14 días</th>
@@ -90,8 +90,8 @@
 										<td>{{mes}}</td>
 									</tr>
 									<tr>
-										<th scope="row" >Totales</th>
-										<td>{{totales}}</td>
+										<th scope="row" >Todos</th>
+										<td>{{todos}}</td>
 									</tr>
 								</tbody>
 							  </table>
@@ -190,7 +190,7 @@
 									{% if error.Evento == None %}
 										<td> - </td>
 									{% else %}
-										<td><a href="{% url 'evento' %}?evento={{error.Evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >{{error.Evento.idEvento}}</a></td>
+										<td><a href="{% url 'evento' %}?evento={{error.Evento.idEvento}}&tab=checkout" style="color:#007bff; text-decoration: underline;" >{{error.Evento.idEvento}}</a></td>
 									{% endif %}
 									<td>{{error.error}}</td>
 								</tr>
@@ -226,13 +226,31 @@
 					</button>
 				</div>
 				<div class="modal-body">
+					<div class="row">
+						<div class="card-body">
+							<button type="button" class="btn btn-primary" onclick="location.href='{% url "calendario" %}';" ><i class="fa fa-calendar"></i>&nbsp; Ver calendario</button>
+						</div>
+					</div>
+					{% for fecha, nombre, porcentaje, falta in resumen7 %}
+						<div class="row">
+							<div class="col-12"><b>{{fecha|date:"l j"}} de {{fecha|date:"F"}}</b></div>
+							<div class="col-12">{{nombre}}</div>
+							<div class="col-12">
+								<div class="progress mb-2">
+                              		<div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{porcentaje}}%" aria-valuenow="{{porcentaje}}" aria-valuemin="0" aria-valuemax="100">{{porcentaje}}%</div>
+                          		</div>
+							</div>
+							<div class="col-12">{{falta}}</div>
+							<div class="col-12"><br></div>
+						</div>
+					{% endfor %}
+					
+				</div>
+				<!--<div class="modal-footer">
 					<button type="button" class="btn btn-primary" onclick="" >Barra de progeso</button>
-					<button type="button" class="btn btn-primary" onclick="" >Ver calendario</button>
-				</div>
-				<div class="modal-footer">
-					<!--<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>-->
-					En construcción
-				</div>
+					<button type="button" class="btn btn-primary" onclick="location.href='{% url "calendario" %}';" ><i class="fa fa-calendar"></i>&nbsp; Ver calendario</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+				</div>-->
 			</div>
 		</div>
 	</div>

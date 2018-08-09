@@ -14,7 +14,7 @@
 		<header id="header" class="header">
 			<div class="header-menu">
 
-				<div class="col-sm-4">
+				<div class="col-12">
 					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
 					<div class="header-left">
 
@@ -26,7 +26,7 @@
 
 					</div>
 				</div>
-				
+<!--
 				<div class="col-sm-8">
 					<div class="breadcrumbs">
 						<div class="page-header float-right">
@@ -38,7 +38,7 @@
 						</div>
 					</div>
 				</div>
-				
+-->
 			</div>
 		</header>
 <!--
@@ -72,7 +72,7 @@
 					{% for evento, error in errores_info %}
 						<div class="row">
 							<div class="col-lg-12 col-sm-12">
-								Al <a target="_blank" href="{% url 'evento' %}?evento={{evento}}&edit=coordinacion" style="color:#007bff; text-decoration: underline;" >evento {{evento}}</a> le falta <b>{{error}}</b>.
+								Al <a target="_blank" href="{% url 'evento' %}?evento={{evento}}&tab=coordinacion" style="color:#007bff; text-decoration: underline;" >evento {{evento}}</a> le falta <b>{{error}}</b>.
 							</div>
 						</div>
 					{% empty %}

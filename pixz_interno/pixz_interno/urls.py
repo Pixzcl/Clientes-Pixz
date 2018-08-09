@@ -87,6 +87,8 @@ urlpatterns = [
 
 	url(r'^itinerario_crear/', views.itinerario_crear, name='itinerario_crear'),
 	url(r'^itinerario/', views.itinerario, name='itinerario'),
+
+	url(r'^calendario/', views.calendario, name='calendario'),
 	
 	
 

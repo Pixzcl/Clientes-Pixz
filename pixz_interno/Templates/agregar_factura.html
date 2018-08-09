@@ -13,7 +13,7 @@
 		<header id="header" class="header">
 			<div class="header-menu">
 
-				<div class="col-sm-4">
+				<div class="col-12">
 					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
 					<div class="header-left">
 
@@ -25,7 +25,7 @@
 
 					</div>
 				</div>
-				
+<!--
 				<div class="col-sm-8">
 					<div class="breadcrumbs">
 						<div class="page-header float-right">
@@ -38,7 +38,7 @@
 						</div>
 					</div>
 				</div>
-				
+-->
 			</div>
 		</header>
 <!--
@@ -93,7 +93,8 @@
 									</div>
 								{% endfor %}
 				                <button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
-				                <button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "facturas" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+				                <!--<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "facturas" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>-->
+				                <button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "activaciones" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 				            </form>
 
 						</div>

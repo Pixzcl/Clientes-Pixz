@@ -14,6 +14,25 @@
 		<header id="header" class="header">
 			<div class="header-menu">
 
+
+				<div class="col-12">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>
+									<a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.Cliente.nombre}}</a>
+									 / 
+									<a href="{% url 'eventos' %}?Activacion={{evento.Activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.nombre}}</a>
+									 / 
+									{{evento.nombre}}
+								</h1>
+							</div>
+						</div>
+					</div>
+				</div>
+
+<!--
 				<div class="col-sm-4">
 					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
 					<div class="header-left">
@@ -40,7 +59,7 @@
 						</div>
 					</div>
 				</div>
-
+-->
 			</div>
 		</header>
 <!--
@@ -69,26 +88,30 @@
 			<div class="animated fadeIn">
 
 				<div class="row">
-					<div class="col-md-6">
-						<div class="card">
-							<div class="card-header bg-secondary">
-								<strong class="card-title text-light">Descripción de la activación</strong>
-							</div>
-							<div class="card-body text-white bg-primary">
-								<p class="card-text text-light">{{evento.Activacion.descripcion}}</p>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="card">
-							<div class="card-header bg-secondary">
-								<strong class="card-title text-light">Comentarios del evento</strong>
-							</div>
-							<div class="card-body text-white bg-primary">
-								<p class="card-text text-light">{{evento.comentarios}}</p>
+					{% if evento.Activacion.descripcion != "" %}
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-header bg-secondary">
+									<strong class="card-title text-light">Descripción de la activación</strong>
+								</div>
+								<div class="card-body text-white bg-primary">
+									<p class="card-text text-light">{{evento.Activacion.descripcion}}</p>
+								</div>
 							</div>
 						</div>
-					</div>
+					{% endif %}
+					{% if evento.comentarios != "" %}
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-header bg-secondary">
+									<strong class="card-title text-light">Comentarios del evento</strong>
+								</div>
+								<div class="card-body text-white bg-primary">
+									<p class="card-text text-light">{{evento.comentarios}}</p>
+								</div>
+							</div>
+						</div>
+					{% endif %}
 				</div>
 
 				
