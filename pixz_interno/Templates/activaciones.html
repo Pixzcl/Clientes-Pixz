@@ -188,14 +188,13 @@
 									
 									{% if activacion.monto == 0 %}
 										<td bgcolor="#868e96"><b>Falta ingresar monto</b></td>
-									{% elif activacion|facturado == "Si" %}
-										<td bgcolor="#28a745"><b>Facturado</b></td>
-									{% elif activacion|facturado == "No" %}
-									<td>
-										<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
-									</td>
+									{% elif activacion|facturado == "Si" and activacion|pagado == "Si" %}
+										<td bgcolor="#28a745"><b>Facturado y pagado</b></td>
 									{% else %}
-										<td bgcolor="#dc3545"><b>Error, facturas suman más que monto.</b></td>
+										<td>
+											<button {% if activacion|facturado == "Si" %} disabled {% endif %} type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
+											<button id="btn_pagar_{{activacion.idActivacion}}" type="button" class="btn btn-outline-success" onclick="pagar('{{activacion.idActivacion}}', '{% for factura in activacion.Facturas.all %}{{factura.nFactura}}/{% endfor %}', '{% for ingreso in activacion.Ingresos.all %}{% if ingreso.Factura == None %}{{ingreso.idIngreso}} - ${{ingreso.monto}}/{% endif %}{% endfor %}')"><i class="fa fa-money"></i>&nbsp; Pagar</button>
+										</td>
 									{% endif %}
 								</tr>
 							{% endfor %}
@@ -328,7 +327,7 @@
 		<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 id="h5_eliminar" class="modal-title" id="smallmodalLabel"></h5>
+					<h5 id="h5_eliminar" class="modal-title" ></h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
@@ -364,6 +363,134 @@
 			document.getElementById("eliminar").click();
 		}
 	</script>
+
+
+
+	<button id="btn_pagar" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#modal_pagar">Small</button>
+
+	<div class="modal fade" id="modal_pagar" tabindex="-1" role="dialog" aria-labelledby="modal_pagarLabel" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" >Pagar activación</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form id="pagar_form" method="post" >
+					{% csrf_token %}
+					<input type="hidden" name="activacion" id="activacion" value="" />
+					<input type="hidden" name="asociar" id="input_asociar" value="False" />
+					<div class="modal-body">
+						<div class="row form-group">
+	                        
+	                        <div class="col-12"><label id="label_radios_factura" class=" form-control-label">¿Qué factura pagar?</label></div>
+	                        <div class="col-12">
+	                        	<div id="div_radios_factura" class="form-check" >
+	                        <!--
+	                           	<div class="radio">
+	                              <label for="radio1" class="form-check-label ">
+	                                <input type="radio" id="radio1" name="radios" value="option1" class="form-check-input">Option 1
+	                              </label>
+	                            </div>
+	                        -->
+	                        	</div>
+	                        </div>
+
+	                        <div class="col-12"><label id="label_ingresos" class=" form-control-label" style="display:none;" ><br><br>Existen pagos sin facturas asociadas en esta activación. ¿Deseas asociar uno de estos a alguna factura?</label></div>
+	                        <div class="col-8">
+	                           	<select name="ingreso" id="select_ingresos" class="form-control" style="display:none;">
+	                                <!--<option value="0">Please select</option>
+	                                <option value="1">Option #1</option>
+	                                <option value="2">Option #2</option>
+	                                <option value="3">Option #3</option>-->
+	                            </select>
+	                        </div>
+	                        <div class="col-4">
+	                        	<button id="btn_ingresos" type="button" class="btn btn-success" onclick="asociar_submit();" style="display:none;" ><i class="fa fa-link"></i>&nbsp; Asociar</button>
+	                        </div>
+	                        {% if mensaje_error != "" %}
+	                        	<div class="col-12"><label class=" form-control-label" ><br><b>{{mensaje_error}}</b></label></div>
+	                        {% endif %}
+	                        <div class="col-12"><label id="label_ingresos2" class=" form-control-label" style="display:none;" ><br>En caso contrario puedes efectuar un nuevo pago.</label></div>
+
+	                    </div>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-success" ><i class="fa fa-money"></i>&nbsp; Pagar</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+
+	<script>
+		function pagar(activacion, facturas, ingresos) {
+			document.getElementById("activacion").value = activacion;
+			var div_radios = document.getElementById('div_radios_factura');
+			var facturas_list = facturas.split("/");
+			div_radios.innerHTML = "";
+
+			div_radios.innerHTML += '<div class="radio">' +
+								'<label class="form-check-label ">' +
+								'<input type="radio" id="radio_-" name="radios_factura" value="-" checked class="form-check-input">Ninguna (Adelanto)</label></div>';
+
+
+			for (var i=0; i < facturas_list.length - 1; i++) {
+
+				div_radios.innerHTML += '<div class="radio">' +
+								'<label class="form-check-label ">' +
+								'<input type="radio" id="radio_' + facturas_list[i] + '" name="radios_factura" value="' + facturas_list[i] + '" class="form-check-input">' + facturas_list[i] + '</label></div>';
+			}
+			{% if nFactura != "" %} document.getElementById("radio_{{nFactura}}").checked = true; {% endif %}
+
+
+
+			var label_ingresos = document.getElementById('label_ingresos');
+			label_ingresos.style.display = "none";
+			var label_ingresos2 = document.getElementById('label_ingresos2');
+			label_ingresos2.style.display = "none";
+			var btn_ingresos = document.getElementById('btn_ingresos');
+			btn_ingresos.style.display = "none";
+			var select_ingresos = document.getElementById('select_ingresos');
+			select_ingresos.style.display = "none";
+			select_ingresos.innerHTML = "";
+			if (ingresos != "") {
+				var ingresos_list = ingresos.split("/");
+
+				label_ingresos.style.display = "inline";
+				label_ingresos2.style.display = "inline";
+				btn_ingresos.style.display = "inline";
+				select_ingresos.style.display = "inline";
+				var ingreso;
+				for (var i=0; i < ingresos_list.length - 1; i++) {
+					ingreso = ingresos_list[i].split(" - ")[0];
+					select_ingresos.innerHTML += '<option id="option_' + ingreso + '" value=' + ingreso + '>' + ingresos_list[i] + '</option>';
+				}
+				{% if idIngreso != "" %} document.getElementById("option_{{idIngreso}}").selected = true; {% endif %}
+			}
+
+			
+			document.getElementById('btn_pagar').click();
+		}
+
+		function asociar_submit() {
+			document.getElementById("input_asociar").value = "True";
+			document.getElementById("pagar_form").submit();
+		}
+	</script>
+
+	{% if mensaje_error != "" %}
+		<script src="{% static 'assets/js/vendor/jquery-2.1.4.min.js' %}"></script>
+		<script>
+			$( document ).ready(function() {
+			document.getElementById("btn_pagar_{{activacion}}").click();
+			});
+		</script>
+	{% endif %}
 
 
 {% endblock %}

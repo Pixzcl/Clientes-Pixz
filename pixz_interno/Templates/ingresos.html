@@ -2,8 +2,8 @@
 {% load staticfiles %}
 
 <!-- Activo en el menu: -->
-{% block facturas-li %} active {% endblock %}
-{% block titulo %}Facturas{% endblock %}
+{% block ingresos-li %} active {% endblock %}
+{% block titulo %}Ingresos{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -18,7 +18,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Facturas</h1>
+								<h1>Ingresos</h1>
 							</div>
 						</div>
 
@@ -74,50 +74,47 @@
 					<div class="col-md-12">
 						<div class="card">
 							<div class="card-header">
-								<strong class="card-title">Facturas</strong>
+								<strong class="card-title">Ingresos</strong>
 							</div>
 							<div class="card-body">
 								<div class="row">
 									<div class="card-body">
 										<!--<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_factura" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nueva factura</button>-->
-										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Eliminar facturas</button>
+										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Eliminar ingresos</button>
 									</div>
 								</div>
 					  <table id="bootstrap-data-table" class="table table-striped table-bordered">
 						<thead>
 						  <tr>
+						  	<th>#</th>
 							<th>N° de Factura</th>
 							<th>Cliente</th>
 							<th>Activación</th>
-							<th>Fecha de facturacion</th>
+							<th>Fecha</th>
 							<th>Monto</th>
-							<th>Fecha pago</th>
+							<th>Comentarios</th>
 						  </tr>
 						</thead>
 						<tbody>
-							{% for factura in facturas %}
+							{% for ingreso in ingresos %}
 								<tr>
-									<th scope="row" id="td_{{factura.nFactura}}">
-										{{factura.nFactura}}
+									<th scope="row" id="td_{{ingreso.idIngreso}}">
+										{{ingreso.idIngreso}}
 										<!--<a style="visibility:hidden" href='{% url "editar_factura" %}?factura={{factura.nFactura}}' ><i class="ti-pencil-alt text-primary"></i></a>-->
-										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{factura.nFactura}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
+										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{ingreso.idIngreso}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
-									{% if factura.Activacion == None %}
+									<td>{{ingreso.Factura.nFactura}}</td>
+									{% if ingreso.Activacion == None %}
 										<td> - </td>
 										<td> - </td>
 									{% else %}
-										<td><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{factura.Activacion.Cliente.nombre}}</a></td>
-										<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{factura.Activacion.nombre}}</a></td>
+										<td><a href="{% url 'activaciones' %}?cliente={{activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{ingreso.Activacion.Cliente.nombre}}</a></td>
+										<td><a href="{% url 'eventos' %}?activacion={{activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{ingreso.Activacion.nombre}}</a></td>
 									{% endif %}
 									
-									<td>{{factura.fecha_facturacion}}</td>
-									<td>${{factura.monto}}</td>
-									<td>{% if factura.fecha_pago == None %}
-											 - 
-										{% else %}
-											{{factura.fecha_pago}}
-										{% endif %}
-									</td>
+									<td>{{ingreso.fecha}}</td>
+									<td>${{ingreso.monto}}</td>
+									<td>{{ingreso.comentarios}}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -143,9 +140,9 @@
 		function mostrar() {
 			visible = !visible;
 			var botones, i;
-			{% for factura in facturas %}
+			{% for ingreso in ingresos %}
 				try {
-					botones = document.getElementById("td_" + {{factura.nFactura}}).children;
+					botones = document.getElementById("td_" + {{ingreso.idIngreso}}).children;
 					for (i=0; i<botones.length; i++) {
 						//if (botones[i].style.visibility == "hidden") {
 						if (visible) {
@@ -188,10 +185,10 @@
 
 	
 	<script>
-		function eliminar(nFactura) {
+		function eliminar(idIngreso) {
 			document.getElementById("p_eliminar").innerHTML = "¿Estas seguro?";
-			document.getElementById("h5_eliminar").innerHTML = "Eliminar factura N° " + nFactura;
-			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_factura" %}?nFactura='+nFactura};
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar ingreso " + idIngreso;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_ingreso" %}?idIngreso='+idIngreso};
 			document.getElementById("eliminar").click();
 		}
 	</script>

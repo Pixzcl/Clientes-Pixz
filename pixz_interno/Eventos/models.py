@@ -252,3 +252,13 @@ class Facturas(models.Model):
 
 	class Meta:
 		ordering = ['-nFactura']
+
+
+class Ingresos(models.Model):
+	idIngreso = models.AutoField(primary_key=True, verbose_name="#")
+	Activacion = models.ForeignKey("Activaciones", verbose_name="Activacion", related_name="Ingresos", on_delete=models.SET(None), blank=False, null=True)
+	Factura = models.ForeignKey("Facturas", verbose_name="Factura", related_name="Ingresos", on_delete=models.CASCADE, blank=False, null=True)
+
+	fecha = models.DateField(verbose_name="Fecha", blank=False, null=False)
+	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
+	comentarios = models.TextField(verbose_name="Comentarios", blank=True, null=True, default="")

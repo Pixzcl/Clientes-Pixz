@@ -27,4 +27,16 @@ def facturado(activacion):
 	elif suma > activacion.monto:
 		return "Error"
 
+@register.filter()
+def pagado(activacion):
+	suma = 0
+	for ingreso in activacion.Ingresos.all():
+		suma += ingreso.monto
+	if suma == activacion.monto:
+		return "Si"
+	elif suma < activacion.monto:
+		return "No"
+	elif suma > activacion.monto:
+		return "Error"
+
 

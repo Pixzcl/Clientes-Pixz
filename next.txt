@@ -6,9 +6,7 @@ capacitacion trabajadores?
 datepicker
 
 ---
-**columna estado entre id y cliente
 *clickeable contacto que muestre sus datos en popup
-* nuevo contacto popup coordinacion
 *star, boton fiscalizar evento, con aviso en home
 
 ----------
@@ -20,7 +18,7 @@ estado facturar en evento hasta que todos los de la activacion esten listos
 ingresos:
 clase pagos asociada a la activacion, aparte de CxC(factura), equivalente a CxC e Ingresos
 Una vez exista al menos una factura, agregar boton pagar en activaciones que lleva a popup elegir la factura a pagar, y eso a un formulario fecha de pago y monto. Además se puede pagar por partes una factura, asique debe haber un campo monto total y uno restante en facturas.
-En facturar, activacion no es editable y boton volver lleve a activaciones.
++En facturar, activacion no es editable y boton volver lleve a activaciones.
 Página CxC con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
 
 
@@ -36,6 +34,10 @@ DONE
 "evento": descripcion de activacion y comentarios del evento solo aparecen si hay alguno
 unificar titulos izq y derecha / flujo agregar cliente -> activacion -> evento
 logo pixz más pequeño para que calze con celular
+
+40 min		"coordinacion": nuevo contacto popup
+
+
 
 
 

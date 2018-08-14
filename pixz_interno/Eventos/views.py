@@ -181,6 +181,37 @@ def agregar_cliente(request):
 
 
 def activaciones(request):
+	activacion = ""
+	idIngreso = ""
+	nFactura = ""
+	mensaje_error = ""
+	if request.method == 'POST':
+		activacion = request.POST["activacion"]
+		nFactura = request.POST["radios_factura"]
+
+		asociar = request.POST["asociar"]
+		if asociar == "False":
+			return custom_redirect('agregar_ingreso', activacion=activacion, factura=nFactura)
+		elif nFactura != "-":
+			idIngreso = request.POST["ingreso"]
+			ingreso = Ingresos.objects.get(idIngreso=idIngreso)
+
+
+			factura = Facturas.objects.get(nFactura=nFactura)
+			monto_restante = factura.monto
+			for i in factura.Ingresos.all():
+				monto_restante -= i.monto
+
+			if monto_restante >= ingreso.monto:
+				ingreso.Factura = factura
+				ingreso.save()
+				return redirect("activaciones")
+			else:
+				mensaje_error = "El monto del ingreso " + str(ingreso.idIngreso) + " sobrepasa el de la factura " + str(factura.nFactura) + "."
+		else:
+			idIngreso = request.POST["ingreso"]
+			mensaje_error = "Para asociar debes elegir una factura."
+
 	try:
 		idCliente = request.GET['cliente']
 		cliente = Clientes.objects.get(idCliente=idCliente)
@@ -198,11 +229,10 @@ def activaciones(request):
 
 	pendientes = []
 	venta = 0
-	for activacion in activaciones:
-		if activacion.Eventos.filter(fecha__gte=date.today()).count() > 0:
-			pendientes.append(activacion)
-		#venta += activacion.monto
-		for factura in activacion.Facturas.all():
+	for act in activaciones:
+		if act.Eventos.filter(fecha__gte=date.today()).count() > 0:
+			pendientes.append(act)
+		for factura in act.Facturas.all():
 			venta += factura.monto
 
 	context = {
@@ -213,6 +243,10 @@ def activaciones(request):
 		"cliente": cliente,
 		"contactos": contactos,
 		"venta": venta,
+		"activacion": activacion,
+		"idIngreso": idIngreso,
+		"nFactura": nFactura,
+		"mensaje_error": mensaje_error,
 	}
 	return render(request, 'activaciones.html', context)
 
@@ -870,6 +904,7 @@ def evento(request):
 	recurrentes = Recurrentes.objects.all()
 	pendientes = Pendientes.objects.all()
 	valid_trabajador = "n/a"
+	valid_contacto = "n/a"
 	if request.method == 'POST':
 		idEvento = request.POST['evento']
 		evento = Eventos.objects.get(idEvento=idEvento)
@@ -877,67 +912,82 @@ def evento(request):
 		coordinacion_form = None
 		logistica_form = None
 		trabajador_nuevo_form = None
+		contacto_nuevo_form = None
 		edit = request.POST['edit']
 		tab = None
 		if edit == "coordinacion":
-			coordinacion_form = CoordinacionForm(evento, request.POST, request.FILES)
-			if coordinacion_form.is_valid():
-				
-				multiples_eventos = [evento]
-				eventos_activacion = evento.Activacion.Eventos.all()
-				for key, value in request.POST.items():
-					if "multiples_" in key:
-						multiples_eventos.append(eventos_activacion.get(idEvento=key.split("_")[1]))
-
-				for ev in multiples_eventos:
-
-					contacto = request.POST['Contacto']
-					if contacto == "":
-						ev.Contacto = None
-					else:
-						Contacto = ev.Activacion.Cliente.Contactos.get(idContacto=contacto)
-						if Contacto != ev.Contacto:
-							ev.Contacto = Contacto
-
-					#date(1943,3, 13)  #year, month, day
-					if (request.POST['fecha_instalacion_year'] == "0" and request.POST['fecha_instalacion_month'] == "0" and request.POST['fecha_instalacion_day'] == "0"):
-						ev.fecha_instalacion = None
-					if (request.POST['fecha_instalacion_year'] != "0" and request.POST['fecha_instalacion_month'] != "0" and request.POST['fecha_instalacion_day'] != "0"):
-						ev.fecha_instalacion = date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
-					if (request.POST['fecha_desinstalacion_year'] == "0" and request.POST['fecha_desinstalacion_month'] == "0" and request.POST['fecha_desinstalacion_day'] == "0"):
-						ev.fecha_desinstalacion = None
-					if (request.POST['fecha_desinstalacion_year'] != "0" and request.POST['fecha_desinstalacion_month'] != "0" and request.POST['fecha_desinstalacion_day'] != "0"):
-						ev.fecha_desinstalacion = date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
+			try:
+				# Contacto nuevo
+				request.POST["contacto_nuevo"]
+				contacto_nuevo_form = ContactosForm(request.POST)
+				valid_contacto = contacto_nuevo_form.is_valid()
+				post = request.POST.copy()
+				if valid_contacto:
+					c_nuevo = contacto_nuevo_form.save(commit=False)
+					c_nuevo.Cliente = evento.Activacion.Cliente
+					c_nuevo.save()
+					post["Contacto"] = c_nuevo.idContacto
+				coordinacion_form = CoordinacionForm(evento, post, request.FILES)
+			except MultiValueDictKeyError:
+				valid_contacto = "n/a"
+				coordinacion_form = CoordinacionForm(evento, request.POST, request.FILES)
+				if coordinacion_form.is_valid():
 					
-					hora_instalacion = request.POST['hora_instalacion']
-					if hora_instalacion == "":
-						hora_instalacion = None
-					if hora_instalacion != ev.hora_instalacion:
-						ev.hora_instalacion = hora_instalacion
+					multiples_eventos = [evento]
+					eventos_activacion = evento.Activacion.Eventos.all()
+					for key, value in request.POST.items():
+						if "multiples_" in key:
+							multiples_eventos.append(eventos_activacion.get(idEvento=key.split("_")[1]))
 
-					hora_desinstalacion = request.POST['hora_desinstalacion']
-					if hora_desinstalacion == "":
-						hora_desinstalacion = None
-					if hora_desinstalacion != ev.hora_desinstalacion:
-						ev.hora_desinstalacion = hora_desinstalacion
+					for ev in multiples_eventos:
 
-					inicio_servicio = request.POST['inicio_servicio']
-					if inicio_servicio == "":
-						inicio_servicio = None
-					if inicio_servicio != ev.inicio_servicio:
-						ev.inicio_servicio = inicio_servicio
-					
-					fin_servicio = request.POST['fin_servicio']
-					if fin_servicio == "":
-						fin_servicio = None
-					if fin_servicio != ev.fin_servicio:
-						ev.fin_servicio = fin_servicio
+						contacto = request.POST['Contacto']
+						if contacto == "":
+							ev.Contacto = None
+						else:
+							Contacto = ev.Activacion.Cliente.Contactos.get(idContacto=contacto)
+							if Contacto != ev.Contacto:
+								ev.Contacto = Contacto
 
-					ev.direccion = request.POST['direccion']
-					ev.save()
-					#return custom_redirect('evento', evento=idEvento)
-			else:
-				error = True
+						#date(1943,3, 13)  #year, month, day
+						if (request.POST['fecha_instalacion_year'] == "0" and request.POST['fecha_instalacion_month'] == "0" and request.POST['fecha_instalacion_day'] == "0"):
+							ev.fecha_instalacion = None
+						if (request.POST['fecha_instalacion_year'] != "0" and request.POST['fecha_instalacion_month'] != "0" and request.POST['fecha_instalacion_day'] != "0"):
+							ev.fecha_instalacion = date(int(request.POST['fecha_instalacion_year']), int(request.POST['fecha_instalacion_month']), int(request.POST['fecha_instalacion_day']))  #year, month, day
+						if (request.POST['fecha_desinstalacion_year'] == "0" and request.POST['fecha_desinstalacion_month'] == "0" and request.POST['fecha_desinstalacion_day'] == "0"):
+							ev.fecha_desinstalacion = None
+						if (request.POST['fecha_desinstalacion_year'] != "0" and request.POST['fecha_desinstalacion_month'] != "0" and request.POST['fecha_desinstalacion_day'] != "0"):
+							ev.fecha_desinstalacion = date(int(request.POST['fecha_desinstalacion_year']), int(request.POST['fecha_desinstalacion_month']), int(request.POST['fecha_desinstalacion_day']))  #year, month, day
+						
+						hora_instalacion = request.POST['hora_instalacion']
+						if hora_instalacion == "":
+							hora_instalacion = None
+						if hora_instalacion != ev.hora_instalacion:
+							ev.hora_instalacion = hora_instalacion
+
+						hora_desinstalacion = request.POST['hora_desinstalacion']
+						if hora_desinstalacion == "":
+							hora_desinstalacion = None
+						if hora_desinstalacion != ev.hora_desinstalacion:
+							ev.hora_desinstalacion = hora_desinstalacion
+
+						inicio_servicio = request.POST['inicio_servicio']
+						if inicio_servicio == "":
+							inicio_servicio = None
+						if inicio_servicio != ev.inicio_servicio:
+							ev.inicio_servicio = inicio_servicio
+						
+						fin_servicio = request.POST['fin_servicio']
+						if fin_servicio == "":
+							fin_servicio = None
+						if fin_servicio != ev.fin_servicio:
+							ev.fin_servicio = fin_servicio
+
+						ev.direccion = request.POST['direccion']
+						ev.save()
+						#return custom_redirect('evento', evento=idEvento)
+				else:
+					error = True
 
 		elif edit == "logistica":
 			try:
@@ -1101,7 +1151,7 @@ def evento(request):
 				evento.save()
 
 				#return custom_redirect('evento', evento=idEvento)
-		if not error and reporte == False and valid_trabajador == "n/a":
+		if not error and reporte == False and valid_trabajador == "n/a" and valid_contacto == "n/a":
 
 			evento = Eventos.objects.get(idEvento=idEvento)
 
@@ -1148,6 +1198,7 @@ def evento(request):
 			coordinacion_form = None
 			logistica_form = None
 			trabajador_nuevo_form = None
+			contacto_nuevo_form = None
 			edit = request.GET['edit']
 			if edit == "coordinacion":
 				coordinacion_form = CoordinacionForm(evento, initial={
@@ -1160,6 +1211,7 @@ def evento(request):
 					"hora_desinstalacion":evento.hora_desinstalacion, 
 					"direccion":evento.direccion
 					})
+				contacto_nuevo_form = ContactosForm()
 
 			elif edit == "logistica":
 				initial_trabajadores = {}
@@ -1307,6 +1359,8 @@ def evento(request):
 		"nErrores": nErrores,
 		"trabajador_nuevo_form": trabajador_nuevo_form,
 		"valid_trabajador": valid_trabajador,
+		"contacto_nuevo_form": contacto_nuevo_form,
+		"valid_contacto": valid_contacto,
 		"multiples_form": multiples_form,
 	}
 	return render(request, 'evento.html', context)
@@ -1418,50 +1472,152 @@ def facturas(request):
 def agregar_factura(request):
 	mensaje_error = ""
 	if request.method == 'POST':
-		#activacion = Activaciones.objects.get(idActivacion=request.POST["Activacion"])
-		activacion = int(request.POST["Activacion"])
-		if activacion == -1:
-			mensaje_error = "Elija una activación."
 		form = FacturasForm(request.POST, request.FILES)
-		if form.is_valid() and activacion != -1:
-			#f = form.save(commit = False)
-			#f.fecha_pago = f.fecha_facturacion + timedelta(days=request.POST["plazo"])
-			#f.save()
-			nFactura = int(request.POST["nFactura"])
-			fecha_facturacion = date(int(request.POST['fecha_facturacion_year']), int(request.POST['fecha_facturacion_month']), int(request.POST['fecha_facturacion_day']))  #year, month, day
+		if form.is_valid(): # and activacion != -1:
+			activacion = request.POST["activacion"]
+			
+			act = Activaciones.objects.get(idActivacion=activacion)
+			facturas = act.Facturas.all()
+			monto_restante = act.monto
+			for f in facturas:
+				monto_restante -= f.monto
+			
 			monto = int(request.POST["monto"])
-			#adelanto = int(request.POST["adelanto"])
-			plazo = int(request.POST["plazo"])
-			fecha_pago = fecha_facturacion + timedelta(days=plazo)
+			if monto > monto_restante:
+				mensaje_error = "Este monto es mayor al total que queda por facturar de la activación."
+			else:
+				nFactura = int(request.POST["nFactura"])
+				fecha_facturacion = date(int(request.POST['fecha_facturacion_year']), int(request.POST['fecha_facturacion_month']), int(request.POST['fecha_facturacion_day']))  #year, month, day
+				
+				#adelanto = int(request.POST["adelanto"])
+				plazo = int(request.POST["plazo"])
+				fecha_pago = fecha_facturacion + timedelta(days=plazo)
 
-			#factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, pago=adelanto, fecha_pago=fecha_pago)
-			factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, fecha_pago=fecha_pago)
-			factura.save()
+				#factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, pago=adelanto, fecha_pago=fecha_pago)
+				factura = Facturas(nFactura=nFactura, Activacion=act, fecha_facturacion=fecha_facturacion, monto=monto, fecha_pago=fecha_pago)
+				factura.save()
 
-			return redirect('facturas')
+				return redirect('activaciones')
 	else:
+		activacion = request.GET["activacion"]
 		ultima = Facturas.objects.first()
 		if ultima == None:
 			nFactura = 1
 		else:
 			nFactura = ultima.nFactura + 1
+
+		act = Activaciones.objects.get(idActivacion=activacion)
+		facturas = act.Facturas.all()
+		monto_restante = act.monto
+		for f in facturas:
+			monto_restante -= f.monto
+
 		initial = {
 			"nFactura": nFactura,
 			"fecha_facturacion": date.today(),
+			"monto": monto_restante,
 			"plazo": 30,
+			"activacion": activacion,
 		}
-		try:
-			initial["Activacion"] = request.GET["activacion"]
-		except MultiValueDictKeyError:
-			pass
+		#try:
+		#	initial["Activacion"] = request.GET["activacion"]
+		#except MultiValueDictKeyError:
+		#	pass
 		form = FacturasForm(initial=initial)
 
 	context = {
-		#"activacion": activacion,
+		"activacion": activacion,
 		"facturas_form": form,
 		"mensaje_error": mensaje_error,
 	}
 	return render(request, 'agregar_factura.html', context)
+
+
+def ingresos(request):
+	ingresos = Ingresos.objects.all()
+	
+	context = {
+		"ingresos": ingresos,
+		#"titulos": titulos,
+	}
+	return render(request, 'ingresos.html', context)
+
+
+def agregar_ingreso(request):
+	mensaje_error = ""
+	if request.method == 'POST':
+		form = IngresosForm(request.POST, request.FILES)
+		if form.is_valid():
+			activacion = request.POST["activacion"]
+			factura = request.POST["factura"]
+			act = Activaciones.objects.get(idActivacion=activacion)
+			
+			monto = int(request.POST["monto"])
+
+			ingresos_totales = act.Ingresos.all()
+			monto_restante_total = act.monto
+			for i in ingresos_totales:
+				monto_restante_total -= i.monto
+
+
+			if factura == "-":
+				fact = None
+				facturas = act.Facturas.all()
+				monto_restante = act.monto
+				for f in facturas:
+					monto_restante -= f.monto
+			else:
+				fact = Facturas.objects.get(nFactura=factura)
+				ingresos = fact.Ingresos.all()
+				monto_restante = fact.monto
+				for i in ingresos:
+					monto_restante -= i.monto
+
+			
+			if monto > monto_restante and factura == "-":
+				mensaje_error = "Este monto es mayor al total que queda por facturar de la activación. Considere asociar este pago a una de las facturas existentes."
+			elif monto > monto_restante and factura != "-":
+				mensaje_error = "Este monto es mayor al total que queda por pagar de la facturación."
+			elif (monto > monto_restante_total):
+				mensaje_error = "Error, hay un pago en la activación que no tiene factura asociada, se recomienda primero asociarla a esta factura."
+			else:
+				fecha = date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+				comentarios = request.POST["comentarios"]
+
+				ingreso = Ingresos(Factura=fact, Activacion=act, fecha=fecha, monto=monto, comentarios=comentarios)
+				ingreso.save()
+
+				return redirect('activaciones')
+	else:
+		activacion = request.GET["activacion"]
+		factura = request.GET["factura"]
+		
+		if factura == "-":
+			act = Activaciones.objects.get(idActivacion=activacion)
+			facturas = act.Facturas.all()
+			monto_restante = act.monto
+			for f in facturas:
+				monto_restante -= f.monto
+		else:
+			fact = Facturas.objects.get(nFactura=factura)
+			ingresos = fact.Ingresos.all()
+			monto_restante = fact.monto
+			for i in ingresos:
+				monto_restante -= i.monto
+
+		initial = {
+			"monto": monto_restante,
+			"fecha": date.today(),
+		}
+		form = IngresosForm(initial=initial)
+
+	context = {
+		"activacion": activacion,
+		"factura": factura,
+		"ingresos_form": form,
+		"mensaje_error": mensaje_error,
+	}
+	return render(request, 'agregar_ingreso.html', context)
 
 
 def itinerario_crear(request):
@@ -2377,6 +2533,12 @@ def eliminar_factura(request):
 	factura = Facturas.objects.get(nFactura=request.GET['nFactura'])
 	factura.delete()
 	return redirect('facturas')
+
+
+def eliminar_ingreso(request):
+	ingreso = Ingresos.objects.get(idIngreso=request.GET['idIngreso'])
+	ingreso.delete()
+	return redirect('ingresos')
 
 
 

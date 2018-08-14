@@ -3,8 +3,8 @@
 {% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
-{% block facturas-li %} active {% endblock %}
-{% block titulo %}Nueva factura{% endblock %}
+{% block ingresos-li %} active {% endblock %}
+{% block titulo %}Nuevo ingreso{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -19,7 +19,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Nueva factura</h1>
+								<h1>Nuevo ingreso</h1>
 							</div>
 						</div>
 
@@ -79,12 +79,17 @@
 							
 							<form method="post" enctype="multipart/form-data">
 				                {% csrf_token %}
+				                <input type="hidden" name="factura" id="factura" value="{{factura}}" />
+				                <div class="row form-group {% if field.error %} alert alert-error {% endif %}">
+									<div class="col col-sm-2"><label for="text-input" class=" form-control-label">Factura</label></div>
+									<div class="col-lg-3 col-sm-6" >{{factura}}</div>
+								</div>
 				                <input type="hidden" name="activacion" id="activacion" value="{{activacion}}" />
 				                <div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 									<div class="col col-sm-2"><label for="text-input" class=" form-control-label">Activación</label></div>
 									<div class="col-lg-3 col-sm-6" >{{activacion}}</div>
 								</div>
-				                {% for field in facturas_form %}
+				                {% for field in ingresos_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
 										<div class="col-lg-3 col-sm-6" >{{field}}</div>

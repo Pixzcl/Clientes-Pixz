@@ -85,6 +85,11 @@ urlpatterns = [
 	url(r'^editar_factura/', views.editar_factura, name='editar_factura'),
 	url(r'^eliminar_factura/', views.eliminar_factura, name='eliminar_factura'),
 
+	url(r'^ingresos/', views.ingresos, name='ingresos'),
+	url(r'^agregar_ingreso/', views.agregar_ingreso, name='agregar_ingreso'),
+	#url(r'^editar_ingreso/', views.editar_ingreso, name='editar_ingreso'),
+	url(r'^eliminar_ingreso/', views.eliminar_ingreso, name='eliminar_ingreso'),
+
 	url(r'^itinerario_crear/', views.itinerario_crear, name='itinerario_crear'),
 	url(r'^itinerario/', views.itinerario, name='itinerario'),
 

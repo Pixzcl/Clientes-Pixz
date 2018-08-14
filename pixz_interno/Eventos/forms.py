@@ -152,7 +152,7 @@ class TrabajadoresForm(forms.ModelForm):
 		widgets = {
 			'nombre': forms.TextInput(attrs={'class': "form-control"}),
 			'rut': forms.TextInput(attrs={'class': "form-control"}),
-			'telefono': forms.TextInput(attrs={'class': "form-control"}),
+			'telefono': forms.TextInput(attrs={'placeholder': "+569 9123 45 67", 'class': "form-control"}),
 			'mail': forms.TextInput(attrs={'class': "form-control"}),
 		}
 
@@ -326,46 +326,29 @@ class ReportesForm(forms.Form):
 
 class FacturasForm(forms.Form):
 	nFactura = forms.IntegerField(min_value=1, label="N° de factura", widget=forms.NumberInput(attrs={'class': "form-control"}))
-	Activacion = forms.ChoiceField(label="Activación")
+	#Activacion = forms.ChoiceField(label="Activación")
 	fecha_facturacion = forms.DateField(label="Fecha de facturación", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
 	monto = forms.IntegerField(min_value=0, label="Monto", widget=forms.NumberInput(attrs={'class': "form-control"}))
 	#adelanto = forms.IntegerField(min_value=0, initial=0, label="Adelanto", widget=forms.NumberInput(attrs={'class': "form-control"}))
 	plazo = forms.IntegerField(min_value=0, label="Plazo", widget=forms.NumberInput(attrs={'class': "form-control"}))
 
-	def __init__(self, *args, **kwargs):
-		super(FacturasForm, self).__init__(*args, **kwargs)
+	# def __init__(self, *args, **kwargs):
+	# 	super(FacturasForm, self).__init__(*args, **kwargs)
 
-		choices = [['-1', '------']]
-		activaciones = Activaciones.objects.all().order_by("nombre")
-		for a in activaciones:
-			choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
+	# 	choices = [['-1', '------']]
+	# 	activaciones = Activaciones.objects.all().order_by("nombre")
+	# 	for a in activaciones:
+	# 		choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
 
-		self.fields['Activacion'] = forms.ChoiceField(label="Activación", choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
+	# 	self.fields['Activacion'] = forms.ChoiceField(label="Activación", choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
 
 
-class PagoFacturasForm(forms.ModelForm):
-	class Meta:
-		model = Facturas
-		exclude = []
-		widgets = {
-			'nFactura': forms.NumberInput(attrs={'class': "form-control"}),
-			'Activacion': forms.Select(attrs={'class': "standardSelect"}),
-			'fecha_facturacion': forms.SelectDateWidget(attrs={'class': "standardSelect"}),
-			'monto': forms.NumberInput(attrs={'class': "form-control"}),
-			'pago': forms.NumberInput(attrs={'class': "form-control"}),
-			'plazo': forms.NumberInput(attrs={'class': "form-control"}),
-			'fecha_pago': forms.SelectDateWidget(attrs={'class': "standardSelect"}),
-		}
-
-	def __init__(self, *args, **kwargs):
-		super(PagoFacturasForm, self).__init__(*args, **kwargs)
-
-		choices = [['-1', '------']]
-		activaciones = Activaciones.objects.all().order_by("nombre")
-		for a in activaciones:
-			choices.append([a.idActivacion, a.Cliente.nombre + " - " + a.nombre])
-
-		self.fields['Activacion'] = forms.ChoiceField(label="Activación", choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
+class IngresosForm(forms.Form):
+	#nFactura = forms.IntegerField(min_value=1, label="N° de factura", widget=forms.NumberInput(attrs={'class': "form-control"}))
+	#Activacion = forms.ChoiceField(label="Activación")
+	fecha = forms.DateField(label="Fecha", initial=datetime.date.today(), widget=forms.SelectDateWidget(attrs={'class': "standardSelect"}))
+	monto = forms.IntegerField(min_value=0, label="Monto", widget=forms.NumberInput(attrs={'class': "form-control"}))
+	comentarios = forms.CharField(required=False, max_length=255, label="Comentarios", widget=forms.Textarea(attrs={'rows': 4, 'class': "form-control"}))
 
 
 class filtroEventosForm(forms.Form):
