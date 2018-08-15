@@ -1559,14 +1559,14 @@ def agregar_ingreso(request):
 			for i in ingresos_totales:
 				monto_restante_total -= i.monto
 
-
+			monto_restante = 0
 			if factura == "-":
 				fact = None
 				facturas = act.Facturas.all()
 				monto_restante = act.monto
 				for f in facturas:
 					monto_restante -= f.monto
-			else:
+			elif factura != "Weddi":
 				fact = Facturas.objects.get(nFactura=factura)
 				ingresos = fact.Ingresos.all()
 				monto_restante = fact.monto
@@ -1576,15 +1576,20 @@ def agregar_ingreso(request):
 			
 			if monto > monto_restante and factura == "-":
 				mensaje_error = "Este monto es mayor al total que queda por facturar de la activación. Considere asociar este pago a una de las facturas existentes."
-			elif monto > monto_restante and factura != "-":
+			elif monto > monto_restante and factura != "-" and factura != "Weddi":
 				mensaje_error = "Este monto es mayor al total que queda por pagar de la facturación."
-			elif (monto > monto_restante_total):
+			elif (monto > monto_restante_total) and factura != "Weddi":
 				mensaje_error = "Error, hay un pago en la activación que no tiene factura asociada, se recomienda primero asociarla a esta factura."
+			elif (monto > monto_restante_total) and factura == "Weddi":
+				mensaje_error = "Este monto es mayor al total que queda por pagar de la activación."
 			else:
 				fecha = date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
 				comentarios = request.POST["comentarios"]
 
-				ingreso = Ingresos(Factura=fact, Activacion=act, fecha=fecha, monto=monto, comentarios=comentarios)
+				if factura == "Weddi":
+					ingreso = Ingresos(Factura=None, Activacion=act, fecha=fecha, monto=monto, comentarios=comentarios)
+				else:
+					ingreso = Ingresos(Factura=fact, Activacion=act, fecha=fecha, monto=monto, comentarios=comentarios)
 				ingreso.save()
 
 				return redirect('activaciones')
@@ -1598,6 +1603,12 @@ def agregar_ingreso(request):
 			monto_restante = act.monto
 			for f in facturas:
 				monto_restante -= f.monto
+		elif factura == "Weddi":
+			act = Activaciones.objects.get(idActivacion=activacion)
+			ingresos = act.Ingresos.all()
+			monto_restante = act.monto
+			for i in ingresos:
+				monto_restante -= i.monto
 		else:
 			fact = Facturas.objects.get(nFactura=factura)
 			ingresos = fact.Ingresos.all()

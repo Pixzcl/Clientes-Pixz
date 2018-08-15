@@ -187,14 +187,30 @@
 									<td>{{activacion.descripcion}}</td>
 									
 									{% if activacion.monto == 0 %}
-										<td bgcolor="#868e96"><b>Falta ingresar monto</b></td>
-									{% elif activacion|facturado == "Si" and activacion|pagado == "Si" %}
-										<td bgcolor="#28a745"><b>Facturado y pagado</b></td>
+										<td bgcolor="#868e96" align="center" ><b>Falta ingresar monto</b></td>
+									{% elif activacion.tipo == "Weddi" %}
+										{% if activacion|pagado == "Si" %}
+											<td bgcolor="#28a745" align="center" ><b>Pagado</b></td>
+										{% else %}
+											<td align="center" >
+												<button id="btn_pagar_{{activacion.idActivacion}}" type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_ingreso" %}?activacion={{activacion.idActivacion}}&factura=Weddi'" ><i class="fa fa-money"></i>&nbsp; Pagar</button>
+											</td>
+										{% endif %}
 									{% else %}
-										<td>
-											<button {% if activacion|facturado == "Si" %} disabled {% endif %} type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
-											<button id="btn_pagar_{{activacion.idActivacion}}" type="button" class="btn btn-outline-success" onclick="pagar('{{activacion.idActivacion}}', '{% for factura in activacion.Facturas.all %}{{factura.nFactura}}/{% endfor %}', '{% for ingreso in activacion.Ingresos.all %}{% if ingreso.Factura == None %}{{ingreso.idIngreso}} - ${{ingreso.monto}}/{% endif %}{% endfor %}')"><i class="fa fa-money"></i>&nbsp; Pagar</button>
-										</td>
+										{% if activacion|facturado == "Si" %}
+											{% if activacion|pagado == "Si" %}
+												<td bgcolor="#28a745" align="center" ><b>Facturado y pagado</b></td>
+											{% else %}
+												<td bgcolor="#007bff" align="center" ><b>Facturado</b>
+													<button id="btn_pagar_{{activacion.idActivacion}}" type="button" class="btn btn-success" onclick="pagar('{{activacion.idActivacion}}', '{% for factura in activacion.Facturas.all %}{{factura.nFactura}}/{% endfor %}', '{% for ingreso in activacion.Ingresos.all %}{% if ingreso.Factura == None %}{{ingreso.idIngreso}} - ${{ingreso.monto}}/{% endif %}{% endfor %}')" ><i class="fa fa-money"></i>&nbsp; Pagar</button>
+												</td>
+											{% endif %}
+										{% else %}
+											<td align="center" >
+												<button {% if activacion|facturado == "Si" %} disabled {% endif %} type="button" class="btn btn-outline-primary" onclick="location.href='{% url "agregar_factura" %}?activacion={{activacion.idActivacion}}'"><i class="fa fa-money"></i>&nbsp; Facturar</button>
+												<button id="btn_pagar_{{activacion.idActivacion}}" type="button" class="btn btn-outline-success" onclick="pagar('{{activacion.idActivacion}}', '{% for factura in activacion.Facturas.all %}{{factura.nFactura}}/{% endfor %}', '{% for ingreso in activacion.Ingresos.all %}{% if ingreso.Factura == None %}{{ingreso.idIngreso}} - ${{ingreso.monto}}/{% endif %}{% endfor %}')" ><i class="fa fa-money"></i>&nbsp; Pagar</button>
+											</td>
+										{% endif %}
 									{% endif %}
 								</tr>
 							{% endfor %}

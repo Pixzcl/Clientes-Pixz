@@ -6,8 +6,11 @@ capacitacion trabajadores?
 datepicker
 
 ---
-*clickeable contacto que muestre sus datos en popup
+
 *star, boton fiscalizar evento, con aviso en home
+*estado 12345 para reconocer por separado
+¿sirve estado facturar en evento?
+* activacion/facturas/... como ListView
 
 ----------
 
@@ -36,6 +39,7 @@ unificar titulos izq y derecha / flujo agregar cliente -> activacion -> evento
 logo pixz más pequeño para que calze con celular
 
 40 min		"coordinacion": nuevo contacto popup
+6:40 hrs	facturación e ingresos
 
 
 

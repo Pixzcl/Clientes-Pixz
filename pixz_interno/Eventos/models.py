@@ -33,7 +33,7 @@ class Activaciones(models.Model):
 
 	nombre = models.CharField(max_length=255, verbose_name="Nombre", blank=False, null=False)
 	monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
-	adelanto = models.PositiveIntegerField(verbose_name="Adelanto", blank=False, null=False, default=0)
+	#adelanto = models.PositiveIntegerField(verbose_name="Adelanto", blank=False, null=False, default=0)
 	tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
 	descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, default="")
 

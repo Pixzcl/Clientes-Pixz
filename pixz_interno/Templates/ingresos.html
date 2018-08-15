@@ -103,7 +103,7 @@
 										<!--<a style="visibility:hidden" href='{% url "editar_factura" %}?factura={{factura.nFactura}}' ><i class="ti-pencil-alt text-primary"></i></a>-->
 										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{ingreso.idIngreso}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
-									<td>{{ingreso.Factura.nFactura}}</td>
+									<td>{% if ingreso.Factura == None %} - {% else %}{{ingreso.Factura.nFactura}}{% endif %}</td>
 									{% if ingreso.Activacion == None %}
 										<td> - </td>
 										<td> - </td>
