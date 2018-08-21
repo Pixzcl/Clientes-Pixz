@@ -1696,7 +1696,11 @@ def itinerario(request):
 	trabajador = request.GET["trabajador"]
 	if trabajador != "-1":
 		eventos = eventos.filter(Trabajadores__idTrabajador=trabajador).distinct()
-	eventos = eventos.order_by("fecha")
+	
+	eventos = eventos.order_by("fecha_desinstalacion")
+	fecha_fin = eventos.last().fecha_desinstalacion + timedelta(days=1)
+	eventos = eventos.order_by("fecha_instalacion")
+	fecha_inicio = eventos.last().fecha_instalacion
 	
 	for evento in eventos:
 		if evento.hora_instalacion == None:
@@ -1713,23 +1717,57 @@ def itinerario(request):
 			errores_info.append([evento.idEvento, "fecha de desinstalación"])
 
 	if errores_info == []:
-		#fecha = desde
-		#while fecha <= hasta:
-		#	fecha += timedelta(days=1)
-		fecha = -1
-		for ev in eventos:
-			if ev.fecha != fecha:
-				fecha = ev.fecha
+		
+		# fecha = -1
+		# for ev in eventos:
+		# 	if ev.fecha != fecha:
+		# 		fecha = ev.fecha
+		# 		itinerario.append([])
+		# 		dias.append(fecha)
+
+		# 		for evento in eventos.filter(fecha=fecha):
+		# 			itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+		# 			itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+		# 			itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+		# 			itinerario[-1].append([evento.hora_desinstalacion, "DESINSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+
+		# 		itinerario[-1].sort(key=lambda x: x[0])
+
+		fecha = fecha_inicio
+		evs_fin_servicio = []
+
+		while fecha != fecha_fin:
+			evs_instalacion = eventos.filter(fecha_instalacion=fecha)
+			evs_evento = eventos.filter(fecha=fecha)
+			evs_desinstalacion = eventos.filter(fecha_desinstalacion=fecha)
+
+			if evs_instalacion.count() > 0 or evs_evento.count() > 0  or evs_desinstalacion.count() > 0 or len(evs_fin_servicio) > 0:
 				itinerario.append([])
 				dias.append(fecha)
 
-				for evento in eventos.filter(fecha=fecha):
-					itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
-					itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+
+				for evento in evs_fin_servicio:
 					itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+				evs_fin_servicio = []
+
+				for evento in evs_instalacion:
+					itinerario[-1].append([evento.hora_instalacion, "INSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+
+				for evento in evs_evento:
+					itinerario[-1].append([evento.inicio_servicio, "INICIO SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					if evento.inicio_servicio < evento.fin_servicio: # (en el mismo dia)
+						itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+					else:
+						evs_fin_servicio.append(evento)
+						#itinerario[-1].append([evento.fin_servicio, "FIN SERVICIO", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
+						
+				for evento in evs_desinstalacion:
 					itinerario[-1].append([evento.hora_desinstalacion, "DESINSTALACIÓN", evento, "*&*&*".join([plan.nombre for plan in evento.Planes.all()])])
 
 				itinerario[-1].sort(key=lambda x: x[0])
+
+			fecha += timedelta(days=1)
+
 
 	context = {
 		"eventos": eventos,
