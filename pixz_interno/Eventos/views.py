@@ -1498,7 +1498,7 @@ def agregar_factura(request):
 				fecha_pago = fecha_facturacion + timedelta(days=plazo)
 
 				#factura = Facturas(nFactura=nFactura, Activacion=Activaciones.objects.get(idActivacion=activacion), fecha_facturacion=fecha_facturacion, monto=monto, pago=adelanto, fecha_pago=fecha_pago)
-				factura = Facturas(nFactura=nFactura, Activacion=act, fecha_facturacion=fecha_facturacion, monto=monto, fecha_pago=fecha_pago)
+				factura = Facturas(nFactura=nFactura, Activacion=act, fecha_facturacion=fecha_facturacion, monto=monto, montoIVA=monto*1.19, fecha_pago=fecha_pago)
 				factura.save()
 
 				return redirect('activaciones')
