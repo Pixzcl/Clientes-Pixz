@@ -2,6 +2,7 @@ from django import template
 register = template.Library()
 
 from Eventos.models import *
+from datetime import date
 
 @register.filter(name='zip')
 def zip_listas(a,b):
@@ -38,5 +39,15 @@ def pagado(activacion):
 		return "No"
 	elif suma > activacion.monto:
 		return "Error"
+
+@register.filter()
+def atrasado(activacion):
+	atrasado = "No"
+	hoy = date.today()
+	for factura in activacion.Facturas.all():
+		if factura.fecha_pago > hoy:
+			atrasado = "Si"
+			break
+	return atrasado
 
 

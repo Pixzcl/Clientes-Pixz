@@ -202,7 +202,7 @@
 											{% if activacion|pagado == "Si" %}
 												<td bgcolor="#28a745" align="center" ><b>Facturado y pagado</b></td>
 											{% else %}
-												<td bgcolor="#007bff" align="center" ><b>Facturado</b>
+												{% if activacion|atrasado == "No" %}<td bgcolor="#007bff" align="center" >{% else %}<td bgcolor="red" align="center" >{% endif %}<b>Facturado</b>
 													<button id="btn_pagar_{{activacion.idActivacion}}" type="button" class="btn btn-success" onclick="pagar('{{activacion.idActivacion}}', '{% for factura in activacion.Facturas.all %}{{factura.nFactura}}/{% endfor %}', '{% for ingreso in activacion.Ingresos.all %}{% if ingreso.Factura == None %}{{ingreso.idIngreso}} - ${{ingreso.monto}}/{% endif %}{% endfor %}')" ><i class="fa fa-money"></i>&nbsp; Pagar</button>
 												</td>
 											{% endif %}
