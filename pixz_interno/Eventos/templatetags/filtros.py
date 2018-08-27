@@ -33,11 +33,11 @@ def pagado(activacion):
 	suma = 0
 	for ingreso in activacion.Ingresos.all():
 		suma += ingreso.monto
-	if suma == activacion.monto:
+	if suma == activacion.montoIVA:
 		return "Si"
-	elif suma < activacion.monto:
+	elif suma < activacion.montoIVA:
 		return "No"
-	elif suma > activacion.monto:
+	elif suma > activacion.montoIVA:
 		return "Error"
 
 @register.filter()

@@ -279,6 +279,10 @@ def agregar_activacion(request):
 			if nombre_unico:
 				activacion = form.save(commit=False)
 				activacion.Cliente = Clientes.objects.get(idCliente=idCliente)
+				if activacion.tipo == "Weddi":
+					activacion.montoIVA = activacion.monto
+				else:
+					activacion.montoIVA = activacion.monto*1.19
 				activacion.save()
 				#return custom_redirect('eventos', activacion=activacion.idActivacion)
 				return custom_redirect('agregar_evento', activacion=activacion.idActivacion)
@@ -1546,16 +1550,16 @@ def ingresos(request):
 def agregar_ingreso(request):
 	mensaje_error = ""
 	if request.method == 'POST':
-		form = IngresosForm(request.POST, request.FILES)
+		factura = request.POST["factura"]
+		form = IngresosForm(factura, request.POST, request.FILES)
 		if form.is_valid():
 			activacion = request.POST["activacion"]
-			factura = request.POST["factura"]
 			act = Activaciones.objects.get(idActivacion=activacion)
 			
 			monto = int(request.POST["monto"])
 
 			ingresos_totales = act.Ingresos.all()
-			monto_restante_total = act.monto
+			monto_restante_total = act.montoIVA
 			for i in ingresos_totales:
 				monto_restante_total -= i.monto
 
@@ -1563,13 +1567,13 @@ def agregar_ingreso(request):
 			if factura == "-":
 				fact = None
 				facturas = act.Facturas.all()
-				monto_restante = act.monto
+				monto_restante = act.montoIVA
 				for f in facturas:
-					monto_restante -= f.monto
+					monto_restante -= f.montoIVA
 			elif factura != "Weddi":
 				fact = Facturas.objects.get(nFactura=factura)
 				ingresos = fact.Ingresos.all()
-				monto_restante = fact.monto
+				monto_restante = fact.montoIVA
 				for i in ingresos:
 					monto_restante -= i.monto
 
@@ -1600,9 +1604,9 @@ def agregar_ingreso(request):
 		if factura == "-":
 			act = Activaciones.objects.get(idActivacion=activacion)
 			facturas = act.Facturas.all()
-			monto_restante = act.monto
+			monto_restante = act.montoIVA
 			for f in facturas:
-				monto_restante -= f.monto
+				monto_restante -= f.montoIVA
 		elif factura == "Weddi":
 			act = Activaciones.objects.get(idActivacion=activacion)
 			ingresos = act.Ingresos.all()
@@ -1612,7 +1616,7 @@ def agregar_ingreso(request):
 		else:
 			fact = Facturas.objects.get(nFactura=factura)
 			ingresos = fact.Ingresos.all()
-			monto_restante = fact.monto
+			monto_restante = fact.montoIVA
 			for i in ingresos:
 				monto_restante -= i.monto
 
@@ -1620,7 +1624,7 @@ def agregar_ingreso(request):
 			"monto": monto_restante,
 			"fecha": date.today(),
 		}
-		form = IngresosForm(initial=initial)
+		form = IngresosForm(factura, initial=initial)
 
 	context = {
 		"activacion": activacion,
@@ -1830,6 +1834,10 @@ def editar_activacion(request):
 		if form.is_valid() and nombre_unico:
 			a = form.save(commit=False)
 			a.idActivacion = activacion.idActivacion
+			if a.tipo == "Weddi":
+				a.montoIVA = a.monto
+			else:
+				a.montoIVA = a.monto*1.19
 			a.save()
 
 			if menuCliente != "":
@@ -1838,7 +1846,7 @@ def editar_activacion(request):
 				return redirect('activaciones')
 	else:
 		activacion = Activaciones.objects.get(idActivacion=request.GET['Activacion'])
-		form = ActivacionesSelectForm(initial={"Cliente":activacion.Cliente, "nombre": activacion.nombre, "monto":activacion.monto,"descripcion": activacion.descripcion})
+		form = ActivacionesSelectForm(initial={"Cliente":activacion.Cliente, "nombre": activacion.nombre, "monto":activacion.monto,"descripcion": activacion.descripcion, "tipo": activacion.tipo})
 		try:
 			menuCliente = request.GET['cliente']
 		except MultiValueDictKeyError:

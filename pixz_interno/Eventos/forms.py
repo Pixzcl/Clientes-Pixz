@@ -350,6 +350,12 @@ class IngresosForm(forms.Form):
 	monto = forms.IntegerField(min_value=0, label="Monto", widget=forms.NumberInput(attrs={'class': "form-control"}))
 	comentarios = forms.CharField(required=False, max_length=255, label="Comentarios", widget=forms.Textarea(attrs={'rows': 4, 'class': "form-control"}))
 
+	def __init__(self, factura, *args, **kwargs):
+		super(IngresosForm, self).__init__(*args, **kwargs)
+
+		if factura != "Weddi":
+			self.fields["monto"].label = "Monto con IVA"
+
 
 class filtroEventosForm(forms.Form):
 	choices_pendientes = [["", "- Todos -"], ["Pendientes", "Pendientes"], ["Pasados", "Pasados"]]
