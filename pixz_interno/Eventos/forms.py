@@ -21,7 +21,7 @@ class ActivacionesForm(forms.ModelForm):
 	class Meta:
 		model = Activaciones
 		
-		exclude = ["Cliente"]
+		exclude = ["Cliente", "montoIVA"]
 		widgets = {
 			"descripcion": forms.Textarea(attrs={'rows': 4}),
 			"tipo": forms.Select(choices = [["Pixz","Pixz"], ["Weddi", "Weddi"], ["Producción", "Producción"], ["Tech", "Tech"]], attrs={'class': "standardSelect"}),
@@ -33,7 +33,7 @@ class ActivacionesSelectForm(forms.ModelForm):
 	class Meta:
 		model = Activaciones
 		
-		exclude = []
+		exclude = ["montoIVA"]
 		widgets = {
 			"descripcion": forms.Textarea(attrs={'rows': 4}),
 			"tipo": forms.Select(choices = [["Pixz","Pixz"], ["Weddi", "Weddi"], ["Producción", "Producción"], ["Tech", "Tech"]], attrs={'class': "standardSelect"}),

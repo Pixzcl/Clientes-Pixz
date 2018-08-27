@@ -183,7 +183,8 @@
 									{% endif %}
 									<td><a href="{% url 'eventos' %}?Activacion={{activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{activacion.nombre}}</a></td>
 									<td>{{activacion.tipo}}</td>
-									<td>{{activacion.monto}}</td>
+									<td>${{activacion.monto}}</td>
+									<td>${{activacion.montoIVA}}</td>
 									<td>{{activacion.descripcion}}</td>
 									
 									{% if activacion.monto == 0 %}

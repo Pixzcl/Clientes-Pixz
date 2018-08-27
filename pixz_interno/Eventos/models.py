@@ -33,6 +33,7 @@ class Activaciones(models.Model):
 
 	nombre = models.CharField(max_length=255, verbose_name="Nombre", blank=False, null=False)
 	monto = models.PositiveIntegerField(verbose_name="Monto de venta", blank=False, null=False)
+	montoIVA = models.PositiveIntegerField(verbose_name="Monto con IVA", blank=False, null=False)
 	#adelanto = models.PositiveIntegerField(verbose_name="Adelanto", blank=False, null=False, default=0)
 	tipo = models.CharField(max_length=255, verbose_name="Tipo", blank=False, null=False)
 	descripcion = models.TextField(verbose_name="Descripción", blank=True, null=True, default="")
@@ -262,3 +263,15 @@ class Ingresos(models.Model):
 	fecha = models.DateField(verbose_name="Fecha", blank=False, null=False)
 	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
 	comentarios = models.TextField(verbose_name="Comentarios", blank=True, null=True, default="")
+
+
+# class CostoVariable(models.Model):
+# 	idCostoVariable = models.AutoField(primary_key=True, verbose_name="#")
+
+# 	documento = models.TextField(verbose_name="Documento", blank=False, null=False, default="")
+# 	categoria = models.TextField(verbose_name="Documento", blank=False, null=False, default="")
+# 	documento = models.TextField(verbose_name="Documento", blank=False, null=False, default="")
+
+# 	fecha = models.DateField(verbose_name="Fecha", blank=False, null=False)
+# 	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
+# 	comentarios = models.TextField(verbose_name="Comentarios", blank=True, null=True, default="")

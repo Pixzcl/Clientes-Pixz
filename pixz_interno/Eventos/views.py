@@ -216,14 +216,14 @@ def activaciones(request):
 		idCliente = request.GET['cliente']
 		cliente = Clientes.objects.get(idCliente=idCliente)
 		activaciones = Activaciones.objects.filter(Cliente=cliente)
-		titulos = ["#","Activación", "Tipo", "Monto", "Descripción"]
+		titulos = ["#","Activación", "Tipo", "Monto", "Monto + IVA", "Descripción"]
 		contactos = cliente.Contactos.all()
 		titulos_contactos = ["#", "Nombre", "Teléfono", "Mail"]
 	except MultiValueDictKeyError:
 		idCliente = ""
 		cliente = ""
 		activaciones = Activaciones.objects.all()
-		titulos = ["#", "Cliente","Activación", "Tipo", "Monto", "Descripción"]
+		titulos = ["#", "Cliente","Activación", "Tipo", "Monto", "Monto + IVA", "Descripción"]
 		contactos = None
 		titulos_contactos = None
 
