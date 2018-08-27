@@ -91,6 +91,7 @@
 							<th>Activación</th>
 							<th>Fecha de facturacion</th>
 							<th>Monto</th>
+							<th>Monto + IVA</th>
 							<th>Fecha pago</th>
 						  </tr>
 						</thead>
@@ -112,6 +113,7 @@
 									
 									<td>{{factura.fecha_facturacion}}</td>
 									<td>${{factura.monto}}</td>
+									<td>${{factura.montoIVA}}</td>
 									<td>{% if factura.fecha_pago == None %}
 											 - 
 										{% else %}

@@ -247,6 +247,7 @@ class Facturas(models.Model):
 	Activacion = models.ForeignKey("Activaciones", verbose_name="Activacion", related_name="Facturas", on_delete=models.SET(None), blank=False, null=True)
 	fecha_facturacion = models.DateField(verbose_name="Fecha de facturación", blank=False, null=False)
 	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
+	montoIVA = models.PositiveIntegerField(verbose_name="Monto con IVA", blank=False, null=False)
 	#pago = models.PositiveIntegerField(verbose_name="Pago", blank=False, null=False)
 	#plazo = models.PositiveSmallIntegerField(verbose_name="Plazo", blank=False, null=False)
 	fecha_pago = models.DateField(verbose_name="Fecha de pago", blank=False, null=False)
