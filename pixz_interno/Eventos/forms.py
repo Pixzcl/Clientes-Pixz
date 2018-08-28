@@ -411,4 +411,39 @@ class multiplesEventoForm(forms.Form):
 		for ev in evento.Activacion.Eventos.all():
 			if evento != ev:
 				self.fields["multiples_" + str(ev.idEvento)] = forms.BooleanField(required=False, label=ev.nombre, widget=forms.CheckboxInput(attrs={'class': "switch-input"}))
+
+
+class filtroCostosVariablesForm(forms.Form):
+	choices_documento = [["", "Boletas y Facturas"], ["Boleta", "Boletas"], ["Factura", "Facturas"]]
+	documento = forms.ChoiceField(required=False, label="Documento", choices=choices_documento, widget=forms.Select(attrs={'class': "standardSelect"}))
+	tipo = forms.CharField(required=False, max_length=255, label="Tipo", widget=forms.TextInput(attrs={'class': "form-control"}))
+	evento = forms.CharField(required=False, max_length=255, label="Evento", widget=forms.TextInput(attrs={'class': "form-control"}))
+
+
+class costosVariablesForm(forms.ModelForm):
+	class Meta:
+		model = CostosVariables
 		
+		exclude = []
+		widgets = {
+			'documento': forms.Select(choices=[[None,"------"], ["Boleta", "Boleta"], ["Factura", "Factura"]], attrs={'class': "standardSelect"}),
+			'fecha': forms.SelectDateWidget(attrs={'class': "standardSelect"}),
+			'comentarios': forms.Textarea(attrs={'rows': 4}),
+		}
+
+	def __init__(self, *args, **kwargs):
+		super(costosVariablesForm, self).__init__(*args, **kwargs)
+
+		#self.fields['Evento'].queryset = Eventos.objects.order_by('-idEvento')
+		self.fields['Tipo'].label_from_instance = lambda obj: obj.nombre # lambda obj: "%s %s" % (obj.last_name, obj.first_name)
+		self.fields['Evento'].label_from_instance = lambda obj: str(obj.idEvento) + " - " + obj.Activacion.nombre + " - " + obj.nombre # lambda obj: "%s %s" % (obj.last_name, obj.first_name)
+
+
+class tiposCostoVariableForm(forms.ModelForm):
+	class Meta:
+		model = TiposCostoVariable
+		
+		exclude = []
+		widgets = {
+
+		}

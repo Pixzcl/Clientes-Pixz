@@ -82,7 +82,7 @@ urlpatterns = [
 
 	url(r'^facturas/', views.facturas, name='facturas'),
 	url(r'^agregar_factura/', views.agregar_factura, name='agregar_factura'),
-	url(r'^editar_factura/', views.editar_factura, name='editar_factura'),
+	#url(r'^editar_factura/', views.editar_factura, name='editar_factura'),
 	url(r'^eliminar_factura/', views.eliminar_factura, name='eliminar_factura'),
 
 	url(r'^ingresos/', views.ingresos, name='ingresos'),
@@ -94,6 +94,16 @@ urlpatterns = [
 	url(r'^itinerario/', views.itinerario, name='itinerario'),
 
 	url(r'^calendario/', views.calendario, name='calendario'),
+
+	url(r'^costos_variables/', views.costos_variables.as_view(), name='costos_variables'),
+	url(r'^agregar_costo_variable/', views.agregar_costo_variable, name='agregar_costo_variable'),
+	url(r'^editar_costo_variable/', views.editar_costo_variable, name='editar_costo_variable'),
+	url(r'^eliminar_costo_variable/', views.eliminar_costo_variable, name='eliminar_costo_variable'),
+
+	url(r'^tipos_costo_variable/', views.tipos_costo_variable, name='tipos_costo_variable'),
+	url(r'^agregar_tipo_costo_variable/', views.agregar_tipo_costo_variable, name='agregar_tipo_costo_variable'),
+	url(r'^editar_tipo_costo_variable/', views.editar_tipo_costo_variable, name='editar_tipo_costo_variable'),
+	url(r'^eliminar_tipo_costo_variable/', views.eliminar_tipo_costo_variable, name='eliminar_tipo_costo_variable'),
 	
 	
 

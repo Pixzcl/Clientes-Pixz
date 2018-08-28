@@ -88,6 +88,10 @@
 						<a href="{% url 'ingresos' %}"> <i class="menu-icon fa fa-money"></i>Ingresos</a>
 					</li>
 
+					<li class="{% block costos_variables-li %}{% endblock %}" >
+						<a href="{% url 'costos_variables' %}"> <i class="menu-icon ti-shopping-cart"></i>Costos Variables</a>
+					</li>
+
 
 
 					<h3 class="menu-title">Configuración</h3>
@@ -124,6 +128,11 @@
 							<li class="{% block pendientes-li %}{% endblock %}" >
 								<i class="menu-icon fa fa-check-square"></i>
 								<a href="{% url 'pendientes' %}">Tareas Pendientes</a>
+							</li>
+
+							<li class="{% block tipos_costo_variable-li %}{% endblock %}" >
+								<i class="menu-icon ti-shopping-cart"></i>
+								<a href="{% url 'tipos_costo_variable' %}">Tipos de costo variable</a>
 							</li>
 						</ul>
 					</li>

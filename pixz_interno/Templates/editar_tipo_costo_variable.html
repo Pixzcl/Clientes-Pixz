@@ -3,11 +3,13 @@
 {% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
-{% block index-li %} active {% endblock %}
-{% block titulo %}Nuevo cliente{% endblock %}
+{% block menuOtros-li %} active {% endblock %}
+{% block tipos_costo_variable-li %} active {% endblock %}
+{% block titulo %}Editar tipo de costo variable {{tipo.nombre}}{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
+
 	<div id="right-panel" class="right-panel">
 
 		<header id="header" class="header">
@@ -19,7 +21,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Nuevo cliente</h1>
+								<h1>Editar tipo de costo variable {{tipo.nombre}}</h1>
 							</div>
 						</div>
 
@@ -31,8 +33,8 @@
 						<div class="page-header float-right">
 							<div class="page-title">
 								<ol class="breadcrumb text-right">
-									<li><a href="{% url 'index' %}">Clientes</a></li>
-									<li class="active">Nuevo cliente</li>
+									<li><a href="{% url 'recurrentes' %}">Tareas pendientes</a></li>
+									<li class="active">Editar {{pendiente.nombre}}</li>
 								</ol>
 							</div>
 						</div>
@@ -46,7 +48,7 @@
 			<div class="col-sm-6">
 				<div class="page-header float-left">
 					<div class="page-title">
-						<h1>Nuevo cliente</h1>
+						<h1>Nuevo trabajador</h1>
 					</div>
 				</div>
 			</div>
@@ -54,14 +56,17 @@
 				<div class="page-header float-right">
 					<div class="page-title">
 						<ol class="breadcrumb text-right">
-							<li><a href="#">Clientes</a></li>
-							<li class="active">Nuevo cliente</li>
+							<li><a href="#">Trabajadores</a></li>
+							<li class="active">Nuevo trabajador</li>
 						</ol>
 					</div>
 				</div>
 			</div>
 		</div>
 -->
+
+
+
 		<div class="content mt-3">
 			<div class="animated fadeIn">
 				<div class="row">
@@ -69,23 +74,23 @@
 				<div class="col-md-12">
 					<div class="card">
 						<!--<div class="card-header">
-							<strong class="card-title">Nuevo cliente</strong>
+							<strong class="card-title">Nuevo item</strong>
 						</div>-->
 						<div class="card-body">
 							
-							<form method="post" enctype="multipart/form-data">
-				                {% csrf_token %}
-				                {% for field in clientes_form %}
+							<form id="form" method="post" enctype="multipart/form-data">
+								{% csrf_token %}
+								<input type="hidden" name="tipo" id="tipo" value="{{tipo.idTipoCostoVariable}}" />
+								{% for field in tipos_costo_variable_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
 										<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
-										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
+										<div class="col-lg-7 col-sm-4">{{field.errors}}</div>
 									</div>
 								{% endfor %}
-				                <button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
-				                <button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "clientes" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
-				            </form>
-
+								<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+								<button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "tipos_costo_variable" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+							</form>
 						</div>
 					</div>
 				</div>

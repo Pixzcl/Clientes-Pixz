@@ -3,9 +3,8 @@
 {% load filtros %}
 
 <!-- Activo en el menu: -->
-{% block eventos-li %} active {% endblock %}
-<!--{% comment %}{% block titulo %}{% if not activacion %}Eventos{% else %}Activación {{activacion.nombre}} - {{activacion.Cliente.nombre}}{% endif %}{% endblock %}{% endcomment %}-->
-{% block titulo %}Eventos{% endblock %}
+{% block costos_variables-li %} active {% endblock %}
+{% block titulo %}Costos variables{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -23,7 +22,7 @@
 							<div class="page-title">
 								<!--
 								{% if not activacion %}-->
-									<h1>Eventos</h1>
+									<h1>Costos Variables</h1>
 								<!--{% else %}
 									<h1>Activación {{activacion.nombre}}</h1>
 								{% endif %}-->
@@ -110,10 +109,10 @@
 						<div class="card">
 							<div class="card-body">
 								<div class="stat-widget-one">
-									<div class="stat-icon dib"><i class="ti-camera text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
+									<div class="stat-icon dib"><i class="ti-money text-success border-success"></i></div> <!--success/primary/warning/danger -->
 									<div class="stat-content dib">
-										<div class="stat-text">Eventos totales</div>
-										<div class="stat-digit">{{eventos.count}}</div>
+										<div class="stat-text">Total este mes</div>
+										<div class="stat-digit">{{total_este_mes}}</div>
 									</div>
 								</div>
 							</div>
@@ -124,15 +123,16 @@
 						<div class="card">
 							<div class="card-body">
 								<div class="stat-widget-one">
-									<div class="stat-icon dib"><i class="ti-camera text-warning border-warning"></i></div> <!--success/primary/warning/danger -->
+									<div class="stat-icon dib"><i class="ti-money text-success border-success"></i></div> <!--success/primary/warning/danger -->
 									<div class="stat-content dib">
-										<div class="stat-text">Eventos pendientes</div>
-										<div class="stat-digit">{{pendientes.count}}</div>
+										<div class="stat-text">Filtro búsqueda</div>
+										<div class="stat-digit">{{total_en_pantalla}}</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
+					
 				</div>
 
 
@@ -151,8 +151,8 @@
 								<div class="row">
 									<div class="card-body">
 										<!--<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_evento" %}{% if activacion != "" %}?Activacion={{activacion.idActivacion}}{% endif %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo evento</button>-->
-										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_evento" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo evento</button>
-										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar eventos</button>
+										<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_costo_variable" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo costo variable</button>
+										<button type="button" class="btn btn-outline-primary" onclick="mostrar()"><i class="ti-pencil-alt"></i>&nbsp; Editar costos</button>
 									</div>
 								</div>
 
@@ -194,67 +194,67 @@
 						<thead>
 						  <tr>
 							<th>
-								{% if orden == "idEvento" %}
+								{% if orden == "idCostoVariable" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('idEvento');" ><i class="fa fa-long-arrow-up" ></i></a>
+									<a href="#" onclick="orden('idCostoVariable');" ><i class="fa fa-long-arrow-up" ></i></a>
 								{% endif %}
-								{% if orden == "-idEvento" %}
+								{% if orden == "-idCostoVariable" %}
 									<i class="fa fa-long-arrow-down" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('-idEvento');" ><i class="fa fa-long-arrow-down" ></i></a>
+									<a href="#" onclick="orden('-idCostoVariable');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
 								<br>#
 							</th>
 							<th>
-								{% if orden == "estado" %}
+								{% if orden == "documento" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('estado');" ><i class="fa fa-long-arrow-up" ></i></a>
+									<a href="#" onclick="orden('documento');" ><i class="fa fa-long-arrow-up" ></i></a>
 								{% endif %}
-								{% if orden == "-estado" %}
+								{% if orden == "-documento" %}
 									<i class="fa fa-long-arrow-down" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('-estado');" ><i class="fa fa-long-arrow-down" ></i></a>
+									<a href="#" onclick="orden('-documento');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
-								<br>Estado
+								<br>Documento
 							</th>
 							<th>
-								{% if orden == "Activacion__Cliente__nombre" %}
+								{% if orden == "Tipo__nombre" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('Activacion__Cliente__nombre');" ><i class="fa fa-long-arrow-up" ></i></a>
+									<a href="#" onclick="orden('Tipo__nombre');" ><i class="fa fa-long-arrow-up" ></i></a>
 								{% endif %}
-								{% if orden == "-Activacion__Cliente__nombre" %}
+								{% if orden == "-Tipo__nombre" %}
 									<i class="fa fa-long-arrow-down" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('-Activacion__Cliente__nombre');" ><i class="fa fa-long-arrow-down" ></i></a>
+									<a href="#" onclick="orden('-Tipo__nombre');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
-								<br>Cliente
+								<br>Tipo
 							</th>
 							<th>
-								{% if orden == "Activacion__nombre" %}
+								{% if orden == "monto" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('Activacion__nombre');" ><i class="fa fa-long-arrow-up" ></i></a>
+									<a href="#" onclick="orden('monto');" ><i class="fa fa-long-arrow-up" ></i></a>
 								{% endif %}
-								{% if orden == "-Activacion__nombre" %}
+								{% if orden == "-monto" %}
 									<i class="fa fa-long-arrow-down" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('-Activacion__nombre');" ><i class="fa fa-long-arrow-down" ></i></a>
+									<a href="#" onclick="orden('-monto');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
-								<br>Activación
+								<br>Monto
 							</th>
 							<th>
-								{% if orden == "nombre" %}
+								{% if orden == "Evento__idEvento" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('nombre');" ><i class="fa fa-long-arrow-up" ></i></a>
+									<a href="#" onclick="orden('Evento__idEvento');" ><i class="fa fa-long-arrow-up" ></i></a>
 								{% endif %}
-								{% if orden == "-nombre" %}
+								{% if orden == "-Evento__idEvento" %}
 									<i class="fa fa-long-arrow-down" style="color:black" ></i>
 								{% else %}
-									<a href="#" onclick="orden('-nombre');" ><i class="fa fa-long-arrow-down" ></i></a>
+									<a href="#" onclick="orden('-Evento__idEvento');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
 								<br>Evento
 							</th>
@@ -272,32 +272,6 @@
 								<br>Fecha
 							</th>
 							<th>
-								{% if orden == "horas" %}
-									<i class="fa fa-long-arrow-up" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('horas');" ><i class="fa fa-long-arrow-up" ></i></a>
-								{% endif %}
-								{% if orden == "-horas" %}
-									<i class="fa fa-long-arrow-down" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('-horas');" ><i class="fa fa-long-arrow-down" ></i></a>
-								{% endif %}
-								<br>Horas
-							</th>
-							<th>
-								{% if orden == "Planes__nombre" %}
-									<i class="fa fa-long-arrow-up" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('Planes__nombre');" ><i class="fa fa-long-arrow-up" ></i></a>
-								{% endif %}
-								{% if orden == "-Planes__nombre" %}
-									<i class="fa fa-long-arrow-down" style="color:black" ></i>
-								{% else %}
-									<a href="#" onclick="orden('-Planes__nombre');" ><i class="fa fa-long-arrow-down" ></i></a>
-								{% endif %}
-								<br>Planes
-							</th>
-							<th>
 								{% if orden == "comentarios" %}
 									<i class="fa fa-long-arrow-up" style="color:black" ></i>
 								{% else %}
@@ -313,46 +287,37 @@
 						  </tr>
 						</thead>
 						<tbody>
-							{% for evento in eventos %}
+							{% for costo in costos %}
 								<tr>
-									<th scope="row" id="td_{{evento.idEvento}}" {% if evento.fecha >= hoy %}bgcolor="#ffc107"{% else %}bgcolor="#28a745"{% endif %} >
-										{{evento.idEvento}}
-										<!--<i class="ti-info-alt text-success"></i>-->
-										<!--<a style="visibility:hidden;" href='{% url "editar_evento" %}?evento={{evento.idEvento}}{% if activacion != "" %}&Activacion={{activacion.idActivacion}}{% endif %}' ><i class="ti-pencil-alt text-primary"></i></a>-->
-										<a style="visibility:hidden;" href='{% url "editar_evento" %}?evento={{evento.idEvento}}' ><i class="ti-pencil-alt text-primary"></i></a>
-										<a style="visibility:hidden;" href="javascript:void(0)" onclick="eliminar('{{evento.nombre}}', '{{evento.idEvento}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
+									<th scope="row" id="td_{{costo.idCostoVariable}}" >
+										{{costo.idCostoVariable}}
+										<a style="visibility:hidden;" href='{% url "editar_costo_variable" %}?costo={{costo.idCostoVariable}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden;" href="javascript:void(0)" onclick="eliminar('{{costo.idCostoVariable}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 
-									{% if evento.estado == 5 %}<td bgcolor="#28a745" ><b>Ok</b></td>
-									{% elif evento.estado == 0 %}<td bgcolor="#ffc107" ><b>Coordinación</b></td>
-									{% elif evento.estado == 1 %}<td bgcolor="#fd7e14" ><b>Logística</b></td>
-									{% elif evento.estado == 2 %}<td bgcolor="red" ><b>Check-list</b></td>
-									{% elif evento.estado == 3 %}<td bgcolor="#868e96" ><b>Check-out</b></td>
-									{% elif evento.estado == 4 %}<td bgcolor="#007bff" ><b>Facturación</b></td>
-									{% endif %}
-
-									<!--{% comment %}{% if not activacion %}{% endcomment %}-->
-										<td><a href="{% url 'activaciones' %}?cliente={{evento.Activacion.Cliente.idCliente}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.Cliente.nombre}}</a></td>
-										<td><a href="{% url 'eventos' %}?Activacion={{evento.Activacion.idActivacion}}" style="color:#007bff; text-decoration: underline;" >{{evento.Activacion.nombre}}</a></td>
-									<!--{% comment %}{% endif %}{% endcomment %}-->
-									<!--<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" >{{evento.fecha}}</a></td>-->
-									<td><a href="{% url 'evento' %}?evento={{evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >{{evento.nombre}}</a></td>
-									
-
-									<td>{{evento.fecha}}</td>
-									<td>{{evento.horas}}</td>
+									<td>{{costo.documento}}</td>
 									<td>
-									
-										{% for planEvento in evento.PlanesEvento.all %}
-											{{planEvento.cantidad}} {{planEvento.Plan.nombre}}<br>
-										{% endfor %}
+										{% if costo.Tipo == None %}
+										 - 
+										{% else %}
+											{{costo.Tipo.nombre}}
+										{% endif %}
 									</td>
-									<td >{{evento.comentarios}}</td>
+									<td>{{costo.monto}}</td>
+									<td>
+										{% if costo.Evento == None %}
+										 - 
+										{% else %}
+											<a href="{% url 'evento' %}?evento={{costo.Evento.idEvento}}" style="color:#007bff; text-decoration: underline;" >{{costo.Evento.idEvento}}</a>
+										{% endif %}
+									</td>
+									<td>{{costo.fecha|date:"F Y"}}</td>
+									<td >{{costo.comentarios}}</td>
 
 								</tr>
 							{% empty %}
 								<tr>
-									<td align="center" colspan=9 >No se encontró nada para esta búsqueda.</td>
+									<td align="center" colspan=7 >No se encontró nada para esta búsqueda.</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -389,9 +354,9 @@
 		function mostrar() {
 			visible = !visible;
 			var botones, i;
-			{% for evento in eventos %}
+			{% for costo in costos %}
 				try {
-					botones = document.getElementById("td_{{evento.idEvento}}").children;
+					botones = document.getElementById("td_{{costo.idCostoVariable}}").children;
 					for (i=0; i<botones.length; i++) {
 						//if (botones[i].style.visibility == "hidden") {
 						if (visible) {
@@ -404,60 +369,6 @@
 				}
 				catch(err) {}
 			{% endfor %}
-			/*
-			var botones, i;
-			{% for evento in eventos %}
-				botones = document.getElementById("td_" + {{evento.idEvento}}).children;
-				for (i=1; i<botones.length; i++) {
-					if (botones[i].style.display == "none") {
-					botones[i].style.display = "inline";
-				}
-				else {
-					botones[i].style.display = "none";
-				}
-				}
-			{% endfor %}
-			*/
-
-			/*
-			var i, th, td;
-			th = document.getElementById("th_edit");
-			if (th.style.display == "none") {
-				th.style.display = "inline";
-			}
-			else {
-				th.style.display = "none";
-			}
-			{% for evento in eventos %}
-				td = document.getElementById("td_" + {{evento.idEvento}});
-				if (td.style.display == "none") {
-					td.style.display = "inline";
-				}
-				else {
-					td.style.display = "none";
-				}
-			{% endfor %}
-			*/
-
-			/*
-			var i, th, td;
-			th = document.getElementById("th_edit");
-			if (th.style.visibility == "hidden") {
-				th.style.visibility = "visible";
-			}
-			else {
-				th.style.visibility = "hidden";
-			}
-			{% for evento in eventos %}
-				td = document.getElementById("td_" + {{evento.idEvento}});
-				if (td.style.visibility == "hidden") {
-					td.style.visibility = "visible";
-				}
-				else {
-					td.style.visibility = "hidden";
-				}
-			{% endfor %}
-			*/
 		}
 
 		function orden(value) {
@@ -495,10 +406,10 @@
 
 	
 	<script>
-		function eliminar(nombre, id) {
+		function eliminar(id) {
 			//document.getElementById("p_eliminar").innerHTML = "";
-			document.getElementById("h5_eliminar").innerHTML = "Eliminar evento " + nombre;
-			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_evento" %}?evento=' + id
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar costo variable " + id;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_costo_variable" %}?costo=' + id
 				//{% comment %}{% if activacion != "" %} + "&Activacion={{activacion.idActivacion}}"{% endif %}{% endcomment %}
 				};
 			document.getElementById("eliminar").click();

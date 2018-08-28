@@ -2,9 +2,9 @@
 {% load staticfiles %}
 
 <!-- Activo en el menu: -->
-{% block menuPlanes-li %} active {% endblock %}
-{% block items-li %} active {% endblock %}
-{% block titulo %}Items{% endblock %}
+{% block menuOtros-li %} active {% endblock %}
+{% block tipos_costo_variable-li %} active {% endblock %}
+{% block titulo %}Tipos de costo variable{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -20,7 +20,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Items</h1>
+								<h1>Tipos de costo variable</h1>
 							</div>
 						</div>
 
@@ -63,29 +63,11 @@
 -->
 		<div class="content mt-3">
             <div class="animated fadeIn">
-            
-            <!--
-                <div class="row">
-					<div class="col-lg-3 col-md-6 col-sm-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="stat-widget-one">
-                                    <div class="stat-icon dib"><i class="ti-tablet text-primary border-primary"></i></div>
-                                    <div class="stat-content dib">
-                                        <div class="stat-text">Items</div>
-                                        <div class="stat-digit">{{items.count}}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            -->
 
 				<div class="row">
 					<div class="card-body">
-						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_item" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo item</button>
-						<button type="button" class="btn btn-outline-primary" onclick="mostrar();"><i class="ti-pencil-alt"></i>&nbsp; Editar items</button>
+						<button type="button" class="btn btn-outline-success" onclick="location.href='{% url "agregar_tipo_costo_variable" %}'"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo tipo de costo variable</button>
+						<button type="button" class="btn btn-outline-primary" onclick="mostrar();"><i class="ti-pencil-alt"></i>&nbsp; Editar tipos</button>
 					</div>
 				</div>
 
@@ -106,15 +88,14 @@
 						  </tr>
 						</thead>
 						<tbody>
-							{% for item in items %}
+							{% for tipo in tipos %}
 								<tr>
-									<th scope="row" id="td_{{item.idItem}}">
-										{{item.idItem}}
-										<a style="visibility:hidden" href='{% url "editar_item" %}?item={{item.idItem}}' ><i class="ti-pencil-alt text-primary"></i></a>
-										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{item.nombre}}', '{{item.idItem}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
+									<th scope="row" id="td_{{tipo.idTipoCostoVariable}}">
+										{{tipo.idTipoCostoVariable}}
+										<a style="visibility:hidden" href='{% url "editar_tipo_costo_variable" %}?tipo={{tipo.idTipoCostoVariable}}' ><i class="ti-pencil-alt text-primary"></i></a>
+										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{tipo.nombre}}', '{{tipo.idTipoCostoVariable}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
-									<td>{{item.nombre}}</td>
-									<td>{% if item.multiple %}<i class="ti-check text-success"></i>{% else %}<i class="ti-close text-danger"></i>{% endif %}</td>
+									<td>{{tipo.nombre}}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -138,9 +119,9 @@
 		function mostrar() {
 			visible = !visible;
 			var botones, i;
-			{% for item in items %}
+			{% for tipo in tipos %}
 				try {
-					botones = document.getElementById("td_" + {{item.idItem}}).children;
+					botones = document.getElementById("td_" + {{tipo.idTipoCostoVariable}}).children;
 					for (i=0; i<botones.length; i++) {
 						//if (botones[i].style.visibility == "hidden") {
 						if (visible) {
@@ -186,8 +167,8 @@
 	<script>
 		function eliminar(nombre, id) {
 			//document.getElementById("p_eliminar").innerHTML = "";
-			document.getElementById("h5_eliminar").innerHTML = "Eliminar plan " + nombre;
-			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_item" %}?item=' + id};
+			document.getElementById("h5_eliminar").innerHTML = "Eliminar tipo de costo variable " + nombre;
+			document.getElementById("boton_eliminar").onclick = function(){location.href='{% url "eliminar_tipo_costo_variable" %}?tipo=' + id};
 			document.getElementById("eliminar").click();
 		}
 	</script>

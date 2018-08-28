@@ -1782,6 +1782,100 @@ def itinerario(request):
 	return render(request, 'itinerario.html', context)
 
 
+class costos_variables(ListView):
+
+	model = CostosVariables
+	context_object_name = "costos"
+	template_name = "costos_variables.html"
+	#paginate_by = 100  # if pagination is desired
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		costos = CostosVariables.objects.all()
+
+		hoy = date.today()
+		total_este_mes = 0
+		for costo in costos:
+			if costo.fecha.month == hoy.month:
+				total_este_mes += costo.monto
+		context["total_este_mes"] = total_este_mes
+		
+		orden = self.request.GET.get("orden", "-fecha")
+		documento = self.request.GET.get("documento", "")
+		tipo = self.request.GET.get("tipo", "")
+		evento = self.request.GET.get("evento", "")
+
+		if documento != "":
+			costos = costos.filter(documento=documento)
+		if tipo != "":
+			costos = costos.filter(Tipo__nombre__icontains=tipo)
+		if evento != "":
+			costos = costos.filter(Evento__idEvento=evento)
+		
+		costos = costos.order_by(orden)
+		context['costos'] = costos
+		context['orden'] = orden
+		initial = {
+			"documento": documento,
+			"tipo": tipo,
+			"evento": evento,
+		}
+		context['filtros'] = filtroCostosVariablesForm(initial=initial)
+
+		total_en_pantalla = 0
+		for costo in costos:
+			total_en_pantalla += costo.monto
+		context["total_en_pantalla"] = total_en_pantalla
+
+		return context
+
+
+def agregar_costo_variable(request):
+	if request.method == 'POST':
+		form = costosVariablesForm(request.POST, request.FILES)
+		if form.is_valid():
+			costo = form.save()
+			return redirect('costos_variables')
+	else:
+		initial = {"fecha": date.today()}
+		form = costosVariablesForm(initial=initial)
+	context = {
+		"costos_variables_form": form,
+	}
+	return render(request, 'agregar_costo_variable.html', context)
+
+
+def tipos_costo_variable(request):
+	tipos = TiposCostoVariable.objects.all()
+	
+	titulos = ["#", "Costo"]
+
+	context = {
+		"tipos": tipos,
+		"titulos": titulos,
+	}
+	return render(request, 'tipos_costo_variable.html', context)
+
+
+def agregar_tipo_costo_variable(request):
+	if request.method == 'POST':
+		form = tiposCostoVariableForm(request.POST, request.FILES)
+		if form.is_valid():
+			form.save()
+			return redirect('tipos_costo_variable')
+	else:
+		form = tiposCostoVariableForm()
+	context = {
+		"tipos_costo_variable_form": form,
+	}
+	return render(request, 'agregar_tipo_costo_variable.html', context)
+
+
+
+
+
+
+
 
 ############################################################## Editar ##############################################################
 ############################################################## Editar ##############################################################
@@ -2475,36 +2569,89 @@ def editar_pendiente(request):
 	return render(request, 'editar_pendiente.html', context)
 
 
-def editar_factura(request):
+# def editar_factura(request):
+# 	if request.method == 'POST':
+# 		activacion = Activaciones.objects.get(idActivacion=request.POST["activacion"])
+# 		form = FacturasForm(request.POST, request.FILES)
+# 		if form.is_valid():
+# 			f = form.save(commit=false)
+# 			f.Activacion = activacion
+# 			f.save()
+
+# 			return redirect('facturas')
+# 	else:
+# 		nFactura = Facturas.objects.first().nFactura + 1
+# 		initial = {
+# 			"nFactura": nFactura,
+# 			"fecha_facturacion": date.today(),
+# 			"pago": 0,
+# 			"plazo": 30,
+# 		}
+# 		try:
+# 			initial["Activacion"] = Activaciones.objects.get(idActivacion=request.GET["activacion"])
+# 		except MultiValueDictKeyError:
+# 			pass
+# 		form = FacturasForm("Adelanto", initial=initial)
+
+# 	context = {
+# 		#"activacion": activacion,
+# 		"facturas_form": form,
+# 	}
+# 	return render(request, 'agregar_factura.html', context)
+
+
+def editar_costo_variable(request):
 	if request.method == 'POST':
-		activacion = Activaciones.objects.get(idActivacion=request.POST["activacion"])
-		form = FacturasForm(request.POST, request.FILES)
+		costo = CostosVariables.objects.get(idCostoVariable=request.POST["costo"])
+		form = costosVariablesForm(request.POST, request.FILES)
 		if form.is_valid():
-			f = form.save(commit=false)
-			f.Activacion = activacion
-			f.save()
+			costo.documento = request.POST["documento"]
+			if request.POST["Tipo"] == "":
+				costo.Tipo = None
+			else:
+				costo.Tipo = TiposCostoVariable.objects.get(idTipoCostoVariable=request.POST["Tipo"])
+			costo.monto = request.POST["monto"]
+			
+			if request.POST["Evento"] == "":
+				costo.Evento = None
+			else:
+				costo.Evento = Eventos.objects.get(idEvento=request.POST["Evento"])
+			costo.fecha = date(int(request.POST['fecha_year']), int(request.POST['fecha_month']), int(request.POST['fecha_day']))  #year, month, day
+			costo.comentarios = request.POST["comentarios"]
+			costo.save()
 
-			return redirect('facturas')
+			return redirect('costos_variables')
 	else:
-		nFactura = Facturas.objects.first().nFactura + 1
-		initial = {
-			"nFactura": nFactura,
-			"fecha_facturacion": date.today(),
-			"pago": 0,
-			"plazo": 30,
-		}
-		try:
-			initial["Activacion"] = Activaciones.objects.get(idActivacion=request.GET["activacion"])
-		except MultiValueDictKeyError:
-			pass
-		form = FacturasForm("Adelanto", initial=initial)
-
+		costo = CostosVariables.objects.get(idCostoVariable=request.GET["costo"])
+		initial = {"documento": costo.documento, "Tipo": costo.Tipo, "monto": costo.monto, "Evento": costo.Evento, "fecha": costo.fecha, "comentarios": costo.comentarios}
+		form = costosVariablesForm(initial=initial)
 	context = {
-		#"activacion": activacion,
-		"facturas_form": form,
+		"costo": costo,
+		"costos_variables_form": form,
 	}
-	return render(request, 'agregar_factura.html', context)
+	return render(request, 'editar_costo_variable.html', context)
 
+
+def editar_tipo_costo_variable(request):
+	if request.method == 'POST':
+		tipo = TiposCostoVariable.objects.get(idTipoCostoVariable=request.POST["tipo"])
+		nombre = request.POST['nombre']
+		form = tiposCostoVariableForm(request.POST, request.FILES)
+		if form.is_valid() or tipo.nombre == nombre:
+			if tipo.nombre != nombre:
+				tipo.nombre = nombre
+			tipo.save()
+
+			return redirect('tipos_costo_variable')
+	else:
+		tipo = TiposCostoVariable.objects.get(idTipoCostoVariable=request.GET["tipo"])
+		initial = {"nombre":tipo.nombre}
+		form = tiposCostoVariableForm(initial=initial)
+	context = {
+		"tipo": tipo,
+		"tipos_costo_variable_form": form,
+	}
+	return render(request, 'editar_tipo_costo_variable.html', context)
 
 
 
@@ -2596,6 +2743,18 @@ def eliminar_ingreso(request):
 	ingreso = Ingresos.objects.get(idIngreso=request.GET['idIngreso'])
 	ingreso.delete()
 	return redirect('ingresos')
+
+
+def eliminar_costo_variable(request):
+	costo = CostosVariables.objects.get(idCostoVariable=request.GET['costo'])
+	costo.delete()
+	return redirect('costos_variables')
+
+
+def eliminar_tipo_costo_variable(request):
+	tipo = TiposCostoVariable.objects.get(idTipoCostoVariable=request.GET['tipo'])
+	tipo.delete()
+	return redirect('tipos_costo_variable')
 
 
 

@@ -266,13 +266,18 @@ class Ingresos(models.Model):
 	comentarios = models.TextField(verbose_name="Comentarios", blank=True, null=True, default="")
 
 
-# class CostoVariable(models.Model):
-# 	idCostoVariable = models.AutoField(primary_key=True, verbose_name="#")
+class CostosVariables(models.Model):
+	idCostoVariable = models.AutoField(primary_key=True, verbose_name="#")
+	documento = models.CharField(max_length=255, verbose_name="Documento", blank=False, null=False)
+	Tipo = models.ForeignKey("TiposCostoVariable", verbose_name="Tipo", related_name="CostosVariables", on_delete=models.SET(None), blank=True, null=True)
+	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
+	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="CostosVariables", on_delete=models.SET(None), blank=True, null=True)
+	fecha = models.DateField(verbose_name="Fecha", blank=False, null=False)
+	comentarios = models.TextField(verbose_name="Comentarios", blank=True, null=True, default="")
 
-# 	documento = models.TextField(verbose_name="Documento", blank=False, null=False, default="")
-# 	categoria = models.TextField(verbose_name="Documento", blank=False, null=False, default="")
-# 	documento = models.TextField(verbose_name="Documento", blank=False, null=False, default="")
 
-# 	fecha = models.DateField(verbose_name="Fecha", blank=False, null=False)
-# 	monto = models.PositiveIntegerField(verbose_name="Monto", blank=False, null=False)
-# 	comentarios = models.TextField(verbose_name="Comentarios", blank=True, null=True, default="")
+class TiposCostoVariable(models.Model):
+	idTipoCostoVariable = models.AutoField(primary_key=True, verbose_name="#")
+	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un costo variable con este nombre."})
+	class Meta:
+		ordering = ['nombre']

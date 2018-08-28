@@ -3,8 +3,8 @@
 {% load widget_tweaks %}
 
 <!-- Activo en el menu: -->
-{% block index-li %} active {% endblock %}
-{% block titulo %}Nuevo cliente{% endblock %}
+{% block costos_variables-li %} active {% endblock %}
+{% block titulo %}Nuevo costo variable{% endblock %}
 
 {% block content %}
 	<!-- Right Panel -->
@@ -19,7 +19,7 @@
 
 						<div class="page-header float-left">
 							<div class="page-title">
-								<h1>Nuevo cliente</h1>
+								<h1>Nuevo costo variable</h1>
 							</div>
 						</div>
 
@@ -75,15 +75,19 @@
 							
 							<form method="post" enctype="multipart/form-data">
 				                {% csrf_token %}
-				                {% for field in clientes_form %}
+				                {% for field in costos_variables_form %}
 									<div class="row form-group {% if field.error %} alert alert-error {% endif %}">
 										<div class="col col-sm-2"><label for="text-input" class=" form-control-label">{{field.label}}{% if field.field.required %} *{% endif %}</label></div>
-										<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
+										{% if "select" in field|widget_type %}
+											<div class="col-lg-3 col-sm-6" >{{field|append_attr:"class:standardSelect"}}</div> <!--|append_attr:"multiple"}}</div>-->
+										{% else %}
+											<div class="col-lg-3 col-sm-6">{{field|append_attr:"class:form-control"}}</div>
+										{% endif %}
 										<div class="col-lg-3 col-sm-6">{{field.errors}}</div>
 									</div>
 								{% endfor %}
 				                <button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
-				                <button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "clientes" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
+				                <button type="button" class="btn btn-outline-primary" onclick="location.href='{% url "costos_variables" %}'"><i class="ti-back-left"></i>&nbsp; Volver</button>
 				            </form>
 
 						</div>
