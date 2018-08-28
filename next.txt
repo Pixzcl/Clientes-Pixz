@@ -15,7 +15,6 @@ datepicker
 
 Costos fijos
 Freelance
-Costos Variables
 
 
 
@@ -35,6 +34,7 @@ logo pixz más pequeño para que calze con celular
 40 min		"coordinacion": nuevo contacto popup
 6:40 hrs	facturación e ingresos
 2 hrs		IVA
+3:40 hrs	Costos Variables
 
 
 
