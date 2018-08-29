@@ -45,7 +45,7 @@ def atrasado(activacion):
 	atrasado = "No"
 	hoy = date.today()
 	for factura in activacion.Facturas.all():
-		if factura.fecha_pago > hoy:
+		if factura.fecha_pago < hoy:
 			atrasado = "Si"
 			break
 	return atrasado
