@@ -100,7 +100,7 @@
 								<tr>
 									<th scope="row" id="td_{{factura.nFactura}}">
 										{{factura.nFactura}}
-										<!--<a style="visibility:hidden" href='{% url "editar_factura" %}?factura={{factura.nFactura}}' ><i class="ti-pencil-alt text-primary"></i></a>-->
+										<!--{% comment %}<a style="visibility:hidden" href='{% url "editar_factura" %}?factura={{factura.nFactura}}' ><i class="ti-pencil-alt text-primary"></i></a>{% endcomment %}-->
 										<a style="visibility:hidden" href="javascript:void(0)" onclick="eliminar('{{factura.nFactura}}');" ><i class="fa fa-minus-circle text-danger"></i></a>
 									</th>
 									{% if factura.Activacion == None %}
