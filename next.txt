@@ -8,13 +8,17 @@ datepicker
 ---
 
 *star, boton fiscalizar evento, con aviso en home
+
 *estado 12345 para reconocer por separado
-¿sirve estado facturar en evento?
-* activacion/facturas/... como ListView
+(mas vistas en inicio)
+
+* Activaciones con filtro
 * Página Facturas con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
 
 Costos fijos
 Freelance
+
+Login
 
 
 
