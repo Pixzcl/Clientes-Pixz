@@ -223,7 +223,7 @@ def activaciones(request):
 		idCliente = ""
 		cliente = ""
 		activaciones = Activaciones.objects.all()
-		titulos = ["#", "Cliente","Activación", "Tipo", "Monto", "Monto + IVA", "Descripción"]
+		titulos = ["#", "Cliente","Activación", "Tipo", "Monto", "Monto + IVA", "Facturas", "Descripción", "Facturación"]
 		contactos = None
 		titulos_contactos = None
 
@@ -316,6 +316,7 @@ class eventos(ListView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		eventos = Eventos.objects.all()
+		totales = eventos.count()
 
 		hoy = date.today()
 		
@@ -363,6 +364,7 @@ class eventos(ListView):
 			"activacion": activacion,
 			"evento": evento,
 			"estado": estado,
+			"totales": totales,
 		}
 		context['filtros'] = filtroEventosForm(initial=initial)
 		return context
@@ -1491,6 +1493,7 @@ class facturas(ListView):
 		
 		orden = self.request.GET.get("orden", "fecha_pago")
 		estado = self.request.GET.get("estado", "pendientes")
+		nFactura = self.request.GET.get("nFactura", "")
 		# desde_year = int(self.request.GET.get("desde_year", -1))
 		# desde_month = int(self.request.GET.get("desde_month", -1))
 		# desde_day = int(self.request.GET.get("desde_day", -1))
@@ -1499,7 +1502,7 @@ class facturas(ListView):
 		# hasta_day = int(self.request.GET.get("hasta_day", -1))
 		# documento = self.request.GET.get("documento", "")
 		# tipo = self.request.GET.get("tipo", "")
-		# evento = self.request.GET.get("evento", "")
+		
 
 		if estado == "pendientes":
 			facturas = pendientes
@@ -1507,6 +1510,9 @@ class facturas(ListView):
 			facturas = Facturas.pagadas()
 		else:
 			facturas = Facturas.objects.all()
+
+		if nFactura != "":
+			facturas = facturas.filter(nFactura=int(nFactura))
 
 		# if (desde_year != -1 and desde_month != -1 and desde_day != -1):
 		# 	desde = date(desde_year, desde_month, desde_day)
@@ -1524,14 +1530,14 @@ class facturas(ListView):
 		# 	costos = costos.filter(documento=documento)
 		# if tipo != "":
 		# 	costos = costos.filter(Tipo__nombre__icontains=tipo)
-		# if evento != "":
-		# 	costos = costos.filter(Evento__idEvento=evento)
+		
 		
 		facturas = facturas.order_by(orden)
 		context['facturas'] = facturas
 		context['orden'] = orden
 		initial = {
 			"estado": estado,
+			"nFactura": nFactura,
 			# "desde": desde,
 			# "hasta": hasta,
 		}

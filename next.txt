@@ -11,10 +11,10 @@ datepicker
 
 *estado 12345 para reconocer por separado
 (mas vistas en inicio)
-arreglar conteo eventos totales
 
-* Activaciones con filtro, n° facturas al lado de monto
-* Página Facturas con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
+
+* Activaciones con filtro
+* Facturas más filtros
 
 Costos fijos
 Freelance
@@ -40,6 +40,10 @@ logo pixz más pequeño para que calze con celular
 6:40 hrs	facturación e ingresos
 2 hrs		IVA
 3:40 hrs	Costos Variables
+3:50 hrs	filtro por fecha Costos Variables
+			Página Facturas con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
+			arreglar conteo eventos totales
+			n° facturas al lado del monto en Activaciones
 
 
 

@@ -167,7 +167,6 @@
 							{% for titulo in titulos %}
 								<th>{{titulo}}</th>
 							{% endfor %}
-							<th>Facturas</th>
 						  </tr>
 						</thead>
 						<tbody>
@@ -185,6 +184,13 @@
 									<td>{{activacion.tipo}}</td>
 									<td>${{activacion.monto}}</td>
 									<td>${{activacion.montoIVA}}</td>
+
+									<td>
+										{% for factura in activacion.Facturas.all %}
+											<a href="{% url 'facturas' %}?estado=&nFactura={{factura.nFactura}}" style="color:#007bff; text-decoration: underline;" >{{factura.nFactura}}</a> 
+										{% endfor %}
+									</td>
+
 									<td>{{activacion.descripcion}}</td>
 									
 									{% if activacion.monto == 0 %}
