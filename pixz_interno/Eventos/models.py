@@ -255,6 +255,43 @@ class Facturas(models.Model):
 	class Meta:
 		ordering = ['-nFactura']
 
+	def pagada(self):
+		ingresos = self.Ingresos.all()
+		monto_restante = self.montoIVA
+		for i in ingresos:
+			monto_restante -= i.monto
+
+		if monto_restante <= 0:
+			return True
+		else:
+			return False
+
+	@classmethod
+	def pagadas(self):
+		facturas = self.objects.all()
+		pagadas = []
+		for f in facturas:
+			ingresos = f.Ingresos.all()
+			monto_restante = f.montoIVA
+			for i in ingresos:
+				monto_restante -= i.monto
+			if monto_restante <= 0:
+				pagadas.append(f.nFactura)
+		return self.objects.filter(nFactura__in=pagadas)
+
+	@classmethod
+	def pendientes(self):
+		facturas = self.objects.all()
+		pendientes = []
+		for f in facturas:
+			ingresos = f.Ingresos.all()
+			monto_restante = f.montoIVA
+			for i in ingresos:
+				monto_restante -= i.monto
+			if monto_restante > 0:
+				pendientes.append(f.nFactura)
+		return self.objects.filter(nFactura__in=pendientes)
+
 
 class Ingresos(models.Model):
 	idIngreso = models.AutoField(primary_key=True, verbose_name="#")

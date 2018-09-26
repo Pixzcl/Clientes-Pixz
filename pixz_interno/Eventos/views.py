@@ -1463,14 +1463,92 @@ def agregar_pendiente(request):
 	return render(request, 'agregar_pendiente.html', context)
 
 
-def facturas(request):
+def facturas_OLD(request):
 	facturas = Facturas.objects.all()
+	
+	f=facturas.get(nFactura=4)
+	print(f.pagada())
+	print(Facturas.pendientes())
 	
 	context = {
 		"facturas": facturas,
 		#"titulos": titulos,
 	}
 	return render(request, 'facturas.html', context)
+
+class facturas(ListView):
+
+	model = Facturas
+	context_object_name = "facturas"
+	template_name = "facturas.html"
+	#paginate_by = 100  # if pagination is desired
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		
+		hoy = date.today()
+		pendientes = Facturas.pendientes()
+		
+		orden = self.request.GET.get("orden", "fecha_pago")
+		estado = self.request.GET.get("estado", "pendientes")
+		# desde_year = int(self.request.GET.get("desde_year", -1))
+		# desde_month = int(self.request.GET.get("desde_month", -1))
+		# desde_day = int(self.request.GET.get("desde_day", -1))
+		# hasta_year = int(self.request.GET.get("hasta_year", -1))
+		# hasta_month = int(self.request.GET.get("hasta_month", -1))
+		# hasta_day = int(self.request.GET.get("hasta_day", -1))
+		# documento = self.request.GET.get("documento", "")
+		# tipo = self.request.GET.get("tipo", "")
+		# evento = self.request.GET.get("evento", "")
+
+		if estado == "pendientes":
+			facturas = pendientes
+		elif estado == "pagadas":
+			facturas = Facturas.pagadas()
+		else:
+			facturas = Facturas.objects.all()
+
+		# if (desde_year != -1 and desde_month != -1 and desde_day != -1):
+		# 	desde = date(desde_year, desde_month, desde_day)
+		# else:
+		# 	desde = hoy.replace(day=1)
+		# facturas = facturas.filter(fecha_pago__gte=desde)
+		
+		# if (hasta_year != -1 and hasta_month != -1 and hasta_day != -1):
+		# 	hasta = date(hasta_year, hasta_month, hasta_day)
+		# else:
+		# 	hasta = hoy
+		# facturas = facturas.filter(fecha_pago__lte=hasta)
+
+		# if documento != "":
+		# 	costos = costos.filter(documento=documento)
+		# if tipo != "":
+		# 	costos = costos.filter(Tipo__nombre__icontains=tipo)
+		# if evento != "":
+		# 	costos = costos.filter(Evento__idEvento=evento)
+		
+		facturas = facturas.order_by(orden)
+		context['facturas'] = facturas
+		context['orden'] = orden
+		initial = {
+			"estado": estado,
+			# "desde": desde,
+			# "hasta": hasta,
+		}
+		context['filtros'] = filtroFacturasForm(initial=initial)
+
+		filtrado = 0
+		for factura in facturas:
+			filtrado += factura.montoIVA
+		context["filtrado"] = filtrado
+		pendiente = 0
+		for factura in pendientes:
+			pendiente += factura.montoIVA
+		context["pendientes"] = pendiente
+
+		return context
+
+
 
 
 def agregar_factura(request):
@@ -1801,12 +1879,32 @@ class costos_variables(ListView):
 		context["total_este_mes"] = total_este_mes
 		
 		orden = self.request.GET.get("orden", "-fecha")
+		desde_year = int(self.request.GET.get("desde_year", -1))
+		desde_month = int(self.request.GET.get("desde_month", -1))
+		desde_day = int(self.request.GET.get("desde_day", -1))
+		hasta_year = int(self.request.GET.get("hasta_year", -1))
+		hasta_month = int(self.request.GET.get("hasta_month", -1))
+		hasta_day = int(self.request.GET.get("hasta_day", -1))
 		documento = self.request.GET.get("documento", "")
 		tipo = self.request.GET.get("tipo", "")
 		evento = self.request.GET.get("evento", "")
 
+
 		if documento != "":
 			costos = costos.filter(documento=documento)
+		
+		if (desde_year != -1 and desde_month != -1 and desde_day != -1):
+			desde = date(desde_year, desde_month, desde_day)
+		else:
+			desde = hoy.replace(day=1)
+		costos = costos.filter(fecha__gte=desde)
+		
+		if (hasta_year != -1 and hasta_month != -1 and hasta_day != -1):
+			hasta = date(hasta_year, hasta_month, hasta_day)
+		else:
+			hasta = hoy
+		costos = costos.filter(fecha__lte=hasta)
+
 		if tipo != "":
 			costos = costos.filter(Tipo__nombre__icontains=tipo)
 		if evento != "":
@@ -1816,16 +1914,18 @@ class costos_variables(ListView):
 		context['costos'] = costos
 		context['orden'] = orden
 		initial = {
+			"desde": desde,
+			"hasta": hasta,
 			"documento": documento,
 			"tipo": tipo,
 			"evento": evento,
 		}
 		context['filtros'] = filtroCostosVariablesForm(initial=initial)
 
-		total_en_pantalla = 0
+		filtrado = 0
 		for costo in costos:
-			total_en_pantalla += costo.monto
-		context["total_en_pantalla"] = total_en_pantalla
+			filtrado += costo.monto
+		context["filtrado"] = filtrado
 
 		return context
 

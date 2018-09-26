@@ -11,8 +11,9 @@ datepicker
 
 *estado 12345 para reconocer por separado
 (mas vistas en inicio)
+arreglar conteo eventos totales
 
-* Activaciones con filtro
+* Activaciones con filtro, n° facturas al lado de monto
 * Página Facturas con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
 
 Costos fijos

@@ -50,4 +50,12 @@ def atrasado(activacion):
 			break
 	return atrasado
 
+@register.filter()
+def factura_atrasada(factura):
+	atrasada = False
+	hoy = date.today()
+	if factura.fecha_pago < hoy:
+		atrasada = True
+	return atrasada
+
 

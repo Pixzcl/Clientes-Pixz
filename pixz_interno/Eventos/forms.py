@@ -342,6 +342,14 @@ class FacturasForm(forms.Form):
 
 	# 	self.fields['Activacion'] = forms.ChoiceField(label="Activación", choices=choices, widget=forms.Select(attrs={'class': "standardSelect"}))
 
+class filtroFacturasForm(forms.Form):
+	choices_estado = [["", "- Todas -"], ["pendientes", "Pendientes"], ["pagadas", "Pagadas"]]
+	estado = forms.ChoiceField(required=False, label="Estado", choices=choices_estado, widget=forms.Select(attrs={'class': "standardSelect"}))
+	#desde = forms.DateField(label="Fecha pago - Desde", initial=datetime.date.today().replace(day=1), widget=forms.SelectDateWidget(years=range(2017, datetime.date.today().year + 3), attrs={'class': "standardSelect"}))
+	#hasta = forms.DateField(label="Fecha pago - Hasta", initial=datetime.date.today(), widget=forms.SelectDateWidget(years=range(2017, datetime.date.today().year + 3), attrs={'class': "standardSelect"}))
+	#tipo = forms.CharField(required=False, max_length=255, label="Tipo", widget=forms.TextInput(attrs={'class': "form-control"}))
+	#evento = forms.CharField(required=False, max_length=255, label="Evento", widget=forms.TextInput(attrs={'class': "form-control"}))
+
 
 class IngresosForm(forms.Form):
 	#nFactura = forms.IntegerField(min_value=1, label="N° de factura", widget=forms.NumberInput(attrs={'class': "form-control"}))
@@ -416,6 +424,8 @@ class multiplesEventoForm(forms.Form):
 class filtroCostosVariablesForm(forms.Form):
 	choices_documento = [["", "Boletas y Facturas"], ["Boleta", "Boletas"], ["Factura", "Facturas"]]
 	documento = forms.ChoiceField(required=False, label="Documento", choices=choices_documento, widget=forms.Select(attrs={'class': "standardSelect"}))
+	desde = forms.DateField(label="Desde", initial=datetime.date.today().replace(day=1), widget=forms.SelectDateWidget(years=range(2017, datetime.date.today().year + 3), attrs={'class': "standardSelect"}))
+	hasta = forms.DateField(label="Hasta", initial=datetime.date.today(), widget=forms.SelectDateWidget(years=range(2017, datetime.date.today().year + 3), attrs={'class': "standardSelect"}))
 	tipo = forms.CharField(required=False, max_length=255, label="Tipo", widget=forms.TextInput(attrs={'class': "form-control"}))
 	evento = forms.CharField(required=False, max_length=255, label="Evento", widget=forms.TextInput(attrs={'class': "form-control"}))
 
