@@ -14,30 +14,75 @@ from .models import *
 import sys
 if 'makemigrations' not in sys.argv and 'migrate' not in sys.argv:
 	from .forms import *
-#try:
-#	for cliente in Clientes.objects.all():
-#		print (cliente.nombre)
-#	print ("Ok")
-#	from .forms import *
-#except:
-#	print ("No tables")
-
-
 
 from django.utils.datastructures import MultiValueDictKeyError
-
 #from django.core.files.storage import FileSystemStorage
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth import update_session_auth_hash
+
+
+#from django.contrib.auth import logout
+#def logout_view(request):
+#    logout(request)
+	# Redirect to a success page.
+
+
+
+def is_admin(user):
+	permisos = ["admin"]
+	return user.TipoUsuario.tipo in permisos
+
+def is_admin_or_staff(user):
+	permisos = ["admin", "staff"]
+	return user.TipoUsuario.tipo in permisos
+
+def is_admin_or_staff_or_freelance(user):
+	permisos = ["admin", "staff", "freelance"]
+	return user.TipoUsuario.tipo in permisos
+
+@login_required
+@user_passes_test(is_admin, login_url="/no_autorizado/")
+def editar_password(request):
+	edit = ""
+	mensaje_error = ""
+	if request.method == 'POST':
+		password = request.POST["password"]
+		confirm_password = request.POST["confirm_password"]
+		form = editarPasswordForm(request.POST, request.FILES)
+		if form.is_valid() and password == confirm_password:
+			usuario = auth.models.User.objects.get(username=request.POST["username"])
+			usuario.set_password(password)
+			usuario.save()
+			update_session_auth_hash(request, usuario)
+
+			return custom_redirect('editar_password', edit="success")
+		else:
+			mensaje_error = "Contraseñas no coinciden, inténtalo de nuevo."
+	
+	else:
+		try:
+			edit = request.GET["edit"]
+		except:
+			pass
+		form = editarPasswordForm()
+	context = {
+		"editar_password_form": form,
+		"edit": edit,
+		"mensaje_error": mensaje_error,
+	}
+	return render(request, 'editar_password.html', context)
 
 
 
 
 
-def custom_redirect(url_name, *args, **kwargs):
-	url = reverse(url_name, args=args)
-	params = urlencode(kwargs)
-	return HttpResponseRedirect(url + "?%s" % params)
 
 
+
+
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def index(request):
 	eventos = Eventos.objects.all()
 	errores = Errores.objects.all()
@@ -111,6 +156,8 @@ def index(request):
 	return render(request, 'index.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def calendario(request):
 	eventos = Eventos.objects.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).order_by("fecha")
 	hoy = date.today()
@@ -147,6 +194,8 @@ def calendario(request):
 	return render(request, 'calendario.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def clientes(request):
 	clientes = Clientes.objects.all()
 	
@@ -165,6 +214,8 @@ def clientes(request):
 	return render(request, 'clientes.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_cliente(request):
 	if request.method == 'POST':
 		form = ClientesForm(request.POST, request.FILES)
@@ -180,6 +231,8 @@ def agregar_cliente(request):
 	return render(request, 'agregar_cliente.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def activaciones(request):
 	activacion = ""
 	idIngreso = ""
@@ -251,6 +304,8 @@ def activaciones(request):
 	return render(request, 'activaciones.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_activacion(request):
 	if request.method == 'POST':
 		# try:
@@ -306,7 +361,14 @@ def agregar_activacion(request):
 	return render(request, 'agregar_activacion.html', context)
 
 
-class eventos(ListView):
+class eventos(LoginRequiredMixin, UserPassesTestMixin, ListView):
+	def test_func(self):
+		return is_admin_or_staff(self.request.user)
+	def get_login_url(self):
+		if not self.request.user.is_authenticated:
+			return super(eventos, self).get_login_url()
+		else:
+			return "/no_autorizado/"
 
 	model = Eventos
 	context_object_name = "eventos"
@@ -319,6 +381,9 @@ class eventos(ListView):
 		totales = eventos.count()
 
 		hoy = date.today()
+		context['pendientes'] = eventos.filter(fecha__gte=hoy).count()
+
+		
 		
 		orden = self.request.GET.get("orden", "fecha")
 		pendientes = self.request.GET.get("pendientes", "Pendientes")
@@ -356,7 +421,8 @@ class eventos(ListView):
 
 
 		context['hoy'] = hoy
-		context['pendientes'] = eventos.filter(fecha__gte=hoy)
+		
+		context['filtrados'] = eventos.count()
 		context['orden'] = orden
 		initial = {
 			"pendientes": pendientes,
@@ -364,9 +430,9 @@ class eventos(ListView):
 			"activacion": activacion,
 			"evento": evento,
 			"estado": estado,
-			"totales": totales,
 		}
 		context['filtros'] = filtroEventosForm(initial=initial)
+		
 		return context
 
 	# def get_ordering(self):
@@ -388,6 +454,8 @@ class eventos(ListView):
 
 
 # ahora se usa la de arriba
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eventos_VIEJO(request):
 	try:
 		idActivacion = request.GET['activacion']
@@ -413,6 +481,8 @@ def eventos_VIEJO(request):
 	return render(request, 'eventos.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_evento(request):
 	if request.method == 'POST':
 		
@@ -523,6 +593,8 @@ def agregar_evento(request):
 	return render(request, 'agregar_evento.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def planes(request):
 	planes = Planes.objects.all()
 	
@@ -535,6 +607,8 @@ def planes(request):
 	return render(request, 'planes.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_plan(request):
 	if request.method == 'POST':
 		nombre_unico = True
@@ -631,6 +705,8 @@ def agregar_plan(request):
 	return render(request, 'agregar_plan.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def estaciones(request):
 	estaciones = Estaciones.objects.all()
 	
@@ -643,6 +719,8 @@ def estaciones(request):
 	return render(request, 'estaciones.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_estacion(request):
 	if request.method == 'POST':
 		nombre_unico = True
@@ -710,47 +788,9 @@ def agregar_estacion(request):
 	}
 	return render(request, 'agregar_estacion.html', context)
 
-# def agregar_estacion(request):
-# 	nombre_unico = True
-# 	if request.method == 'POST':
-# 		nItems = int(request.POST['nItems'])
-# 		form = EstacionesForm(nItems, request.POST, request.FILES)
 
-# 		if form.is_valid():
-# 			# verificar uniqueness
-# 			estaciones = Estaciones.objects.all()
-# 			for e in estaciones:
-# 				if e.nombre == request.POST['nombre']:
-# 					nombre_unico = False
-#					break
-# 			if nombre_unico == True:
-# 				estacion = Estaciones(nombre=request.POST['nombre'])
-# 				#estacion.nombre = request.POST['nombre']
-# 				estacion.save()
-
-# 				items = []
-# 				for key, value in request.POST.items():
-# 					if "item_" in key:
-# 						items.append(Items.objects.get(idItem=value))
-# 				for item in items:
-# 					itemsEstacion = ItemsEstacion(Estacion=estacion, Item=item)
-# 					itemsEstacion.save()
-
-# 				return redirect('estaciones')
-# 	else:
-# 		try:
-# 			nItems = int(request.GET['nItems'])
-# 		except MultiValueDictKeyError:
-# 			nItems = 1
-# 		form = EstacionesForm(nItems)
-# 	context = {
-# 		"estaciones_form": form,
-# 		"nItems": nItems,
-# 		"nombre_unico": nombre_unico,
-# 	}
-# 	return render(request, 'agregar_estacion.html', context)
-
-
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def items(request):
 	items = Items.objects.all()
 	
@@ -763,6 +803,8 @@ def items(request):
 	return render(request, 'items.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_item(request):
 	if request.method == 'POST':
 		form = ItemsForm(request.POST, request.FILES)
@@ -777,6 +819,8 @@ def agregar_item(request):
 	return render(request, 'agregar_item.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def trabajadores(request):
 	trabajadores = Trabajadores.objects.all()
 	
@@ -789,6 +833,8 @@ def trabajadores(request):
 	return render(request, 'trabajadores.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_trabajador(request):
 	if request.method == 'POST':
 		evento = request.POST['evento']
@@ -813,6 +859,8 @@ def agregar_trabajador(request):
 	return render(request, 'agregar_trabajador.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def contactos(request):
 	contactos = Contactos.objects.all()
 	
@@ -825,6 +873,8 @@ def contactos(request):
 	return render(request, 'contactos.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_contacto(request):
 	if request.method == 'POST':
 		evento = request.POST['evento']
@@ -857,6 +907,9 @@ def agregar_contacto(request):
 	}
 	return render(request, 'agregar_contacto.html', context)
 
+
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_contacto_select(request):
 	if request.method == 'POST':
 		try:
@@ -901,7 +954,8 @@ def agregar_contacto_select(request):
 
 
 
-
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def evento(request):
 	error = False
 	reporte = False
@@ -1180,7 +1234,7 @@ def evento(request):
 				# Check-list
 					elif False in [tarea.check for tarea in ev.RecurrentesEvento.all()] or False in [it.check for it in ItemsPlanEvento.objects.filter(PlanesEvento__in=ev.PlanesEvento.all())]:
 						estado = 2
-		 		# Check-out
+				# Check-out
 					elif False in [tarea.check for tarea in ev.PendientesEvento.all()]: # Falta pagos
 						estado = 3
 				# Facturación
@@ -1373,7 +1427,8 @@ def evento(request):
 
 
 
-
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def cargos(request):
 	cargos = Cargos.objects.all()
 	
@@ -1386,6 +1441,8 @@ def cargos(request):
 	return render(request, 'cargos.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_cargo(request):
 	if request.method == 'POST':
 		form = CargosForm(request.POST, request.FILES)
@@ -1405,6 +1462,8 @@ def agregar_cargo(request):
 	return render(request, 'agregar_cargo.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def recurrentes(request):
 	recurrentes = Recurrentes.objects.all()
 	
@@ -1417,6 +1476,8 @@ def recurrentes(request):
 	return render(request, 'recurrentes.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_recurrente(request):
 	if request.method == 'POST':
 		form = RecurrentesForm(request.POST, request.FILES)
@@ -1436,6 +1497,8 @@ def agregar_recurrente(request):
 	return render(request, 'agregar_recurrente.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def pendientes(request):
 	pendientes = Pendientes.objects.all()
 	
@@ -1446,6 +1509,8 @@ def pendientes(request):
 	return render(request, 'pendientes.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_pendiente(request):
 	if request.method == 'POST':
 		form = PendientesForm(request.POST, request.FILES)
@@ -1465,6 +1530,8 @@ def agregar_pendiente(request):
 	return render(request, 'agregar_pendiente.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def facturas_OLD(request):
 	facturas = Facturas.objects.all()
 	
@@ -1478,7 +1545,14 @@ def facturas_OLD(request):
 	}
 	return render(request, 'facturas.html', context)
 
-class facturas(ListView):
+class facturas(LoginRequiredMixin, UserPassesTestMixin, ListView):
+	def test_func(self):
+		return is_admin_or_staff(self.request.user)
+	def get_login_url(self):
+		if not self.request.user.is_authenticated:
+			return super(facturas, self).get_login_url()
+		else:
+			return "/no_autorizado/"
 
 	model = Facturas
 	context_object_name = "facturas"
@@ -1556,7 +1630,8 @@ class facturas(ListView):
 
 
 
-
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_factura(request):
 	mensaje_error = ""
 	if request.method == 'POST':
@@ -1621,6 +1696,8 @@ def agregar_factura(request):
 	return render(request, 'agregar_factura.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def ingresos(request):
 	ingresos = Ingresos.objects.all()
 	
@@ -1631,6 +1708,8 @@ def ingresos(request):
 	return render(request, 'ingresos.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_ingreso(request):
 	mensaje_error = ""
 	if request.method == 'POST':
@@ -1719,6 +1798,8 @@ def agregar_ingreso(request):
 	return render(request, 'agregar_ingreso.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def itinerario_crear(request):
 	error = ""
 	if request.method == 'POST':
@@ -1748,6 +1829,8 @@ def itinerario_crear(request):
 	return render(request, 'itinerario_crear.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff_or_freelance, login_url="/no_autorizado/")
 def itinerario(request):
 	eventos = ""
 	errores_info = []
@@ -1866,7 +1949,13 @@ def itinerario(request):
 	return render(request, 'itinerario.html', context)
 
 
-class costos_variables(ListView):
+
+class costos_variables(LoginRequiredMixin, UserPassesTestMixin, ListView):
+	def test_func(self):
+		return is_admin_or_staff(self.request.user)
+	def get_login_url(self):
+		if not self.request.user.is_authenticated:
+			return super(costos_variables, self).get_login_url()
 
 	model = CostosVariables
 	context_object_name = "costos"
@@ -1936,6 +2025,8 @@ class costos_variables(ListView):
 		return context
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_costo_variable(request):
 	if request.method == 'POST':
 		form = costosVariablesForm(request.POST, request.FILES)
@@ -1951,6 +2042,8 @@ def agregar_costo_variable(request):
 	return render(request, 'agregar_costo_variable.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def tipos_costo_variable(request):
 	tipos = TiposCostoVariable.objects.all()
 	
@@ -1963,6 +2056,8 @@ def tipos_costo_variable(request):
 	return render(request, 'tipos_costo_variable.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def agregar_tipo_costo_variable(request):
 	if request.method == 'POST':
 		form = tiposCostoVariableForm(request.POST, request.FILES)
@@ -1986,6 +2081,8 @@ def agregar_tipo_costo_variable(request):
 ############################################################## Editar ##############################################################
 ############################################################## Editar ##############################################################
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_cliente(request):
 	if request.method == 'POST':
 		cliente = Clientes.objects.get(idCliente=request.POST['cliente'])
@@ -2012,6 +2109,8 @@ def editar_cliente(request):
 	return render(request, 'editar_cliente.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_activacion(request):
 	if request.method == 'POST':
 		activacion = Activaciones.objects.get(idActivacion=request.POST['Activacion'])
@@ -2062,6 +2161,8 @@ def editar_activacion(request):
 	return render(request, 'editar_activacion.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_evento(request):
 	if request.method == 'POST':
 		evento = Eventos.objects.get(idEvento=request.POST['evento'])
@@ -2238,6 +2339,8 @@ def editar_evento(request):
 	return render(request, 'editar_evento.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_plan(request):
 	if request.method == 'POST':
 		nuevo_plan = request.POST['nuevo_plan']
@@ -2364,6 +2467,8 @@ def editar_plan(request):
 	return render(request, 'editar_plan.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_estacion(request):
 	if request.method == 'POST':
 		# nueva_estacion = request.POST['nueva_estacion']
@@ -2460,6 +2565,8 @@ def editar_estacion(request):
 	return render(request, 'editar_estacion.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_item(request):
 	if request.method == 'POST':
 		item = Items.objects.get(idItem=request.POST['item'])
@@ -2505,6 +2612,8 @@ def editar_item(request):
 	return render(request, 'editar_item.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_trabajador(request):
 	mensaje_error = []
 	if request.method == 'POST':
@@ -2551,6 +2660,9 @@ def editar_trabajador(request):
 	}
 	return render(request, 'editar_trabajador.html', context)
 
+
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_contacto(request):
 	mensaje_error = []
 	if request.method == 'POST':
@@ -2600,6 +2712,8 @@ def editar_contacto(request):
 	return render(request, 'editar_contacto.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_cargo(request):
 	if request.method == 'POST':
 		cargo = Cargos.objects.get(idCargo=request.POST["cargo"])
@@ -2625,6 +2739,8 @@ def editar_cargo(request):
 	return render(request, 'editar_cargo.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_recurrente(request):
 	if request.method == 'POST':
 		recurrente = Recurrentes.objects.get(idRecurrente=request.POST["recurrente"])
@@ -2650,6 +2766,8 @@ def editar_recurrente(request):
 	return render(request, 'editar_recurrente.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_pendiente(request):
 	if request.method == 'POST':
 		pendiente = Pendientes.objects.get(idPendiente=request.POST["pendiente"])
@@ -2706,6 +2824,8 @@ def editar_pendiente(request):
 # 	return render(request, 'agregar_factura.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_costo_variable(request):
 	if request.method == 'POST':
 		costo = CostosVariables.objects.get(idCostoVariable=request.POST["costo"])
@@ -2738,6 +2858,8 @@ def editar_costo_variable(request):
 	return render(request, 'editar_costo_variable.html', context)
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def editar_tipo_costo_variable(request):
 	if request.method == 'POST':
 		tipo = TiposCostoVariable.objects.get(idTipoCostoVariable=request.POST["tipo"])
@@ -2765,12 +2887,16 @@ def editar_tipo_costo_variable(request):
 ################################################################ Eliminar ##################################################################
 ################################################################ Eliminar ##################################################################
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_cliente(request):
 	cliente = Clientes.objects.get(idCliente=request.GET['cliente'])
 	cliente.delete()
 	return redirect('clientes')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_activacion(request):
 	activacion = Activaciones.objects.get(idActivacion=request.GET['Activacion'])
 	activacion.delete()
@@ -2779,6 +2905,9 @@ def eliminar_activacion(request):
 	except MultiValueDictKeyError:
 		return redirect('activaciones')
 
+
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_evento(request):
 	evento = Eventos.objects.get(idEvento=request.GET['evento'])
 	evento.delete()
@@ -2788,6 +2917,8 @@ def eliminar_evento(request):
 		return redirect('eventos')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_contacto(request):
 	contacto = Contactos.objects.get(idContacto=request.GET['contacto'])
 	contacto.delete()
@@ -2797,66 +2928,88 @@ def eliminar_contacto(request):
 		return redirect('contactos')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_plan(request):
 	plan = Planes.objects.get(idPlan=request.GET['plan'])
 	plan.delete()
 	return redirect('planes')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_estacion(request):
 	estacion = Estaciones.objects.get(idEstacion=request.GET['estacion'])
 	estacion.delete()
 	return redirect('estaciones')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_item(request):
 	item = Items.objects.get(idItem=request.GET['item'])
 	item.delete()
 	return redirect('items')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_trabajador(request):
 	trabajador = Trabajadores.objects.get(idTrabajador=request.GET['trabajador'])
 	trabajador.delete()
 	return redirect('trabajadores')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_cargo(request):
 	cargo = Cargos.objects.get(idCargo=request.GET['cargo'])
 	cargo.delete()
 	return redirect('cargos')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_recurrente(request):
 	recurrente = Recurrentes.objects.get(idRecurrente=request.GET['recurrente'])
 	recurrente.delete()
 	return redirect('recurrentes')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_pendiente(request):
 	pendiente = Pendientes.objects.get(idPendiente=request.GET['pendiente'])
 	pendiente.delete()
 	return redirect('pendientes')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_factura(request):
 	factura = Facturas.objects.get(nFactura=request.GET['nFactura'])
 	factura.delete()
 	return redirect('facturas')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_ingreso(request):
 	ingreso = Ingresos.objects.get(idIngreso=request.GET['idIngreso'])
 	ingreso.delete()
 	return redirect('ingresos')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_costo_variable(request):
 	costo = CostosVariables.objects.get(idCostoVariable=request.GET['costo'])
 	costo.delete()
 	return redirect('costos_variables')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def eliminar_tipo_costo_variable(request):
 	tipo = TiposCostoVariable.objects.get(idTipoCostoVariable=request.GET['tipo'])
 	tipo.delete()
@@ -2870,92 +3023,10 @@ def eliminar_tipo_costo_variable(request):
 
 
 
-# Sufee Admin
-def charts_chartjs(request):
-	return render(request, 'SufeeAdmin/charts_chartjs.html')
-def charts_flot(request):
-	return render(request, 'SufeeAdmin/charts_flot.html')
-def charts_peity(request):
-	return render(request, 'SufeeAdmin/charts_peity.html')
-def dashboard(request):
-	return render(request, 'SufeeAdmin/dashboard.html')
-def font_fontawesome(request):
-	return render(request, 'SufeeAdmin/font_fontawesome.html')
-def font_themify(request):
-	return render(request, 'SufeeAdmin/font_themify.html')
-def forms_advanced(request):
-	return render(request, 'SufeeAdmin/forms_advanced.html')
-def forms_basic(request):
-	return render(request, 'SufeeAdmin/forms_basic.html')
-def maps_gmap(request):
-	return render(request, 'SufeeAdmin/maps_gmap.html')
-def maps_vector(request):
-	return render(request, 'SufeeAdmin/maps_vector.html')
-def page_login(request):
-	return render(request, 'SufeeAdmin/page_login.html')
-def page_register(request):
-	return render(request, 'SufeeAdmin/page_register.html')
-def pages_forget(request):
-	return render(request, 'SufeeAdmin/pages_forget.html')
-def tables_basic(request):
-	return render(request, 'SufeeAdmin/tables_basic.html')
-def tables_data(request):
-	return render(request, 'SufeeAdmin/tables_data.html')
-def ui_alerts(request):
-	return render(request, 'SufeeAdmin/ui_alerts.html')
-def ui_badges(request):
-	return render(request, 'SufeeAdmin/ui_badges.html')
-def ui_buttons(request):
-	return render(request, 'SufeeAdmin/ui_buttons.html')
-def ui_cards(request):
-	return render(request, 'SufeeAdmin/ui_cards.html')
-def ui_grids(request):
-	return render(request, 'SufeeAdmin/ui_grids.html')
-def ui_modals(request):
-	return render(request, 'SufeeAdmin/ui_modals.html')
-def ui_progressbar(request):
-	return render(request, 'SufeeAdmin/ui_progressbar.html')
-def ui_social_buttons(request):
-	return render(request, 'SufeeAdmin/ui_social_buttons.html')
-def ui_switches(request):
-	return render(request, 'SufeeAdmin/ui_switches.html')
-def ui_tabs(request):
-	return render(request, 'SufeeAdmin/ui_tabs.html')
-def ui_typgraphy(request):
-	return render(request, 'SufeeAdmin/ui_typgraphy.html')
-def widgets(request):
-	return render(request, 'SufeeAdmin/widgets.html')
+def custom_redirect(url_name, *args, **kwargs):
+	url = reverse(url_name, args=args)
+	params = urlencode(kwargs)
+	return HttpResponseRedirect(url + "?%s" % params)
 
-
-
-#customer_id = request.POST["id"]
-
-# def blog_upload(request):
-#     if request.method == 'POST':
-#         form = BlogForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('blog')
-#     else:
-#         form = BlogForm()
-#     context = {
-#         "blog_form": form
-#     }
-#     return render(request, 'blog_upload.html', context)
-
-# def delete_blog(request):
-#     checks = request.POST["checks_form"]
-#     checks = checks.split(',')
-
-#     for i in range(len(checks)):
-#         #if pics_check[i] != '':
-#         blog = Blog.objects.get(id_int=checks[i])
-			
-#         path = settings.MEDIA_ROOT + "/" + str(blog.Foto)
-#         print (path)
-#         if os.path.isfile(path):
-#             os.remove(path)
-#         blog.delete()
-		
-#     return redirect('blog')
-
+def no_autorizado(request):
+	return render(request, 'no_autorizado.html')

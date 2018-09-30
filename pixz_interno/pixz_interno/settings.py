@@ -159,3 +159,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 import django_heroku
 django_heroku.settings(locals())
+
+LOGIN_REDIRECT_URL = 'index'
+LOGIN_URL = 'login'
+#AUTH_USER_MODEL = "Eventos.User"

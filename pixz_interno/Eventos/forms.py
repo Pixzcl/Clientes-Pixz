@@ -2,6 +2,7 @@ import datetime
 from django import forms
 
 from .models import *
+from django.contrib import auth
 
 #fields = ['Titulo', 'Descripcion', 'Foto', ]
 #exclude = ['campo1', 'campo2', ]
@@ -457,3 +458,9 @@ class tiposCostoVariableForm(forms.ModelForm):
 		widgets = {
 
 		}
+
+class editarPasswordForm(forms.Form):
+	choices = [["", "------"], ["admin", "Admin"], ["staff", "Staff"], ["freelance", "Freelance"]]
+	username = forms.CharField(required=True, max_length=255, label="Usuario", widget=forms.Select(choices=choices, attrs={'class': "standardSelect"}))
+	password = forms.CharField(required=True, max_length=255, label="Contraseña", widget=forms.PasswordInput(attrs={'class': "form-control"}))
+	confirm_password = forms.CharField(required=True, max_length=255, label="Confirmar Contraseña", widget=forms.PasswordInput(attrs={'class': "form-control"}))

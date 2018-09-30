@@ -1,0 +1,126 @@
+{% load staticfiles %}
+
+<aside id="left-panel" class="left-panel">
+	<nav class="navbar navbar-expand-sm navbar-default">
+
+		<div class="navbar-header">
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-menu" aria-controls="main-menu" aria-expanded="false" aria-label="Toggle navigation">
+				<i class="fa fa-bars"></i>
+			</button>
+			<a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'images/logoPixz40.png' %}" alt="Logo"></a>
+			<a class="navbar-brand hidden" href="{% url 'index' %}"><img src="{% static 'images/logoPixz2.png' %}" alt="Logo"></a>
+		</div>
+
+		<div id="main-menu" class="main-menu collapse navbar-collapse">
+			<ul class="nav navbar-nav">
+				<li class="{% block index-li %}{% endblock %}" >
+					<a href="{% url 'index' %}"> <i class="menu-icon fa fa-home"></i>Inicio</a>
+				</li>
+				<h3 class="menu-title">Eventos</h3>
+				<li class="{% block clientes-li %}{% endblock %}" >
+					<a href="{% url 'clientes' %}"> <i class="menu-icon fa fa-users"></i>Clientes</a>
+				</li>
+				<li class="{% block activaciones-li %}{% endblock %}" >
+					<a href="{% url 'activaciones' %}"> <i class="menu-icon ti-blackboard"></i>Activaciones</a>
+				</li>
+				<li class="{% block eventos-li %}{% endblock %}" >
+					<a href="{% url 'eventos' %}"> <i class="menu-icon ti-camera"></i>Eventos</a>
+				</li>
+				
+				<li class="{% block itinerario-li %}{% endblock %}" >
+					<a href="{% url 'itinerario_crear' %}"> <i class="menu-icon fa fa-calendar"></i>Itinerario</a>
+				</li>
+
+
+				<li class="menu-item-has-children dropdown {% block menuPersonas-li %}{% endblock %}">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-male"></i>Personas</a>
+					<ul class="sub-menu children dropdown-menu">
+						<li class="{% block trabajadores-li %}{% endblock %}" >
+							<i class="menu-icon fa fa-male"></i>
+							<a href="{% url 'trabajadores' %}">Trabajadores</a>
+						</li>
+						<li class="{% block contactos-li %}{% endblock %}" >
+							<i class="menu-icon fa fa-phone"></i>
+							<a href="{% url 'contactos' %}">Contactos</a>
+						</li>
+					</ul>
+				</li>
+
+
+				<h3 class="menu-title">Cuentas</h3>
+				<li class="{% block facturas-li %}{% endblock %}" >
+					<a href="{% url 'facturas' %}"> <i class="menu-icon fa fa-money"></i>Facturas</a>
+				</li>
+				<li class="{% block ingresos-li %}{% endblock %}" >
+					<a href="{% url 'ingresos' %}"> <i class="menu-icon fa fa-money"></i>Ingresos</a>
+				</li>
+
+				<li class="{% block costos_variables-li %}{% endblock %}" >
+					<a href="{% url 'costos_variables' %}"> <i class="menu-icon ti-shopping-cart"></i>Costos Variables</a>
+				</li>
+
+
+
+				<h3 class="menu-title">Configuración</h3>
+
+				<li class="menu-item-has-children dropdown {% block menuPlanes-li %}{% endblock %}">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-list-ul"></i>Config Planes</a>
+					<ul class="sub-menu children dropdown-menu">
+						<li class="{% block planes-li %}{% endblock %}" >
+							<i class="menu-icon ti-spray"></i>
+							<a href="{% url 'planes' %}">Planes</a>
+						</li>
+						<li class="{% block estaciones-li %}{% endblock %}" >
+							<i class="menu-icon ti-layout"></i>
+							<a href="{% url 'estaciones' %}">Estaciones</a>
+						</li>
+						<li class="{% block items-li %}{% endblock %}" >
+							<i class="menu-icon ti-tablet"></i>
+							<a href="{% url 'items' %}">Items</a>
+						</li>
+					</ul>
+				</li>
+
+				<li class="menu-item-has-children dropdown {% block menuOtros-li %}{% endblock %}">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-list-ul"></i>Otros</a>
+					<ul class="sub-menu children dropdown-menu">
+						<li class="{% block cargos-li %}{% endblock %}" >
+							<i class="menu-icon ti-hummer"></i>
+							<a href="{% url 'cargos' %}">Cargos</a>
+						</li>
+						<li class="{% block recurrentes-li %}{% endblock %}" >
+							<i class="menu-icon fa fa-check-circle"></i>
+							<a href="{% url 'recurrentes' %}">Tareas Recurrentes</a>
+						</li>
+						<li class="{% block pendientes-li %}{% endblock %}" >
+							<i class="menu-icon fa fa-check-square"></i>
+							<a href="{% url 'pendientes' %}">Tareas Pendientes</a>
+						</li>
+
+						<li class="{% block tipos_costo_variable-li %}{% endblock %}" >
+							<i class="menu-icon ti-shopping-cart"></i>
+							<a href="{% url 'tipos_costo_variable' %}">Tipos de costo variable</a>
+						</li>
+					</ul>
+				</li>
+
+				<h3 class="menu-title">Template</h3>
+				<li >
+					<a target="_blank" href="https://colorlib.com/polygon/sufee/"> <i class="menu-icon fa fa-dashboard"></i>Sufee Admin</a>
+				</li>
+
+				<h3 class="menu-title">Usuario {{user.username}}</h3>
+				{% if user.TipoUsuario.tipo == "admin" %}
+					<li class="{% block editarPassword-li %}{% endblock %}">
+						<a href="{% url 'editar_password' %}"> <i class="menu-icon fa fa-key"></i>Editar Contraseñas</a>
+					</li>
+				{% endif %}
+				<li >
+					<a href="{% url 'logout' %}"> <i class="menu-icon fa fa-sign-out"></i>Logout</a>
+				</li>
+
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</nav>
+</aside>
+

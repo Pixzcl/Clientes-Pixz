@@ -1,22 +1,20 @@
 from django.db import models
+from django.contrib import auth
 
-# Create your models here.
+#from django.contrib.auth.models import AbstractUser
+#class User(AbstractUser):
+#	is_admin = models.BooleanField(default=False)
+#	is_staff = models.BooleanField(default=False)
+#	is_freelance = models.BooleanField(default=False)
+	#user_type = models.CharField(max_length=255, verbose_name="Tipo de usuario", blank=False, null=False, choices=[["admin","Admin"], ["staff","Staff"], ["freelance","freelance"]] )
 
-# def upload_image(obj, fname):
-# 	ext = fname.split(".")[-1]
-# 	image_name = "Blog_image_{}".format(obj.id_int)
-# 	image_name = image_name + "." + ext
-# 	return u"/".join(["blog_images", image_name])
+class TipoUsuario(models.Model):
+	User = models.OneToOneField(auth.models.User, verbose_name="Tipo de usuario", related_name="TipoUsuario", on_delete=models.CASCADE, blank=False, null=False)
+	tipo = models.CharField(max_length=255, verbose_name="Tipo de usuario", blank=False, null=False, default="freelance")
+	#is_admin = models.BooleanField(default=False)
+	#is_staff = models.BooleanField(default=False)
+	#is_freelance = models.BooleanField(default=False)
 
-
-
-#user = models.OneToOneField(auth.models.User, related_name="user")
-#Foto = models.FileField(upload_to=upload_image)
-#uploaded_at = models.DateTimeField(auto_now_add=True)
-
-
-##### IMPORTANTE #####
-	## Todos los campos deben tener verbose_name (para generar las vistas de forma correcta)
 
 class Clientes(models.Model):
 	idCliente = models.AutoField(primary_key=True, verbose_name="#")

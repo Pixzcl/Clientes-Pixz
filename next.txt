@@ -44,6 +44,8 @@ logo pixz más pequeño para que calze con celular
 			Página Facturas con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
 			arreglar conteo eventos totales
 			n° facturas al lado del monto en Activaciones
+4:10 hrs	Login/Logout/permisos para los 3 perfiles
+xx hrs		boton logout, ventana login bonita, cambiar contraseñas, otras mejoras implementacion
 
 
 

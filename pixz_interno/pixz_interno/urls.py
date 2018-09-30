@@ -18,10 +18,16 @@ from django.contrib import admin
 from Eventos import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
-	#url(r'^admin/', admin.site.urls),
+	url(r'^login/$', auth_views.login, {'template_name': 'login1.html'}, name='login'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '../login/'}, name='logout'),
+    url(r'^admin/', admin.site.urls),
+    url(r'^no_autorizado/', views.no_autorizado, name='no_autorizado'),
+    url(r'^editar_password/', views.editar_password, name='editar_password'),
+
 	url(r'^$', views.index, name='index'),
 	url(r'^clientes/', views.clientes, name='clientes'),
 	url(r'^agregar_cliente/', views.agregar_cliente, name='agregar_cliente'),
@@ -104,38 +110,7 @@ urlpatterns = [
 	url(r'^agregar_tipo_costo_variable/', views.agregar_tipo_costo_variable, name='agregar_tipo_costo_variable'),
 	url(r'^editar_tipo_costo_variable/', views.editar_tipo_costo_variable, name='editar_tipo_costo_variable'),
 	url(r'^eliminar_tipo_costo_variable/', views.eliminar_tipo_costo_variable, name='eliminar_tipo_costo_variable'),
-	
-	
 
-
-	# Sufee Admin
-	url(r'^charts_chartjs/', views.charts_chartjs, name='charts_chartjs'),
-	url(r'^charts_flot/', views.charts_flot, name='charts_flot'),
-	url(r'^charts_peity/', views.charts_peity, name='charts_peity'),
-	url(r'^dashboard/', views.dashboard, name='dashboard'),
-	url(r'^font_fontawesome/', views.font_fontawesome, name='font_fontawesome'),
-	url(r'^font_themify/', views.font_themify, name='font_themify'),
-	url(r'^forms_advanced/', views.forms_advanced, name='forms_advanced'),
-	url(r'^forms_basic/', views.forms_basic, name='forms_basic'),
-	url(r'^maps_gmap/', views.maps_gmap, name='maps_gmap'),
-	url(r'^maps_vector/', views.maps_vector, name='maps_vector'),
-	url(r'^page_login/', views.page_login, name='page_login'),
-	url(r'^page_register/', views.page_register, name='page_register'),
-	url(r'^pages_forget/', views.pages_forget, name='pages_forget'),
-	url(r'^tables_basic/', views.tables_basic, name='tables_basic'),
-	url(r'^tables_data/', views.tables_data, name='tables_data'),
-	url(r'^ui_alerts/', views.ui_alerts, name='ui_alerts'),
-	url(r'^ui_badges/', views.ui_badges, name='ui_badges'),
-	url(r'^ui_buttons/', views.ui_buttons, name='ui_buttons'),
-	url(r'^ui_cards/', views.ui_cards, name='ui_cards'),
-	url(r'^ui_grids/', views.ui_grids, name='ui_grids'),
-	url(r'^ui_modals/', views.ui_modals, name='ui_modals'),
-	url(r'^ui_progressbar/', views.ui_progressbar, name='ui_progressbar'),
-	url(r'^ui_social_buttons/', views.ui_social_buttons, name='ui_social_buttons'),
-	url(r'^ui_switches/', views.ui_switches, name='ui_switches'),
-	url(r'^ui_tabs/', views.ui_tabs, name='ui_tabs'),
-	url(r'^ui_typgraphy/', views.ui_typgraphy, name='ui_typgraphy'),
-	url(r'^widgets/', views.widgets, name='widgets')
 ]
 
 if settings.DEBUG:

@@ -2,9 +2,8 @@ Git:
 	git remote add origin [https://github....]
 	git config credential.helper store  ## (guardar clave para que no la pida con cada push)
 	
-	git add [file]
-	git add -A (Todo)
-	git add -A . (Directorio actual)
+	git add [file or directory]
+	git add -A (Todo)  -- git reset
 	git commit -m "first commit"
 	git push -u origin master
 git push heroku master
