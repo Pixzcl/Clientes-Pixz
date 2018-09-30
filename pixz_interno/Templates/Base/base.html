@@ -18,9 +18,7 @@
 
 	<!--{% comment %}{% if "login" not in request.path %}{% endcomment %}-->
 	{% if user.is_authenticated %}
-		{% if user.TipoUsuario.tipo == "admin" or user.TipoUsuario.tipo == "staff" %}
-			{% include "Base/left_menu.html" %}
-		{% endif %}
+		{% include "Base/left_menu.html" %}
 	{% endif %}
 
 

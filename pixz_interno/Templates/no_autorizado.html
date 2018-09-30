@@ -1,7 +1,55 @@
 {% extends 'Base/base.html' %}
+{% load staticfiles %}
 
-{% block title %}Login{% endblock %}
+{% block title %}No autorizado{% endblock %}
 
 {% block content %}
-  <h1>No tienes permiso para ver esto!</h1>
+
+<div id="right-panel" class="right-panel">
+
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-12">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Error</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+<!--
+				<div class="col-sm-8">
+					<div class="breadcrumbs">
+						<div class="page-header float-right">
+							<div class="page-title">
+								<ol class="breadcrumb text-right">
+									<li class="active">Inicio</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+-->
+			</div>
+		</header>
+
+		<div class="content mt-3">
+            <div class="animated fadeIn">
+				
+				<div class="row">
+					<div class="col-lg-6 col-sm-12">
+
+  						<h1>No tienes permiso para ver esto!</h1>
+
+  					</div>
+  				</div>
+
+  			</div>
+  		</div>
+
 {% endblock %}
