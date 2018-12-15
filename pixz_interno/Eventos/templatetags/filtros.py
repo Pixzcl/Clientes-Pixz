@@ -58,4 +58,11 @@ def factura_atrasada(factura):
 		atrasada = True
 	return atrasada
 
+@register.filter()
+def factura_total_pendiente(factura):
+	pendiente = factura.montoIVA
+	for ingreso in factura.Ingresos.all():
+		pendiente -= ingreso.monto
+	return pendiente
+
 

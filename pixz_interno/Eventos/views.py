@@ -3160,6 +3160,16 @@ def to_excel(request):
 	df_contactos = pandas.DataFrame(data=contactos_matrix, index=contactos_index, columns=["Nombre", "Cliente", "Teléfono", "Mail"])
 	df_contactos.to_excel(writer, "Contactos")
 
+	errores = Errores.objects.all()
+	errores_matrix = []
+	errores_index = []
+	for error in errores:
+		errores_index.append(error.idError)
+		errores_matrix.append([" - " if error.Evento==None else error.Evento.idEvento,
+									error.error])
+	df_contactos = pandas.DataFrame(data=errores_matrix, index=errores_index, columns=["Evento", "Error"])
+	df_contactos.to_excel(writer, "Errores técnicos")
+
 	writer.save()
 
 	if os.path.exists(path):

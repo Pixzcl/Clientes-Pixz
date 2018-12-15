@@ -216,7 +216,7 @@
 								{% else %}
 									<a href="#" onclick="orden('-monto');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
-								<br>Monto
+								<br>Monto Total
 							</th>
 							<th>
 								{% if orden == "montoIVA" %}
@@ -229,7 +229,20 @@
 								{% else %}
 									<a href="#" onclick="orden('-montoIVA');" ><i class="fa fa-long-arrow-down" ></i></a>
 								{% endif %}
-								<br>Monto + IVA
+								<br>Monto Total + IVA
+							</th>
+							<th>
+								{% if orden == "pendiente" %}
+									<i class="fa fa-long-arrow-up" style="color:black" ></i>
+								{% else %}
+									<!--<a href="#" onclick="orden('pendiente');" ><i class="fa fa-long-arrow-up" ></i></a>-->
+								{% endif %}
+								{% if orden == "-pendiente" %}
+									<i class="fa fa-long-arrow-down" style="color:black" ></i>
+								{% else %}
+									<!--<a href="#" onclick="orden('-pendiente');" ><i class="fa fa-long-arrow-down" ></i></a>-->
+								{% endif %}
+								<br>Pendiente + IVA
 							</th>
 							<th>
 								{% if orden == "fecha_pago" %}
@@ -265,6 +278,7 @@
 									<td>{{factura.fecha_facturacion}}</td>
 									<td>${{factura.monto}}</td>
 									<td>${{factura.montoIVA}}</td>
+									<td>${{factura|factura_total_pendiente}}</td>
 									<td {% if factura.pagada == True %} bgcolor="#28a745" {% elif factura|factura_atrasada == True %} bgcolor="red" {% else %} bgcolor="#fd7e14" {% endif %} >
 										<b>
 										{% if factura.fecha_pago == None %}
