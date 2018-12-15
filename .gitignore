@@ -1,6 +1,6 @@
 virtual/
 staticfiles/
-media/
+
 
 *.sqlite3
 *.pyc
