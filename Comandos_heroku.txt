@@ -4,7 +4,7 @@ Git:
 	
 	git add [file or directory]
 	git add -A (Todo)  -- git reset
-	git commit -m "first commit"
+	git commit -m "first commit" -- git commit --amend
 	git push -u origin master
 git push heroku master
 git subtree push --prefix pixz_interno heroku master   ##  (subir solo subcarpeta del repositorio)
