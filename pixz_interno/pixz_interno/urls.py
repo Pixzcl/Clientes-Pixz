@@ -111,6 +111,8 @@ urlpatterns = [
 	url(r'^editar_tipo_costo_variable/', views.editar_tipo_costo_variable, name='editar_tipo_costo_variable'),
 	url(r'^eliminar_tipo_costo_variable/', views.eliminar_tipo_costo_variable, name='eliminar_tipo_costo_variable'),
 
+	url(r'^to_excel/', views.to_excel, name='to_excel'),
+
 ]
 
 if settings.DEBUG:

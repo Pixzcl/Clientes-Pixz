@@ -27,8 +27,6 @@ from django.contrib.auth import update_session_auth_hash
 #    logout(request)
 	# Redirect to a success page.
 
-
-
 def is_admin(user):
 	permisos = ["admin"]
 	return user.TipoUsuario.tipo in permisos
@@ -40,43 +38,6 @@ def is_admin_or_staff(user):
 def is_admin_or_staff_or_freelance(user):
 	permisos = ["admin", "staff", "freelance"]
 	return user.TipoUsuario.tipo in permisos
-
-@login_required
-@user_passes_test(is_admin, login_url="/no_autorizado/")
-def editar_password(request):
-	edit = ""
-	mensaje_error = ""
-	if request.method == 'POST':
-		password = request.POST["password"]
-		confirm_password = request.POST["confirm_password"]
-		form = editarPasswordForm(request.POST, request.FILES)
-		if form.is_valid() and password == confirm_password:
-			usuario = auth.models.User.objects.get(username=request.POST["username"])
-			usuario.set_password(password)
-			usuario.save()
-			update_session_auth_hash(request, usuario)
-
-			return custom_redirect('editar_password', edit="success")
-		else:
-			mensaje_error = "Contraseñas no coinciden, inténtalo de nuevo."
-	
-	else:
-		try:
-			edit = request.GET["edit"]
-		except:
-			pass
-		form = editarPasswordForm()
-	context = {
-		"editar_password_form": form,
-		"edit": edit,
-		"mensaje_error": mensaje_error,
-	}
-	return render(request, 'editar_password.html', context)
-
-
-
-
-
 
 
 
@@ -1829,8 +1790,8 @@ def itinerario_crear(request):
 	return render(request, 'itinerario_crear.html', context)
 
 
-@login_required
-@user_passes_test(is_admin_or_staff_or_freelance, login_url="/no_autorizado/")
+#@login_required
+#@user_passes_test(is_admin_or_staff_or_freelance, login_url="/no_autorizado/")
 def itinerario(request):
 	eventos = ""
 	errores_info = []
@@ -3028,5 +2989,182 @@ def custom_redirect(url_name, *args, **kwargs):
 	params = urlencode(kwargs)
 	return HttpResponseRedirect(url + "?%s" % params)
 
+
+
+
+
+
+@login_required
+@user_passes_test(is_admin, login_url="/no_autorizado/")
+def editar_password(request):
+	edit = ""
+	mensaje_error = ""
+	if request.method == 'POST':
+		password = request.POST["password"]
+		confirm_password = request.POST["confirm_password"]
+		form = editarPasswordForm(request.POST, request.FILES)
+		if form.is_valid() and password == confirm_password:
+			usuario = auth.models.User.objects.get(username=request.POST["username"])
+			usuario.set_password(password)
+			usuario.save()
+			update_session_auth_hash(request, usuario)
+
+			return custom_redirect('editar_password', edit="success")
+		else:
+			mensaje_error = "Contraseñas no coinciden, inténtalo de nuevo."
+	
+	else:
+		try:
+			edit = request.GET["edit"]
+		except:
+			pass
+		form = editarPasswordForm()
+	context = {
+		"editar_password_form": form,
+		"edit": edit,
+		"mensaje_error": mensaje_error,
+	}
+	return render(request, 'editar_password.html', context)
+
 def no_autorizado(request):
 	return render(request, 'no_autorizado.html')
+
+
+import pandas
+import openpyxl
+#import django_pandas
+@login_required
+@user_passes_test(is_admin, login_url="/no_autorizado/")
+def to_excel(request):
+	filename = 'Resumen.xlsx'
+	path = os.path.join(settings.MEDIA_ROOT, filename)
+	writer = pandas.ExcelWriter(path)
+
+	clientes = Clientes.objects.all()
+	clientes_matrix = []
+	clientes_index = []
+	for cliente in clientes:
+		clientes_index.append(cliente.idCliente)
+		clientes_matrix.append([cliente.nombre, 
+								cliente.direccion])
+	df_clientes = pandas.DataFrame(data=clientes_matrix, index=clientes_index, columns=["Nombre", "Dirección"])
+	df_clientes.to_excel(writer, "Clientes")
+
+	activaciones = Activaciones.objects.all()
+	activaciones_matrix = []
+	activaciones_index = []
+	for activacion in activaciones:
+		facturas = []
+		pagadas = []
+		pendientes = []
+		for factura in activacion.Facturas.all():
+			facturas.append(str(factura.nFactura))
+			if factura.pagada():
+				pagadas.append(str(factura.nFactura))
+			else:
+				pendientes.append(str(factura.nFactura))
+
+		activaciones_index.append(activacion.idActivacion)
+		activaciones_matrix.append([activacion.Cliente.nombre,
+									activacion.nombre, 
+									activacion.tipo, 
+									activacion.monto, 
+									activacion.montoIVA, 
+									" ".join(facturas), 
+									" ".join(pagadas), 
+									" ".join(pendientes), 
+									activacion.descripcion])
+	df_activaciones = pandas.DataFrame(data=activaciones_matrix, index=activaciones_index, columns=["Cliente", "Activación", "Tipo", "Monto", "Monto + IVA", "Facturas", "Pagadas", "Pendientes", "Descripción"])
+	df_activaciones.to_excel(writer, "Activaciones")
+
+	eventos = Eventos.objects.all()
+	eventos_matrix = []
+	eventos_index = []
+	for evento in eventos:
+		eventos_index.append(evento.idEvento)
+		eventos_matrix.append([evento.estado,
+									evento.Activacion.Cliente.nombre, 
+									evento.Activacion.nombre,
+									evento.nombre,
+									evento.fecha.strftime('%d/%m/%Y'),
+									evento.horas,
+									" / ".join([(str(planEvento.cantidad) + " " + planEvento.Plan.nombre) for planEvento in evento.PlanesEvento.all()]), 
+									evento.comentarios])
+	df_eventos = pandas.DataFrame(data=eventos_matrix, index=eventos_index, columns=["Estado", "Cliente", "Activación", "Evento", "Fecha", "Horas", "Planes", "Comentarios"])
+	df_eventos.to_excel(writer, "Eventos")
+
+	facturas = Facturas.objects.all()
+	facturas_matrix = []
+	facturas_index = []
+	for factura in facturas:
+		facturas_index.append(factura.nFactura)
+		facturas_matrix.append([factura.nFactura,
+								" - " if factura.Activacion==None else " - " if factura.Activacion.Cliente==None else factura.Activacion.Cliente.nombre,
+								" - " if factura.Activacion==None else factura.Activacion.nombre,
+								factura.fecha_facturacion.strftime('%d/%m/%Y'),
+								factura.monto,
+								factura.montoIVA,
+								factura.fecha_pago.strftime('%d/%m/%Y')])
+	df_facturas = pandas.DataFrame(data=facturas_matrix, index=facturas_index, columns=["N° de Factura", "Cliente", "Activación", "Fecha de facturación", "Monto", "Monto + IVA", "Fecha de pago"])
+	df_facturas.to_excel(writer, "Facturas")
+
+	ingresos = Ingresos.objects.all().order_by("-idIngreso")
+	ingresos_matrix = []
+	ingresos_index = []
+	for ingreso in ingresos:
+		ingresos_index.append(ingreso.idIngreso)
+		ingresos_matrix.append([" - " if ingreso.Factura==None else ingreso.Factura.nFactura,
+								" - " if ingreso.Activacion==None else " - " if ingreso.Activacion.Cliente==None else ingreso.Activacion.Cliente.nombre,
+								" - " if ingreso.Activacion==None else ingreso.Activacion.nombre,
+								ingreso.fecha.strftime('%d/%m/%Y'),
+								ingreso.monto,
+								ingreso.comentarios])
+	df_ingresos = pandas.DataFrame(data=ingresos_matrix, index=ingresos_index, columns=["N° de Factura", "Cliente", "Activación", "Fecha", "Monto", "Comentarios"])
+	df_ingresos.to_excel(writer, "Ingresos")
+
+	costos_variables = CostosVariables.objects.all().order_by("-idCostoVariable")
+	costos_variables_matrix = []
+	costos_variables_index = []
+	for costo_variable in costos_variables:
+		costos_variables_index.append(costo_variable.idCostoVariable)
+		costos_variables_matrix.append([costo_variable.documento,
+								" - " if costo_variable.Tipo==None else costo_variable.Tipo.nombre,
+								costo_variable.monto,
+								" - " if costo_variable.Evento==None else costo_variable.Evento.nombre,
+								costo_variable.fecha.strftime('%d/%m/%Y'),
+								costo_variable.comentarios])
+	df_costos_variables = pandas.DataFrame(data=costos_variables_matrix, index=costos_variables_index, columns=["Documento", "Tipo", "Monto", "Evento", "Fecha", "Comentarios"])
+	df_costos_variables.to_excel(writer, "Costos Variables")
+
+	trabajadores = Trabajadores.objects.all().order_by("idTrabajador")
+	trabajadores_matrix = []
+	trabajadores_index = []
+	for trabajador in trabajadores:
+		trabajadores_index.append(trabajador.idTrabajador)
+		trabajadores_matrix.append([trabajador.nombre,
+									trabajador.rut,
+									trabajador.telefono,
+									trabajador.mail])
+	df_trabajadores = pandas.DataFrame(data=trabajadores_matrix, index=trabajadores_index, columns=["Nombre", "RUT", "Teléfono", "Mail"])
+	df_trabajadores.to_excel(writer, "Trabajadores")
+
+	contactos = Contactos.objects.all().order_by("idContacto")
+	contactos_matrix = []
+	contactos_index = []
+	for contacto in contactos:
+		contactos_index.append(contacto.idContacto)
+		contactos_matrix.append([contacto.nombre,
+									" - " if contacto.Cliente==None else contacto.Cliente.nombre,
+									contacto.telefono,
+									contacto.mail])
+	df_contactos = pandas.DataFrame(data=contactos_matrix, index=contactos_index, columns=["Nombre", "Cliente", "Teléfono", "Mail"])
+	df_contactos.to_excel(writer, "Contactos")
+
+	writer.save()
+
+	if os.path.exists(path):
+		excel = open(path, "rb")
+		data = excel.read()
+		response = HttpResponse(data, content_type="application/vnd.ms-excel")
+		response['Content-Disposition'] = 'attachment; filename=' + filename
+		return response
