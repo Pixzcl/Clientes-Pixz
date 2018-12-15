@@ -45,10 +45,9 @@ logo pixz más pequeño para que calze con celular
 			n° facturas al lado del monto en Activaciones
 4:10 hrs	Login/Logout/permisos para los 3 perfiles
 4:50 hrs	boton logout, ventana login bonita, cambiar contraseñas, otras mejoras implementacion
-
-
-
-en Facturas el monto total pendiente no está considerando los adelantos que pasan directo
+2:30 hrs	Excel		
+0:15 hrs	Facturas el monto total pendiente no está considerando los adelantos que pasan directo
+			Facturas monto total de activaciones con facturas vencidas
 
 
 

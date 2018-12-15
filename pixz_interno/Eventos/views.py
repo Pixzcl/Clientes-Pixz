@@ -1583,9 +1583,14 @@ class facturas(LoginRequiredMixin, UserPassesTestMixin, ListView):
 			filtrado += factura.montoIVA
 		context["filtrado"] = filtrado
 		pendiente = 0
+		vencidas = 0
 		for factura in pendientes:
 			pendiente += factura.montoIVA
+			if hoy > factura.fecha_pago:
+				vencidas += factura.montoIVA
 		context["pendientes"] = pendiente
+		context["vencidas"] = vencidas
+
 
 		return context
 
