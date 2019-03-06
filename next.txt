@@ -24,9 +24,9 @@ Freelance
 Comentario de pago con boton en la misma columna
 
 Activaciones:
-	D Monto total Pendientes.
-	D Monto total Vencidas.
-	D Monto total Por Vencer.
+	DONE Monto total Por Cobrar.
+	DONE Monto total Vencidas.
+	DONE Monto total Por Vencer.
 	Monto pagado del mes. / monto esperado tambien?
 	Comentario de pago.
 
