@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib import auth
 
+from datetime import date, timedelta
+
 #from django.contrib.auth.models import AbstractUser
 #class User(AbstractUser):
 #	is_admin = models.BooleanField(default=False)
@@ -38,6 +40,58 @@ class Activaciones(models.Model):
 
 	class Meta:
 		ordering = ['-idActivacion']
+
+	@classmethod
+	def por_cobrar(self):
+		activaciones = self.objects.all()
+		por_cobrar = []
+		for a in activaciones:
+			monto_restante = a.montoIVA
+			if monto_restante == 0:
+				por_cobrar.append(a.idActivacion)
+			else:
+				ingresos = a.Ingresos.all()
+				for i in ingresos:
+					monto_restante -= i.monto
+				if monto_restante > 0:
+					por_cobrar.append(a.idActivacion)
+		return self.objects.filter(idActivacion__in=por_cobrar)
+
+	@classmethod
+	def vencidas(self):
+		por_cobrar = self.por_cobrar()
+		vencidas = []
+		hoy = date.today()
+		for p in por_cobrar:
+			if p.tipo == "Weddi":
+				for e in p.Eventos.all():
+					if hoy > (e.fecha - timedelta(days=7)):
+						vencidas.append(p.idActivacion)
+						break
+			else:
+				for f in p.Facturas.all():
+					if hoy > f.fecha_pago:
+						vencidas.append(p.idActivacion)
+						break
+		return self.objects.filter(idActivacion__in=vencidas)
+
+	@classmethod
+	def por_vencer(self):
+		por_cobrar = self.por_cobrar()
+		por_vencer = []
+		hoy = date.today()
+		for p in por_cobrar:
+			if p.tipo == "Weddi":
+				for e in p.Eventos.all():
+					if (((e.fecha - timedelta(days=7)) - hoy) <= timedelta(days=3)) and (((e.fecha - timedelta(days=7)) - hoy) >= timedelta(days=0)):
+						por_vencer.append(p.idActivacion)
+						break
+			else:
+				for f in p.Facturas.all():
+					if ((f.fecha_pago - hoy) <= timedelta(days=3)) and ((f.fecha_pago - hoy) >= timedelta(days=0)):
+						por_vencer.append(p.idActivacion)
+						break
+		return self.objects.filter(idActivacion__in=por_vencer)
 
 
 class Eventos(models.Model):
@@ -235,6 +289,7 @@ class Errores(models.Model):
 	idError = models.AutoField(primary_key=True, verbose_name="#")
 	Evento = models.ForeignKey("Eventos", verbose_name="Evento", related_name="Errores", on_delete=models.SET(None), blank=True, null=True)
 	error = models.TextField(verbose_name="Errores técnicos", blank=True, null=True, default="")
+	resuelto = models.BooleanField(verbose_name="Resuelto", default=False)
 
 	class Meta:
 		ordering = ['-idError']

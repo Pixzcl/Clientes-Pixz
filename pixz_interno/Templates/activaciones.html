@@ -95,12 +95,12 @@
 -->
 		<div class="content mt-3">
 			<div class="animated fadeIn">
-				<div class="row">
-					<div class="col-lg-4 col-md-6 col-sm-8">
+				<div class="row"> <!--success/primary/warning/danger -->
+					<!--<div class="col-lg-4 col-md-6 col-sm-8">
 						<div class="card">
 							<div class="card-body">
 								<div class="stat-widget-one">
-									<div class="stat-icon dib"><i class="ti-blackboard text-primary border-primary"></i></div> <!--success/primary/warning/danger   ti-layout-grid2 -->
+									<div class="stat-icon dib"><i class="ti-blackboard text-primary border-primary"></i></div>
 									<div class="stat-content dib">
 										<div class="stat-text">Activaciones filtradas</div>
 										<div class="stat-digit">{{filtradas}}</div>
@@ -108,7 +108,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div>-->
 					
 					<div class="col-lg-4 col-md-6 col-sm-8">
 						<div class="card">
@@ -131,7 +131,7 @@
 									<div class="stat-widget-one">
 										<div class="stat-icon dib"><i class="ti-money text-success border-success"></i></div> <!--success/primary/warning/danger -->
 										<div class="stat-content dib">
-											<div class="stat-text">Venta total</div>
+											<div class="stat-text">Venta cliente</div>
 											<div class="stat-digit">{{venta}}</div>
 										</div>
 									</div>
@@ -139,6 +139,48 @@
 							</div>
 						</div>
 					{% endif %}
+
+					<div class="col-lg-2 col-md-3 col-sm-4">
+						<div class="card">
+							<div class="card-body">
+								<div class="stat-widget-one">
+									<div class="stat-icon dib"><i class="ti-money text-primary border-primary"></i></div> <!--success/primary/warning/danger -->
+									<div class="stat-content dib">
+										<div class="stat-text">Por Cobrar</div>
+										<div class="stat-digit">{{por_cobrar}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-2 col-md-3 col-sm-4">
+						<div class="card">
+							<div class="card-body">
+								<div class="stat-widget-one">
+									<div class="stat-icon dib"><i class="ti-money text-warning border-warning"></i></div> <!--success/primary/warning/danger -->
+									<div class="stat-content dib">
+										<div class="stat-text">Por Vencer</div>
+										<div class="stat-digit">{{por_vencer}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-2 col-md-3 col-sm-4">
+						<div class="card">
+							<div class="card-body">
+								<div class="stat-widget-one">
+									<div class="stat-icon dib"><i class="ti-money text-danger border-danger"></i></div> <!--success/primary/warning/danger -->
+									<div class="stat-content dib">
+										<div class="stat-text">Vencido</div>
+										<div class="stat-digit">{{vencidas}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 					
 				</div>
 

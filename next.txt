@@ -21,33 +21,48 @@ Freelance
 
 
 
+Comentario de pago con boton en la misma columna
+
+Activaciones:
+	D Monto total Pendientes.
+	D Monto total Vencidas.
+	D Monto total Por Vencer.
+	Monto pagado del mes. / monto esperado tambien?
+	Comentario de pago.
+
+Inicio:
+	Errores técnicos con un ok al lado que lo borre. 0:15
+	Grafico ventas/mes por fecha facturacion y por pagados. Ver si tiene linea fija para metas.
+	Pie chart tipo evento. Por monto, con hover cantidad de eventos.
 
 
-DONE
-3 hrs		"evento": guardar mutiples eventos - para secciones específicas
-"inicio": 
-1 hr		progressbar
-2 hrs		calendario
 
-"eventos": columna estados al lado de evento
-"itinerario": camioncito de ida y vuelta
-"evento": descripcion de activacion y comentarios del evento solo aparecen si hay alguno
-unificar titulos izq y derecha / flujo agregar cliente -> activacion -> evento
-logo pixz más pequeño para que calze con celular
 
-40 min		"coordinacion": nuevo contacto popup
-6:40 hrs	facturación e ingresos
+DONE:
+3 hrs		"Evento": guardar mutiples eventos - para secciones específicas
+1 hr		"Inicio": progressbar
+2 hrs		"Inicio": calendario
+
+			"Eventos": columna estados al lado de evento
+			"Itinerario": camioncito de ida y vuelta
+			"Evento": descripcion de activacion y comentarios del evento solo aparecen si hay alguno
+			Unificar titulos izq y derecha / flujo agregar cliente -> activacion -> evento
+			Logo pixz más pequeño para que calze con celular
+
+40 min		"Coordinacion": nuevo contacto popup
+6:40 hrs	Facturación e Ingresos
 2 hrs		IVA
 3:40 hrs	Costos Variables
-3:50 hrs	filtro por fecha Costos Variables
+3:50 hrs	Filtro por fecha Costos Variables
 			Página Facturas con filtro, muestra historial de facturas y predeterminado en sólo CxC (no pagadas) - (agregar columna estado de pago)
-			arreglar conteo eventos totales
-			n° facturas al lado del monto en Activaciones
+			Arreglar conteo eventos totales
+			N° facturas al lado del monto en Activaciones
 4:10 hrs	Login/Logout/permisos para los 3 perfiles
-4:50 hrs	boton logout, ventana login bonita, cambiar contraseñas, otras mejoras implementacion
+4:50 hrs	Boton logout, ventana login bonita, cambiar contraseñas, Itinerario publico, otras mejoras implementacion
 2:30 hrs	Excel		
 0:15 hrs	Facturas el monto total pendiente no está considerando los adelantos que pasan directo
 			Facturas monto total de activaciones con facturas vencidas
+1:40 hrs	Activaciones: monto total por cobrar, por vencer, vencidas
 
 
 

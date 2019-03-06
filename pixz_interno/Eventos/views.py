@@ -244,10 +244,28 @@ def activaciones(request):
 	pendientes = []
 	venta = 0
 	for act in activaciones:
+		venta += act.montoIVA
 		if act.Eventos.filter(fecha__gte=date.today()).count() > 0:
 			pendientes.append(act)
-		for factura in act.Facturas.all():
-			venta += factura.monto
+
+	p1=Activaciones.por_cobrar()
+	monto_p1 = 0
+	for a in p1:
+		monto_p1 += a.montoIVA
+		for i in a.Ingresos.all():
+			monto_p1 -= i.monto
+	p2=Activaciones.por_vencer()
+	monto_p2 = 0
+	for a in p2:
+		monto_p2 += a.montoIVA
+		for i in a.Ingresos.all():
+			monto_p2 -= i.monto
+	p3=Activaciones.vencidas()
+	monto_p3 = 0
+	for a in p3:
+		monto_p3 += a.montoIVA
+		for i in a.Ingresos.all():
+			monto_p3 -= i.monto
 
 	context = {
 		"activaciones": activaciones,
@@ -261,6 +279,9 @@ def activaciones(request):
 		"idIngreso": idIngreso,
 		"nFactura": nFactura,
 		"mensaje_error": mensaje_error,
+		"por_cobrar": monto_p1,
+		"por_vencer": monto_p2,
+		"vencidas": monto_p3,
 	}
 	return render(request, 'activaciones.html', context)
 
@@ -3176,8 +3197,9 @@ def to_excel(request):
 	for error in errores:
 		errores_index.append(error.idError)
 		errores_matrix.append([" - " if error.Evento==None else error.Evento.idEvento,
-									error.error])
-	df_contactos = pandas.DataFrame(data=errores_matrix, index=errores_index, columns=["Evento", "Error"])
+									error.error,
+									"Si" if error.resuelto else "No"])
+	df_contactos = pandas.DataFrame(data=errores_matrix, index=errores_index, columns=["Evento", "Error", "Resuelto"])
 	df_contactos.to_excel(writer, "Errores técnicos")
 
 	writer.save()
