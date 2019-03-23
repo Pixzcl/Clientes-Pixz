@@ -63,7 +63,7 @@ DONE:
 0:15 hrs	Facturas el monto total pendiente no está considerando los adelantos que pasan directo
 			Facturas monto total de activaciones con facturas vencidas
 1:50 hrs	Activaciones: monto total por cobrar, por vencer, vencidas
-1:00 hr		Errores técnicos con un ok al lado que lo borre.
+1:20 hr		Errores técnicos con un ok al lado que lo borre.
 
 
 

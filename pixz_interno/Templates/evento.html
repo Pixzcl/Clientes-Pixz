@@ -913,8 +913,11 @@
 																					{% for error in evento.Errores.all %}
 																						<tr>
 																							<td>
-																								{% if error.resuelto %}<i class="ti-check text-success"></i>
-																								{% else %}<i class="ti-close text-danger"></i>{% endif %}
+																								{% if error.resuelto %}
+																									<a href="javascript:void(0)" onclick="no_resolver_error('{{error.idError}}', '{{error.Evento.idEvento}}', '{{error.error}}');" ><i class="ti-check text-success"></i></a>
+																								{% else %}
+																									<a href="javascript:void(0)" onclick="resolver_error('{{error.idError}}', '{{error.Evento.idEvento}}', '{{error.error}}');" ><i class="ti-close text-danger"></i></a>
+																								{% endif %}
 																								{{error.error}}
 																							</td>
 																						</tr>
@@ -1162,5 +1165,46 @@
 			</div>
 		</div>
 	{% endif %}
+
+
+	<button id="resolver_error" type="button" style="display:none" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#modal_resolver_error">Small</button>
+
+	<div class="modal fade" id="modal_resolver_error" tabindex="-1" role="dialog" aria-labelledby="modal_resolver_error" aria-hidden="true">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="h5_resolver_error" class="modal-title" ></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p id="p_resolver_error">
+						
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button id="boton_resolver_error" type="button" onclick="" class="btn btn-success" >Aceptar</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function resolver_error(id, evento, error) {
+			document.getElementById("p_resolver_error").innerHTML = "Resolver: " + error;
+			document.getElementById("h5_resolver_error").innerHTML = "Resolver error en el evento " + evento;
+			document.getElementById("boton_resolver_error").onclick = function(){location.href='{% url "resolver_error" %}?error=' + id +'&resuelto=true'};
+			document.getElementById("resolver_error").click();
+		}
+		function no_resolver_error(id, evento, error) {
+			document.getElementById("p_resolver_error").innerHTML = "CANCELAR resolución: " + error;
+			document.getElementById("h5_resolver_error").innerHTML = "CANCELAR resolución del error en el evento " + evento;
+			document.getElementById("boton_resolver_error").onclick = function(){location.href='{% url "resolver_error" %}?error=' + id +'&resuelto=false'};
+			document.getElementById("resolver_error").click();
+		}
+	</script>
 
 {% endblock %}

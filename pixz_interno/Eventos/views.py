@@ -3012,7 +3012,10 @@ def eliminar_tipo_costo_variable(request):
 @user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def resolver_error(request):
 	error = Errores.objects.get(idError=request.GET['error'])
-	error.resuelto = True
+	if request.GET['resuelto'] == 'true':
+		error.resuelto = True
+	elif request.GET['resuelto'] == 'false':
+		error.resuelto = False
 	error.save()
 	return redirect('index')
 
