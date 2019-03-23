@@ -31,7 +31,7 @@ Activaciones:
 	Comentario de pago.
 
 Inicio:
-	Errores técnicos con un ok al lado que lo borre. 0:15
+	DONE Errores técnicos con un ok al lado que lo borre.
 	Grafico ventas/mes por fecha facturacion y por pagados. Ver si tiene linea fija para metas.
 	Pie chart tipo evento. Por monto, con hover cantidad de eventos.
 
@@ -62,7 +62,8 @@ DONE:
 2:30 hrs	Excel		
 0:15 hrs	Facturas el monto total pendiente no está considerando los adelantos que pasan directo
 			Facturas monto total de activaciones con facturas vencidas
-1:40 hrs	Activaciones: monto total por cobrar, por vencer, vencidas
+1:50 hrs	Activaciones: monto total por cobrar, por vencer, vencidas
+1:00 hr		Errores técnicos con un ok al lado que lo borre.
 
 
 

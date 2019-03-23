@@ -100,6 +100,7 @@ urlpatterns = [
 	url(r'^itinerario/', views.itinerario, name='itinerario'),
 
 	url(r'^calendario/', views.calendario, name='calendario'),
+	url(r'^resolver_error/', views.resolver_error, name='resolver_error'),
 
 	url(r'^costos_variables/', views.costos_variables.as_view(), name='costos_variables'),
 	url(r'^agregar_costo_variable/', views.agregar_costo_variable, name='agregar_costo_variable'),

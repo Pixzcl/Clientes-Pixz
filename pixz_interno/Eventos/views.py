@@ -3008,6 +3008,15 @@ def eliminar_tipo_costo_variable(request):
 	return redirect('tipos_costo_variable')
 
 
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
+def resolver_error(request):
+	error = Errores.objects.get(idError=request.GET['error'])
+	error.resuelto = True
+	error.save()
+	return redirect('index')
+
+
 
 
 
