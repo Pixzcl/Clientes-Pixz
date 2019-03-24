@@ -323,19 +323,22 @@ class Facturas(models.Model):
 	def pagadas(self):
 		facturas = self.objects.all()
 		pagadas = []
+		total = 0
 		for f in facturas:
 			ingresos = f.Ingresos.all()
 			monto_restante = f.montoIVA
 			for i in ingresos:
 				monto_restante -= i.monto
+				total += i.monto
 			if monto_restante <= 0:
 				pagadas.append(f.nFactura)
-		return self.objects.filter(nFactura__in=pagadas)
+		return [self.objects.filter(nFactura__in=pagadas), total]
 
 	@classmethod
 	def pendientes(self):
 		facturas = self.objects.all()
 		pendientes = []
+		total = 0
 		for f in facturas:
 			ingresos = f.Ingresos.all()
 			monto_restante = f.montoIVA
@@ -343,7 +346,8 @@ class Facturas(models.Model):
 				monto_restante -= i.monto
 			if monto_restante > 0:
 				pendientes.append(f.nFactura)
-		return self.objects.filter(nFactura__in=pendientes)
+				total += monto_restante
+		return [self.objects.filter(nFactura__in=pendientes), total]
 
 
 class Ingresos(models.Model):

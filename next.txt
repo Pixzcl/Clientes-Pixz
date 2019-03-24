@@ -1,6 +1,8 @@
 heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 
-
+17:25
+barchart: solo facturaciones, weddi que fecha usar???
+PAGOS TRABAJADORES!!!???
 
 capacitacion trabajadores?
 datepicker
@@ -64,6 +66,8 @@ DONE:
 			Facturas monto total de activaciones con facturas vencidas
 1:50 hrs	Activaciones: monto total por cobrar, por vencer, vencidas
 1:20 hr		Errores técnicos con un ok al lado que lo borre.
+3:15 hrs	Grafico facturaciones mensuales
+2:00 hrs	Grafico ventas por tipos de evento
 
 
 

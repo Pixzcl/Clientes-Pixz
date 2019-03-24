@@ -28,6 +28,8 @@
 	<script src="{% static 'assets/js/plugins.js' %}"></script>
 	<script src="{% static 'assets/js/main.js' %}"></script>
 
+	<!-- Chart-js -->
+	<script src="{% static 'assets/js/lib/chart-js/Chart.bundle.js' %}"></script>
 
 
 	<!-- Aqui se coloca el resto de la pagina -->
@@ -56,21 +58,20 @@
 	</script>
 
 	
-	<!--  Chart js y Widgets -->
-    <script src="{% static 'assets/js/lib/chart-js/Chart.bundle.js' %}"></script>
-    <script src="{% static 'assets/js/widgets.js' %}"></script>
+	<!-- Widgets -->
+	<script src="{% static 'assets/js/widgets.js' %}"></script>
 
-    <!-- Forms Advanced -->
-    <script src="{% static 'assets/js/lib/chosen/chosen.jquery.min.js' %}"></script>
+	<!-- Forms Advanced -->
+	<script src="{% static 'assets/js/lib/chosen/chosen.jquery.min.js' %}"></script>
 	<script>
-        jQuery(document).ready(function() {
-            jQuery(".standardSelect").chosen({
-                disable_search_threshold: 10,
-                no_results_text: "Nada encontrado",
-                width: "100%"
-            });
-        });
-    </script>
+		jQuery(document).ready(function() {
+			jQuery(".standardSelect").chosen({
+				disable_search_threshold: 10,
+				no_results_text: "Nada encontrado",
+				width: "100%"
+			});
+		});
+	</script>
 	
 	
 

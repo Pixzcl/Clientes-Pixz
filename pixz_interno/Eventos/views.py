@@ -1,5 +1,6 @@
 import os, ast
 from datetime import date, timedelta, datetime
+from dateutil.relativedelta import relativedelta
 import ast
 from urllib.parse import urlencode
 
@@ -45,20 +46,26 @@ def is_admin_or_staff_or_freelance(user):
 @login_required
 @user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def index(request):
+
+	# Satisfaccion del cliente
 	eventos = Eventos.objects.all()
-	errores = Errores.objects.all()
 	satisfaccion = [eventos.filter(satisfaccion=5), eventos.filter(satisfaccion=4), eventos.filter(satisfaccion=3), eventos.filter(satisfaccion=2), eventos.filter(satisfaccion=1)]
 	evaluados = 0.0
 	for s in satisfaccion:
 		evaluados += s.count()
 
-	semanas1 = eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).order_by("fecha")
-	semanas2 = eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=2))
-	mes = eventos.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(days=30))
-	todos = eventos.filter(fecha__gte=date.today())
+	# Errores tecnicos
+	errores = Errores.objects.all()
+
+	#Eventos proximos
+	hoy = date.today()
+	eventos_semanas1 = eventos.filter(fecha__gte=hoy, fecha__lte=hoy+timedelta(weeks=1)).order_by("fecha")
+	eventos_semanas2 = eventos.filter(fecha__gte=hoy, fecha__lte=hoy+timedelta(weeks=2))
+	eventos_mes = eventos.filter(fecha__gte=hoy, fecha__lte=hoy+timedelta(days=30))
+	eventos_todos = eventos.filter(fecha__gte=hoy)
 
 	resumen7 = []
-	for ev in semanas1:
+	for ev in eventos_semanas1:
 		nombre = ev.Activacion.Cliente.nombre + " - " + ev.Activacion.nombre + " - " + ev.nombre
 
 		falta = []
@@ -89,17 +96,69 @@ def index(request):
 		resumen7.append([ev.fecha, nombre, int(round((3 - len(falta))/3.0*100, 0)), falta_str])
 
 
+	# Bar Chart: Facturacion mensual
+	nMeses = 6
+	mes = (hoy - relativedelta(months=nMeses)).replace(day=1)
+	facturacion_mensual_meses = [0]*nMeses
+	facturacion_mensual_data_facturado = [0]*nMeses
+	facturacion_mensual_data_pagado = [0]*nMeses
+
+	facturas = Facturas.objects.all()
+	facturas_pagadas = Facturas.pagadas()[0]
+	for i in range(nMeses):
+		mes = mes + relativedelta(months=1)
+		facturas_mes = facturas.filter(fecha_facturacion__gte=mes, fecha_facturacion__lt=mes+relativedelta(months=1))
+
+		data_facturado = 0
+		data_pagado = 0
+		for factura in facturas_mes:
+			data_facturado += factura.montoIVA
+			for ingreso in factura.Ingresos.all():
+				data_pagado += ingreso.monto
+
+		facturacion_mensual_meses[i] = mes #mes.strftime("%B")
+		facturacion_mensual_data_facturado[i] = data_facturado
+		facturacion_mensual_data_pagado[i] = data_pagado
+
+
+	# Pie Chart: Ventas por tipo de evento: Total
+	activaciones = Activaciones.objects.all()
+	tipos_evento = ["Pixz", "Weddi", "Producción", "Tech"]
+	monto_tipos_total = [0]*len(tipos_evento)
+	i = 0
+	for tipo in tipos_evento:
+		for activacion in activaciones.filter(tipo=tipo):
+			monto_tipos_total[i] += activacion.montoIVA
+		i+=1
+
+	# Pie Chart: Ventas por tipo de evento: Anual
+	monto_tipos_meses = [0]*len(tipos_evento)
+	i = 0
+	for tipo in tipos_evento:
+		for activacion in activaciones.filter(tipo=tipo):
+			for factura in activacion.Facturas.filter(fecha_facturacion__gte=hoy.replace(day=1)-relativedelta(months=nMeses)):
+				monto_tipos_meses[i] += factura.montoIVA
+		i+=1
+
+
+
 	context = {
 		"errores": errores,
 		"resumen7": resumen7,
-		"semanas2": semanas2.count(),
-		"mes": mes.count(),
-		"todos": todos.count(),
+		"eventos_semanas2": eventos_semanas2.count(),
+		"eventos_mes": eventos_mes.count(),
+		"eventos_todos": eventos_todos.count(),
 		"s5": satisfaccion[0].count(),
 		"s4": satisfaccion[1].count(),
 		"s3": satisfaccion[2].count(),
 		"s2": satisfaccion[3].count(),
 		"s1": satisfaccion[4].count(),
+		#"facturacion_mensual_meses": facturacion_mensual_meses,
+		"facturacion_mensual_data_facturado": facturacion_mensual_data_facturado,
+		"facturacion_mensual_data_pagado": facturacion_mensual_data_pagado,
+		"tipos_evento": tipos_evento,
+		"monto_tipos_total": monto_tipos_total,
+		"monto_tipos_meses": monto_tipos_meses,
 	}
 	if evaluados == 0:
 		context["sp5"] = 0
@@ -114,14 +173,24 @@ def index(request):
 		context["sp2"] = "%.1f" % (float(satisfaccion[3].count())/evaluados * 100)
 		context["sp1"] = "%.1f" % (float(satisfaccion[4].count())/evaluados * 100)
 
+	i=1
+	for m in facturacion_mensual_meses:
+		context["mes" + str(i)] = m
+		i+=1
+
+	#i=1
+	#for t in tipos_evento:
+	#	context["tipo" + str(i)] = t
+	#	i+=1
+
 	return render(request, 'index.html', context)
 
 
 @login_required
 @user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
 def calendario(request):
-	eventos = Eventos.objects.filter(fecha__gte=date.today(), fecha__lte=date.today()+timedelta(weeks=1)).order_by("fecha")
 	hoy = date.today()
+	eventos = Eventos.objects.filter(fecha__gte=hoy, fecha__lte=hoy+timedelta(weeks=1)).order_by("fecha")
 	calendario = []
 	cantidad = 0
 	for i in range(8):
@@ -1518,8 +1587,6 @@ def facturas_OLD(request):
 	facturas = Facturas.objects.all()
 	
 	f=facturas.get(nFactura=4)
-	print(f.pagada())
-	print(Facturas.pendientes())
 	
 	context = {
 		"facturas": facturas,
@@ -1545,7 +1612,7 @@ class facturas(LoginRequiredMixin, UserPassesTestMixin, ListView):
 		context = super().get_context_data(**kwargs)
 		
 		hoy = date.today()
-		pendientes = Facturas.pendientes()
+		pendientes = Facturas.pendientes()[0]
 		
 		orden = self.request.GET.get("orden", "fecha_pago")
 		estado = self.request.GET.get("estado", "pendientes")
@@ -1563,7 +1630,7 @@ class facturas(LoginRequiredMixin, UserPassesTestMixin, ListView):
 		if estado == "pendientes":
 			facturas = pendientes
 		elif estado == "pagadas":
-			facturas = Facturas.pagadas()
+			facturas = Facturas.pagadas()[0]
 		else:
 			facturas = Facturas.objects.all()
 
