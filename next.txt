@@ -1,11 +1,10 @@
 heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 
-17:25
 barchart: solo facturaciones, weddi que fecha usar???
+https://stackoverflow.com/questions/1737017/django-auto-now-and-auto-now-add/1737078#1737078
 PAGOS TRABAJADORES!!!???
 
 capacitacion trabajadores?
-datepicker
 
 ---
 

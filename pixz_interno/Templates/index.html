@@ -379,9 +379,19 @@
 					scales: {
 						yAxes: [ {
 							ticks: {
-								beginAtZero: true
+								beginAtZero: true,
+								callback: function(value, index, values) {
+									return "$" + value.toLocaleString();
+								}
 							}
-										} ]
+						} ]
+					},
+					tooltips: {
+						callbacks: {
+							label: function(tooltipItem, data) {
+								return data.datasets[tooltipItem.datasetIndex].label + ": $" + tooltipItem.yLabel.toLocaleString();
+							}
+						}
 					},
 				}
 			} );
@@ -418,6 +428,13 @@
 						fontSize: 16,
 						text: 'Históricas',
 					},
+					tooltips: {
+						callbacks: {
+							label: function(tooltipItem, data) {
+								return data.labels[tooltipItem.index] + ": $" + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toLocaleString();
+							}
+						}
+					},
 				}
 			} );
 
@@ -451,6 +468,13 @@
 						fontColor: "black",
 						fontSize: 16,
 						text: 'Últimos 6 meses',
+					},
+					tooltips: {
+						callbacks: {
+							label: function(tooltipItem, data) {
+								return data.labels[tooltipItem.index] + ": $" + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toLocaleString();
+							}
+						}
 					},
 				}
 			} );
