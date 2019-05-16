@@ -106,6 +106,10 @@
 						</ul>
 					</li>
 
+					<li class="{% block metas-li %}{% endblock %}" >
+						<a href="{% url 'metas' %}"> <i class="menu-icon ti-stats-up"></i>Fijar metas</a>
+					</li>
+
 					<h3 class="menu-title">Usuario {{user.username}}</h3>
 					{% if user.TipoUsuario.tipo == "admin" %}
 						<li class="{% block editarPassword-li %}{% endblock %}">

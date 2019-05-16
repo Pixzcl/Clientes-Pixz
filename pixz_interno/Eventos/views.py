@@ -61,7 +61,7 @@ def index(request):
 	hoy = date.today()
 	eventos_semanas1 = eventos.filter(fecha__gte=hoy, fecha__lte=hoy+timedelta(weeks=1)).order_by("fecha")
 	eventos_semanas2 = eventos.filter(fecha__gte=hoy, fecha__lte=hoy+timedelta(weeks=2))
-	eventos_mes = eventos.filter(fecha__gte=hoy, fecha__lte=hoy+timedelta(days=30))
+	eventos_mes = eventos.filter(fecha__gte=hoy, fecha__lte=hoy+relativedelta(months=1))
 	eventos_todos = eventos.filter(fecha__gte=hoy)
 
 	resumen7 = []
@@ -102,9 +102,14 @@ def index(request):
 	facturacion_mensual_meses = [0]*nMeses
 	facturacion_mensual_data_facturado = [0]*nMeses
 	facturacion_mensual_data_pagado = [0]*nMeses
+	facturacion_mensual_metas = [0]*nMeses
 
 	facturas = Facturas.objects.all()
 	facturas_pagadas = Facturas.pagadas()[0]
+	metas = Metas.objects.filter(mes__gt=hoy - relativedelta(months=nMeses)).reverse()
+	#if len(metas) < nMeses:
+	#	metas = metas.reverse()
+
 	for i in range(nMeses):
 		mes = mes + relativedelta(months=1)
 		facturas_mes = facturas.filter(fecha_facturacion__gte=mes, fecha_facturacion__lt=mes+relativedelta(months=1))
@@ -119,6 +124,8 @@ def index(request):
 		facturacion_mensual_meses[i] = mes #mes.strftime("%B")
 		facturacion_mensual_data_facturado[i] = data_facturado
 		facturacion_mensual_data_pagado[i] = data_pagado
+		if len(metas) > i:
+			facturacion_mensual_metas[i] = metas[i].meta
 
 
 	# Pie Chart: Ventas por tipo de evento: Total
@@ -156,6 +163,7 @@ def index(request):
 		#"facturacion_mensual_meses": facturacion_mensual_meses,
 		"facturacion_mensual_data_facturado": facturacion_mensual_data_facturado,
 		"facturacion_mensual_data_pagado": facturacion_mensual_data_pagado,
+		"facturacion_mensual_metas": facturacion_mensual_metas,
 		"tipos_evento": tipos_evento,
 		"monto_tipos_total": monto_tipos_total,
 		"monto_tipos_meses": monto_tipos_meses,
@@ -2131,6 +2139,65 @@ def agregar_tipo_costo_variable(request):
 	return render(request, 'agregar_tipo_costo_variable.html', context)
 
 
+class metas(LoginRequiredMixin, UserPassesTestMixin, ListView):
+	def test_func(self):
+		return is_admin_or_staff(self.request.user)
+	def get_login_url(self):
+		if not self.request.user.is_authenticated:
+			return super(costos_variables, self).get_login_url()
+
+	model = Metas
+	context_object_name = "metas"
+	template_name = "metas.html"
+	#paginate_by = 100  # if pagination is desired
+
+	def post(self, request, *args, **kwargs):
+		metas = Metas.objects.all()
+		agregar_o_quitar_meses = self.request.POST['agregar_o_quitar_meses']
+		if agregar_o_quitar_meses == "agregar":
+			if len(metas) == 0:
+				Metas(mes=(date.today().replace(day=1) - relativedelta(months=5))).save()
+			else:
+				Metas(mes=(metas[0].mes + relativedelta(months=1))).save()
+		elif agregar_o_quitar_meses == "quitar":
+			metas[0].delete()
+		else:
+			for i in range(len(metas)):
+				meta = int(self.request.POST['meta_%d' % i])
+				if meta != metas[i].meta:
+					metas[i].meta = meta
+					metas[i].save()
+
+		return redirect('metas')
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		metas = Metas.objects.all()
+		
+		form = metasForm()
+
+		context["metas"] = metas
+		context["metas_form"] = form
+
+		return context
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2943,6 +3010,23 @@ def editar_tipo_costo_variable(request):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ################################################################ Eliminar ##################################################################
 ################################################################ Eliminar ##################################################################
 
@@ -3075,16 +3159,6 @@ def eliminar_tipo_costo_variable(request):
 	return redirect('tipos_costo_variable')
 
 
-@login_required
-@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
-def resolver_error(request):
-	error = Errores.objects.get(idError=request.GET['error'])
-	if request.GET['resuelto'] == 'true':
-		error.resuelto = True
-	elif request.GET['resuelto'] == 'false':
-		error.resuelto = False
-	error.save()
-	return redirect('index')
 
 
 
@@ -3092,16 +3166,31 @@ def resolver_error(request):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################################ Otros ##################################################################
+################################################################ Otros ##################################################################
 
 
 def custom_redirect(url_name, *args, **kwargs):
 	url = reverse(url_name, args=args)
 	params = urlencode(kwargs)
 	return HttpResponseRedirect(url + "?%s" % params)
-
-
-
-
 
 
 @login_required
@@ -3289,3 +3378,16 @@ def to_excel(request):
 		response = HttpResponse(data, content_type="application/vnd.ms-excel")
 		response['Content-Disposition'] = 'attachment; filename=' + filename
 		return response
+
+
+@login_required
+@user_passes_test(is_admin_or_staff, login_url="/no_autorizado/")
+def resolver_error(request):
+	error = Errores.objects.get(idError=request.GET['error'])
+	if request.GET['resuelto'] == 'true':
+		error.resuelto = True
+	elif request.GET['resuelto'] == 'false':
+		error.resuelto = False
+	error.save()
+	return redirect('index')
+

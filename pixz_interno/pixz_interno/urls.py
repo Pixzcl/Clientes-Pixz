@@ -114,6 +114,8 @@ urlpatterns = [
 
 	url(r'^to_excel/', views.to_excel, name='to_excel'),
 
+	url(r'^metas/', views.metas.as_view(), name='metas'),
+
 ]
 
 if settings.DEBUG:

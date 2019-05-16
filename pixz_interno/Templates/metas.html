@@ -1,0 +1,106 @@
+{% extends "Base/base.html" %}
+{% load staticfiles %}
+{% load filtros %}
+
+<!-- Activo en el menu: -->
+{% block metas-li %} active {% endblock %}
+{% block titulo %}Fijar metas{% endblock %}
+
+{% block content %}
+	<!-- Right Panel -->
+	<div id="right-panel" class="right-panel">
+
+		<header id="header" class="header">
+			<div class="header-menu">
+
+				<div class="col-12">
+					<a id="menuToggle" class="menutoggle pull-left"><i class="fa fa fa-tasks"></i></a>
+					<div class="header-left">
+
+						<div class="page-header float-left">
+							<div class="page-title">
+								<h1>Metas</h1>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<div class="content mt-3">
+			<div class="animated fadeIn">
+
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card">
+							<div class="card-header">
+								<strong class="card-title">Metas</strong>
+							</div>
+							<div class="card-body">
+
+								<form id="form" method="post" enctype="multipart/form-data">
+									{% csrf_token %}
+									<input type="hidden" name="agregar_o_quitar_meses" id="agregar_o_quitar_meses" value="none" />
+
+									<div class="row">
+										<div class="card-body">
+											<button type="submit" class="btn btn-success" ><i class="ti-save"></i>&nbsp; Guardar</button>
+											<button type="button" class="btn btn-outline-success" onclick="agregar_o_quitar('agregar')"><i class="fa fa-plus-circle"></i>&nbsp; Nuevo mes</button>
+											<button type="button" class="btn btn-outline-primary" onclick="agregar_o_quitar('quitar')"><i class="ti-pencil-alt"></i>&nbsp; Quitar mes</button>
+										</div>
+									</div>
+
+										
+							
+									<table class="table table-striped table-bordered">
+										<thead>
+										  <tr>
+											<th>Mes</th>
+											<th>Meta</th>
+										  </tr>
+										</thead>
+										<tbody>
+											{% for meta, meta_field in metas|zip:metas_form %}
+												<tr>
+													<th scope="row" id="td_{{meta.mes|date:'F Y'}}" >
+														{{meta.mes|date:"F Y"}}
+													</th>
+													
+													<td>{{meta_field}}</td>
+												</tr>
+											{% empty %}
+												<tr>
+													<td align="center" colspan=7 >No hay metas registradas.</td>
+												</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+
+								</form>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				
+
+			</div><!-- .animated -->
+		</div><!-- .content -->
+
+
+	</div><!-- /#right-panel -->
+
+	<!-- Right Panel -->
+
+
+	<script >
+		function agregar_o_quitar(m) {
+			document.getElementById('agregar_o_quitar_meses').value = m;
+			document.getElementById('form').submit();
+		}
+	</script>
+
+
+{% endblock %}

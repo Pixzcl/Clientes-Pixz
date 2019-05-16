@@ -1,8 +1,8 @@
-heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
+﻿heroku y github: que los agreguen como colaboradores, no les den la cuenta pixz!
 
 barchart: solo facturaciones, weddi que fecha usar???
 https://stackoverflow.com/questions/1737017/django-auto-now-and-auto-now-add/1737078#1737078
-PAGOS TRABAJADORES!!!???
+PAGOS TRABAJADORES
 
 capacitacion trabajadores?
 
@@ -33,8 +33,8 @@ Activaciones:
 
 Inicio:
 	DONE Errores técnicos con un ok al lado que lo borre.
-	Grafico ventas/mes por fecha facturacion y por pagados. Ver si tiene linea fija para metas.
-	Pie chart tipo evento. Por monto, con hover cantidad de eventos.
+	DONE Grafico ventas/mes por fecha facturacion y por pagados. Ver si tiene linea fija para metas.
+	DONE Pie chart tipo evento. Por monto, con hover cantidad de eventos.
 
 
 

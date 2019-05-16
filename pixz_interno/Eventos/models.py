@@ -375,3 +375,11 @@ class TiposCostoVariable(models.Model):
 	nombre = models.CharField(unique=True, max_length=255, verbose_name="Nombre", blank=False, null=False, error_messages={"unique":"Ya existe un costo variable con este nombre."})
 	class Meta:
 		ordering = ['nombre']
+
+
+class Metas(models.Model):
+	idMeta = models.AutoField(primary_key=True, verbose_name="#")
+	mes = models.DateField(unique=True, verbose_name="Mes", blank=False, null=False, error_messages={"unique":"Ya existe una meta para este mes."})
+	meta = models.PositiveIntegerField(verbose_name="Meta", blank=False, null=False, default=0)
+	class Meta:
+		ordering = ['-mes']

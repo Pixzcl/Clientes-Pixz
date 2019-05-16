@@ -464,3 +464,16 @@ class editarPasswordForm(forms.Form):
 	username = forms.CharField(required=True, max_length=255, label="Usuario", widget=forms.Select(choices=choices, attrs={'class': "standardSelect"}))
 	password = forms.CharField(required=True, max_length=255, label="Contraseña", widget=forms.PasswordInput(attrs={'class': "form-control"}))
 	confirm_password = forms.CharField(required=True, max_length=255, label="Confirmar Contraseña", widget=forms.PasswordInput(attrs={'class': "form-control"}))
+
+
+class metasForm(forms.Form):
+	
+	def __init__(self, *args, **kwargs):
+		super(metasForm, self).__init__(*args, **kwargs)
+
+		metas = Metas.objects.all()
+		i = 0
+		for meta in metas:
+			# [meta_%xx % meta.mes]
+			self.fields['meta_%d' % i] = forms.IntegerField(required=True, min_value=0, initial=meta.meta, label="Meta", widget=forms.NumberInput(attrs={'class': "form-control"}))
+			i += 1
